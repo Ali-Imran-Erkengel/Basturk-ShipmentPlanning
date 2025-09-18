@@ -64,4 +64,16 @@ export const navigation = [
       }
     ]
   },
+  {
+    text: 'Terminal Ekranları',
+    icon: 'datatrending',
+    visible: userName !== 'kantar',
+    items: [
+      {
+        text: 'Teslimat',
+        path: '/delivery'
+      }
+     
+    ]
+  },
 ];

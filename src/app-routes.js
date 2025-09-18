@@ -6,6 +6,7 @@ import WeighbridgeUpdate from './pages/weighbridge/WeighbridgeUpdate';
 import LogisticsAdd from './pages/logisticsPlanning/LogisticsAdd';
 import ShipmentReportPO from './pages/shipmentReport/ShipmentRepotPO';
 import ShippingArchive from './pages/shipmentReport/ShippingArchive';
+import Delivery from './pages/terminal/Delivery';
 
 
 const routes = [
@@ -88,6 +89,10 @@ const routes = [
     {
         path: '/shippingArchive',
         element: ShippingArchive
+    },
+    {
+        path: '/delivery',
+        element: Delivery
     }
 
 ];

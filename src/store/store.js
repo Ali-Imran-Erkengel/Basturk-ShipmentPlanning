@@ -6,6 +6,7 @@ import shipmentReducer from './shipmentSlice'
 import logisticsReducer from './logisticsSlice'
 import weighbridgeReducer from './weighbridgeSlice'
 import detailReportReducer from './detailRepotSlice'
+import terminalReducer from './terminalSlice'
 export const store = configureStore({
     reducer: {
         user: userReducer,
@@ -14,7 +15,8 @@ export const store = configureStore({
         shipment:shipmentReducer,
         logistics:logisticsReducer,
         weighbridge:weighbridgeReducer,
-        detailReport:detailReportReducer
+        detailReport:detailReportReducer,
+        terminal:terminalReducer
     }
 });
 export default store;

@@ -11,6 +11,7 @@ export { default as WeighbridgeHome } from './weighbridge/WeighbridgeHome';
 export { default as ShipmentReport } from './shipmentReport/ShipmentReport';
 export { default as LoadingRampHome } from './supportTables/LoadingRamp/LoadingRampHome';
 export { default as TrailerTypeHome } from './supportTables/TrailerType/TrailerTypeHome';
+export { default as Delivery } from './terminal/Delivery';
 export { default as MainPage } from './mainPage/MainPage';
 
 // export {default as CreateUdo} from './createUDO/CreateUdo';

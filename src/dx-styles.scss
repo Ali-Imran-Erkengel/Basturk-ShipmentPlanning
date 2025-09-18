@@ -254,4 +254,91 @@ body {
 .datagridShippingArchive .dx-row {
   background-color: #6de0c7;
 }
+/* terminalForm.css */
+/* Genel form container */
+.terminal-form .dx-field {
+  margin: 0 !important;       /* satırlar arası boşluk */
+  padding: 0 !important;
+}
 
+/* Label spacing */
+.terminal-form .dx-field-label {
+  font-size: 13px;
+  margin: 0 !important;       /* label ile editor arası boşluk */
+  padding: 0 !important;
+}
+
+/* TextBox / Checkbox yüksekliği ve padding */
+.terminal-form .dx-texteditor, 
+.terminal-form .dx-texteditor-input,
+.terminal-form .dx-checkbox .dx-checkbox-container {
+  height: 30px !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  font-size: 14px;
+}
+
+/* Yan yana iki SimpleItem arasındaki yatay boşluğu azalt */
+.terminal-form .dx-field.dx-col-1,
+.terminal-form .dx-field.dx-col-2,
+.terminal-form .dx-field.dx-col-3,
+.terminal-form .dx-field.dx-col-4,
+.terminal-form .dx-field.dx-col-5,
+.terminal-form .dx-field.dx-col-6 {
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+
+/* Button yüksekliği ve padding */
+.terminal-form .dx-button {
+  height: 32px !important;
+  font-size: 14px;
+  padding: 0 6px !important;
+}
+.terminal-form-container {
+  padding: 8px;          /* container padding */
+  max-width: 900px;      /* form maksimum genişlik */
+  margin: 0 auto;        /* ortala */
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row {
+  height: 28px;      /* Varsayılan ~40px, biraz daha sıkı */
+  font-size: 12px;   /* Yazıyı küçült */
+}
+.datagridTerminalDelivery .dx-datagrid-headers .dx-header-row {
+  height: 30px;
+  font-size: 12px;
+}
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row > td {
+  padding: 2px 6px;  /* Varsayılan genelde 8px */
+}
+/* Özel class'ınızla birlikte - en güvenilir yöntem */
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt,
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt > td {
+    background-color: #f0f9f4     !important;
+}
+
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt),
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt) > td {
+    background-color: #c8e6c9     !important;
+}
+
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover,
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover > td {
+    background-color: #93e095 !important;
+}
+.datagridTerminalDelivery .dx-header-row {
+  background-color: #c8e6c9;
+  /* Mor tonları */
+  color: #000000;
+
+}
+/* Seçili satır */
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection,
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection > td {
+    background-color: #3dc444 !important;  /* Daha koyu yeşil */
+    color: #000 !important;               /* Yazılar net görünsün */
+}
