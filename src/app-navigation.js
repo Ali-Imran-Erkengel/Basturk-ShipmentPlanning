@@ -46,6 +46,18 @@ export const navigation = [
   //   icon: 'datatrending'
   // },
   {
+    text: 'Terminal Ekranları',
+    icon: 'datatrending',
+    visible: userName !== 'kantar',
+    items: [
+      {
+        text: 'Teslimat',
+        path: '/delivery'
+      }
+     
+    ]
+  },
+  {
     text: 'Sevkiyat Detay Raporu',
     icon: 'datatrending',
     visible: userName !== 'kantar',
@@ -62,18 +74,6 @@ export const navigation = [
         text: 'Nakliye Arşivi',
         path: '/shippingArchive'
       }
-    ]
-  },
-  {
-    text: 'Terminal Ekranları',
-    icon: 'datatrending',
-    visible: userName !== 'kantar',
-    items: [
-      {
-        text: 'Teslimat',
-        path: '/delivery'
-      }
-     
     ]
   },
 ];

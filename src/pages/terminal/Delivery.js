@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getTermDeliveryDoc, getTermDeliveryDocs, terminalStatusControl, terminalWarehouseControl } from "../../store/terminalSlice";
-import { terminalDeliveryData } from "./data/data";
+import { getTermDeliveryDoc, getTermDeliveryDocs, saveDelivery, terminalBinControl, terminalStatusControl, terminalWarehouseControl } from "../../store/terminalSlice";
+import { deliveryColumns, terminalBatchColumns, terminalDeliveryData, terminalItemColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayout from "../../components/myComponents/ZoomLayout";
 import { employeeColumns } from "../../data/zoomLayoutData";
@@ -13,7 +13,7 @@ const handleNotify = ({ message, type }) => {
   notify(
     {
       message: message,
-      width: 720,
+      width: 300,
       position: {
         at: "bottom",
         my: "bottom",
@@ -29,12 +29,13 @@ const Delivery = () => {
   const [deliveryGrid, setDeliveryGrid] = useState();
   const [tabIndex, setTabIndex] = useState(0);
   const [itemGrid, setItemGrid] = useState();
+  const [batchGrid, setBatchGrid] = useState([]);
   const [selectedItem, setSelectedItem] = useState('');
   const [isPopupVisibleLoader, setPopupVisibilityLoader] = useState(false);
   const [isPopupVisiblePreparer, setPopupVisibilityPreparer] = useState(false);
   const [formData, setFormData] = useState({ ...terminalDeliveryData });
-
   const employeeFilter = ["Department", "=", 10];
+
 
   const createTextBoxWithButtonOptions = (type) => {
     return {
@@ -66,30 +67,35 @@ const Delivery = () => {
   };
 
   const handleLoaderSelection = (selectedRowData) => {
-    terminalDeliveryData.LoaderCode = selectedRowData.EmployeeID;
-    terminalDeliveryData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+    formData.LoaderCode = selectedRowData.EmployeeID;
+    formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
     setPopupVisibilityLoader(false);
   };
   const handlePreparerSelection = (selectedRowData) => {
-    terminalDeliveryData.PreparerCode = selectedRowData.EmployeeID;
-    terminalDeliveryData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+    formData.PreparerCode = selectedRowData.EmployeeID;
+    formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
     setPopupVisibilityPreparer(false);
   };
 
   // #region requests
   const fetchWaitForLoadDocs = async () => {
     let docs = await getTermDeliveryDocs();
-    console.log(docs);
     setDeliveryGrid(docs);
   };
   const goForReadBarcodes = async ({ docEntry }) => {
     let items = await getTermDeliveryDoc({ logisticId: docEntry });
-    setItemGrid(items)
+    const itemsWithIndex = items.map((item, idx) => ({
+      ...item,
+      Index: idx + 1
+    }));
+    setItemGrid(itemsWithIndex)
+    setFormData({ ...terminalDeliveryData })
+    setBatchGrid([]);
     setTabIndex(1);
   };
   const warehouseControl = async ({ itemCode, barcode }) => {
     try {
-      let result = await terminalWarehouseControl({ itemCode, barcode });  
+      let result = await terminalWarehouseControl({ itemCode, barcode });
       return result[0]?.DepoAdi;
     } catch (err) {
       console.error("err:", err.message);
@@ -105,7 +111,78 @@ const Delivery = () => {
       throw err
     }
   };
+  const batchBinControl = async ({ itemCode, barcode, whsCode, stockQuantity }) => {
+    try {
+      let result = await terminalBinControl({ itemCode: itemCode, barcode: barcode, whsCode: whsCode, stockQuantity: stockQuantity });
+      return result;
+    } catch (err) {
+      console.error("err:", err.message);
+      throw err
+    }
+  };
+  const handleSave = async () => {
+    try {
+      const preparer = formData.PreparerCode;
+      const loadedBy = formData.LoaderCode;
+      const headerList = itemGrid?.map(item => ({
+        itemCode: item.U_ItemCode,
+        quantity: item.U_Quantity,
+        orderNo: item.U_OrderNo,
+        orderLine: item.U_OrderLine,
+        isBatch: item.U_IsBatch,
+        tWhsCode: item.U_WhsCode,
+        indexH: item.Index,
+        docNum: item.DocEntry,
+        docLine: item.LineId,
+        plateCode: item.U_PlateCode,
+        trailerPlateCode: item.U_TrailerPlateCode,
+        abroad: item.U_YurtdisiNakliye,
+        domestic: item.U_YurticiNakliye,
+        shipmentType: item.U_ShipmentType,
+        type: item.U_Type,
+        cardCode: item.U_CardCode,
+        supplierCode: item.U_OcrdNo,
+        dlvDate: item.U_Date,
+        palletGrossWeight: item.U_PalletGrossWgh,
+        palletNetWeight: item.U_PalletNetWgh,
+        innerQtyOfPallet: item.U_InnerQtyOfPallet,
+        palletType: item.U_PalletType,
+        supplierName: item.U_CardName,
+        driverName: item.U_DriverName,
+        tradeFileNo: item.U_TradeFileNo,
+        transportType: item.U_TransportType,
+        city: item.U_City,
+        country: item.U_Country,
+        county: item.U_County,
+        address: item.U_Address,
+        zipCode: item.U_ZipCode,
+        binEntry: item.U_BinEntry,
+        price: item.U_Price,
+        stockQty: item.StockQuantity,
+        LoadedBy: loadedBy,
+        Preparer: preparer
+      }));
 
+      const itemList = batchGrid?.map(batch => ({
+        batchNumber: batch.Batch,
+        quantity: batch.Quantity,
+        itemCode: batch.ItemCode,
+        indexL: batch.Index,
+        binEntry: batch.BinEntry
+      }));
+      const payload = { headerList, itemList };
+      let result = await saveDelivery({ payload: payload })
+      setItemGrid([])
+      setFormData({ ...terminalDeliveryData })
+      setBatchGrid([]);
+      setTabIndex(0);
+      handleNotify({ message: "Kayıt başarılı", type: "success" });
+    } catch (err) {
+      console.error("Kaydetme hatası:", err);
+      const parsed = extractJson({ str: err.response.data });
+      handleNotify({ message: parsed["message"], type: "error" });
+    }
+  };
   // #endregion
   const goToDelivery = (cellData) => {
     let docEntry = cellData.data["Lojistik No"];
@@ -121,26 +198,85 @@ const Delivery = () => {
     );
   };
   const handleBarcodeEnter = async (barcode) => {
-    let getBack = terminalDeliveryData.GetBack;
-    let oldBarcode = terminalDeliveryData.OldBarcode;
-    // console.log("selecteddata", selectedItem)
-
+    console.log("selected", selectedItem)
     if (!selectedItem) {
       handleNotify({ message: "Lütfen Satır Seçiniz", type: "error" })
       return;
     }
-    console.log("oldbarcode",oldBarcode)
-    if (!oldBarcode) {
-      terminalDeliveryData.Barcode = barcode.substring(3)
-    }
-    const barcodeValue = terminalDeliveryData.Barcode;
+    let getBack = formData.GetBack;
+    let oldBarcode = formData.OldBarcode;
     let itemCode = selectedItem.U_ItemCode;
+    let quantity = selectedItem.U_Quantity;
+    let readedQuantity = selectedItem.ReadedQuantity ?? 0;
+    let whsCode = selectedItem.U_WhsCode;
+    let innerQtyOfPallet = selectedItem.U_InnerQtyOfPallet;
+    let index = selectedItem.Index;
+    // console.log("selecteddata", selectedItem)
+    let barcodeValue = formData.Barcode;
+    console.log("oldbarcode", oldBarcode)
+    if (!oldBarcode) {
+      barcodeValue = barcode.substring(3)
+    }
     const warehouseMsg = await warehouseControl({ itemCode, barcode: barcodeValue });
     if (warehouseMsg) return handleNotify({ message: warehouseMsg, type: "error" });
     const statusMsg = await statusControl({ itemCode, barcode: barcodeValue });
     if (statusMsg) return handleNotify({ message: statusMsg, type: "error" });
-    console.log("aisdfj")
+    if (readedQuantity < 0) return handleNotify({ message: "Miktar 0' ın Altına Düşemez", type: "error" });
+    if (readedQuantity > quantity) return handleNotify({ message: "Miktar Teslimat Miktarını Geçemez", type: "error" });
+    let apiResponse = await batchBinControl({ itemCode: itemCode, barcode: barcodeValue, whsCode: whsCode, stockQuantity: innerQtyOfPallet })
+    switch (apiResponse[0].Result) {
+      case "NONE":
+        return handleNotify({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
+      case "OWF":
+        return handleNotify({ message: "Yetersiz Miktar", type: "error" });
+      default:
+        break;
+    }
+    const newRow = {
+      ItemCode: apiResponse[0].ItemCode,
+      ItemName: apiResponse[0].ItemName,
+      Quantity: 1,
+      StockQuantity: apiResponse[0].StockQuantity,
+      Batch: barcodeValue,
+      Index: index,
+      BinEntry: apiResponse[0].BinEntry,
+      BinCode: apiResponse[0].BinCode,
+      Result: apiResponse[0].Result
+    };
+
+    setBatchGrid(prev => {
+      const exists = prev?.some(item => item.Batch === newRow.Batch);
+      if (exists) {
+        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+        return prev;
+      } else {
+
+        setItemGrid(prevItems => {
+          const newData = [...prevItems];
+          const idx = newData.findIndex(item => item.U_ItemCode === selectedItem.U_ItemCode);
+          if (idx !== -1) {
+            newData[idx] = {
+              ...newData[idx],
+              ReadedQty: (newData[idx].ReadedQty ?? 0) + 1
+            };
+          }
+          return newData;
+        });
+
+        handleNotify({ message: "Okutma Başarılı.", type: "success" });
+        return [...prev, newRow];
+      }
+    });
+    formData.Barcode = "";
+    setSelectedItem(prev => ({ ...prev }));
+
   };
+
+  function extractJson({ str }) {
+    const match = str.match(/{.*}/s);
+    return match ? JSON.parse(match[0]) : null;
+  }
+  const barcodeRef = useRef(null);
 
   return (
     <div className="p-4">
@@ -171,42 +307,9 @@ const Delivery = () => {
               caption="İşlem"
               cellRender={goToDelivery}
             />
-            <Column
-              width="auto"
-              dataField="Lojistik No"
-              caption="Lojistik No"
-              alignment='left'
-            />
-            <Column
-              width="auto"
-              dataField="Belge No"
-              caption="Belge No"
-              alignment='left'
-            />
-            <Column
-              width="auto"
-              dataField="Açıklama"
-              caption="Açıklama"
-              alignment='left'
-            />
-            <Column
-              width="auto"
-              dataField="Toplam Palet Miktarı"
-              caption="Top. Palet"
-              alignment='right'
-            />
-            <Column
-              width="auto"
-              dataField="Plaka Kodu"
-              caption="Plaka Kodu"
-              alignment='left'
-            />
-            <Column
-              width="auto"
-              dataField="Şöför"
-              caption="Şöför"
-              alignment='left'
-            />
+            {deliveryColumns.map((col) => (
+              <Column key={col.dataField} {...col} />
+            ))}
             <Paging defaultPageSize={10} />
             <Pager showPageSizeSelector={true} />
           </DataGrid>
@@ -216,7 +319,7 @@ const Delivery = () => {
         <Item title="Teslimat">
           <div className="page-container">
             <Form
-              formData={terminalDeliveryData}
+              formData={formData}
               labelLocation="left"
               colCount={6}
               colCountByScreen={{ lg: 6, md: 6, sm: 6, xs: 6 }}
@@ -230,7 +333,11 @@ const Delivery = () => {
                   onEnterKey: (e) => {
                     const value = e.component.option("value");
                     handleBarcodeEnter(value);
-                  }
+                    e.component.focus();
+                  },
+                  onInitialized: (e) => {
+                    barcodeRef.current = e.component;
+                  },
                 }}
                 cssClass="transparent-bg"
                 label={{ text: 'Barkod', location: 'top' }}
@@ -269,210 +376,49 @@ const Delivery = () => {
                 label={{ text: 'Eski Barkod' }}
                 colSpan={3}
               />
-
-              {/* 5. Satır - Kaydet butonu */}
               <SimpleItem
                 editorType="dxButton"
                 editorOptions={{
                   text: "Kaydet",
                   type: "success",
                   stylingMode: "contained",
-                  width: "100%"
+                  width: "100%",
+                  onClick: handleSave
                 }}
                 colSpan={6}
               />
             </Form>
           </div>
-          <h6 className="mt-2 font-bold">Kalemler</h6>
+          <b className="mt-2 font-bold">Kalemler</b>
           <DataGrid
             dataSource={itemGrid}
             columnAutoWidth={true}
-            columnMinWidth={100}
-            allowColumnResizing={true}
             width="100%"
-            howBorders={true}
+            showBorders={true}
+            keyExpr="Index"
+
             onSelectionChanged={(e) => setSelectedItem(e.selectedRowsData[0])}
+            selectedRowKeys={[selectedItem?.Index]}
             selection={{ mode: "single" }}
             className="datagridTerminalDelivery mb-2"
           >
-            <Column
-              dataField="U_ItemCode"
-              caption="Kalem Kodu"
-              alignment='left'
-            />
-            <Column
-              dataField="U_ItemName"
-              caption="Kalem Adı"
-              alignment='left'
-            />
-            <Column
-              dataField="U_Quantity"
-              caption="Miktar"
-              alignment='right'
-            />
-            <Column
-              dataField="ReadedQty"
-              caption="Okutulan Miktar"
-              alignment='right'
-            />
-            <Column
-              dataField="U_OrderNo"
-              caption="Sipariş No"
-              alignment='left'
-            />
-            <Column
-              dataField="U_OrderLine"
-              caption="Sipariş Satır"
-              alignment='left'
-            />
-            <Column
-              dataField="U_WhsCode"
-              caption="Depo Kodu"
-              alignment='left'
-            />
-            <Column
-              dataField="DocEntry"
-              caption="Belge No"
-              alignment='left'
-            />
-            <Column
-              dataField="LineId"
-              caption="Belge Sira"
-              alignment='left'
-            />
-            <Column
-              dataField="U_YurtdisiNakliye"
-              caption="Yurtdışı Kalem"
-              alignment='left'
-            />
-            <Column
-              dataField="U_YurticiNakliye"
-              caption="Yurtiçi Kalem"
-              alignment='left'
-            />
-            <Column
-              dataField="U_ShipmentType"
-              caption="Sevkiyat Türü"
-              alignment='left'
-            />
-            <Column
-              dataField="U_Type"
-              caption="Tip"
-              alignment='left'
-            />
-            <Column
-              dataField="U_CardCode"
-              caption="Müşteri Kodu"
-              alignment='left'
-            />
-            <Column
-              dataField="U_OcrdNo"
-              caption="Tedarikçi"
-              alignment='left'
-            />
-            <Column
-              dataField="U_Date"
-              caption="Teslimat Tarihi"
-              alignment='left'
-            />
-            <Column
-              dataField="U_PalletGrossWgh"
-              caption="Brüt Ağırlık"
-              alignment='right'
-            />
-            <Column
-              dataField="U_PalletNetWgh"
-              caption="Net Ağırlık"
-              alignment='right'
-            />
-            <Column
-              dataField="U_PalletType"
-              caption="Palet Şekli"
-              alignment='left'
-            />
-            <Column
-              dataField="U_Price"
-              caption="Fiyat"
-              alignment='right'
-            />
-            <Column
-              dataField="U_InnerQtyOfPallet"
-              caption="Palet İçi Adet"
-              alignment='right'
-            />
-            <Column
-              dataField="StockQuantity"
-              caption="Stok Miktarı"
-              alignment='right'
-            />
-            <Column
-              dataField="U_PlateCode"
-              caption="Plaka Kodu"
-              alignment='left'
-            />
-            <Column
-              dataField="U_TrailerPlateCode"
-              caption="Dorse Plaka"
-              alignment='left'
-            />
-            <Column
-              dataField="U_DriverName"
-              caption="Şöför"
-              alignment='left'
-            />
-            <Column
-              dataField="U_TradeFileNo"
-              caption="Ticaret Dosya No"
-              alignment='left'
-            />
-            <Column
-              dataField="U_TransportType"
-              caption="Sevkiyat Şekli"
-              alignment='left'
-            />
-            <Column
-              dataField="U_Address"
-              caption="Adres"
-              alignment='left'
-            />
-            <Column
-              dataField="U_County"
-              caption="İlçe"
-              alignment='left'
-            />
-            <Column
-              dataField="U_City"
-              caption="İl"
-              alignment='left'
-            />
-            <Column
-              dataField="U_Country"
-              caption="Ülke"
-              alignment='left'
-            />
-            <Column
-              dataField="U_ZipCode"
-              caption="Posta Kodu"
-              alignment='left'
-            />
-            <Column
-              dataField="U_BinEntry"
-              caption="Depo Yeri Entry"
-              alignment='left'
-            />
-            <Column
-              dataField="U_BinCode"
-              caption="Depo Yeri"
-              alignment='left'
-            />
+            {terminalItemColumns.map(col => (
+              <Column key={col.dataField} {...col} />
+            ))}
+
           </DataGrid>
-
-          <h6 className="mt-2 font-bold">Okutulan Partiler</h6>
+          <br></br>
+          <hr></hr>
+          <b className="mt-6 font-bold">Okutulan Partiler</b>
           <DataGrid
+            dataSource={batchGrid}
             showBorders={true}
+            columnAutoWidth={true}
+            width="100%"
             className="datagridTerminalDelivery">
-
-
+            {terminalBatchColumns.map(col => (
+              <Column key={col.dataField} {...col} />
+            ))}
           </DataGrid>
         </Item>
       </TabPanel>

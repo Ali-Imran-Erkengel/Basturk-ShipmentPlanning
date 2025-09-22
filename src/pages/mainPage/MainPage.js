@@ -6,28 +6,10 @@ import { DataGrid, Column, Pager, Paging, Selection } from 'devextreme-react/dat
 import './dashboard.scss';
 import { getLoadToday, getLoadTomorrow, getLogistics, getStatuses } from '../../store/dashboardSlice';
 import { statusMap } from './data';
+import { Home, Truck, Package, RotateCcw, AlertTriangle, ClipboardList, Layers, ArrowLeftRight } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { useScreenSize } from '../../utils/media-query';
 
-
-const salesData = [
-  { month: 'Jan', sales: 30 },
-  { month: 'Feb', sales: 45 },
-  { month: 'Mar', sales: 60 },
-  { month: 'Apr', sales: 75 },
-  { month: 'May', sales: 90 },
-  { month: 'Jun', sales: 100 }
-];
-
-const pieData = [
-  { category: 'Electronics', sales: 40 },
-  { category: 'Apparel', sales: 25 },
-  { category: 'Groceries', sales: 35 }
-];
-
-const ordersData = [
-  { id: 1, customer: 'John Doe', product: 'Laptop', price: 1500, quantity: 1 },
-  { id: 2, customer: 'Jane Smith', product: 'Phone', price: 800, quantity: 2 },
-  { id: 3, customer: 'Sam Wilson', product: 'Tablet', price: 600, quantity: 3 }
-];
 
 const calculateMonthlyPalletCost = (data) => {
   const monthlyData = {};
@@ -56,6 +38,40 @@ function MainPage() {
   const [palletCostData, setPalletCostData] = useState([]);
   const [tomorrowSendData, setTomorrowSendData] = useState([]);
   const [todaySendData, setTodaySendData] = useState([]);
+  const navigate = useNavigate();
+  const { isXSmall } = useScreenSize(); // mobil kontrolü
+  const pages = [
+    { name: "Transfer", icon: Truck, path: "/transfer", color: "#3f76db" },
+    { name: "Teslimat", icon: Package, path: "/delivery", color: "#28a745" },
+    { name: "Kalite Transfer", icon: RotateCcw, path: "/kalite-transfer", color: "#ffc107" },
+    { name: "İade", icon: AlertTriangle, path: "/iade", color: "#dc3545" },
+    { name: "Kırık", icon: ClipboardList, path: "/kırık", color: "#6f42c1" },
+    { name: "EMR Ayr", icon: Layers, path: "/emr-ayr", color: "#20c997" },
+    { name: "Repack", icon: ArrowLeftRight, path: "/repack", color: "#fd7e14" },
+    { name: "Nakil Talebinden Transfer", icon: Truck, path: "/nakil-talebinden-transfer", color: "#17a2b8" }
+  ];
+  const containerStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    justifyContent: "center",
+    flexDirection: isXSmall ? "column" : "row" 
+  };
+  const cardStyle = {
+    flex: isXSmall ? "1 1 100%" : "1 1 200px", 
+    minHeight: "120px",
+    cursor: "pointer",
+    borderRadius: "8px",
+    padding: "16px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease",
+  };
+  const iconStyle = { marginBottom: "8px" };
+  const titleStyle = { fontWeight: 600, textAlign: "center" };
+  const user = sessionStorage.getItem('userName')
   useEffect(() => {
     const fetchStatuses = async () => {
       const data = await getStatuses();
@@ -76,57 +92,87 @@ function MainPage() {
 
       setTodaySendData(today)
     };
+    if (user === "alskdj") {
 
-
-
-
-
-    fetchStatuses();
-    logistics();
-    tomorrowSended()
-    todaySended()
+      fetchStatuses();
+      logistics();
+      tomorrowSended()
+      todaySended()
+    }
   }, []);
-  return (
-    <div className="dashboard">
-      <Typography variant="h4" className="dashboard-title">Dashboard</Typography>
-      <Grid container spacing={3} className="overview-cards">
-        {statuses.map((item) => (
-          <Grid item xs={12} md={3} key={item.U_Status}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">
-                  {statusMap[item.U_Status] || "Durum Bilinmiyor"}
-                </Typography>
-                <Typography variant="h4">
-                  {item.Count}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* Sales Chart */}
-      <div className="chart-section">
-        <h3>Aylık Palet Giderleri</h3>
-        <Chart dataSource={palletCostData}>
-          <ArgumentAxis />
-          <ValueAxis />
-          <Series
-            valueField="palletCost"
-            argumentField="month"
-            name="Toplam Tutar"
-            type="bar"
-            color="#3b82f6"
-          />
-          {/* <Title text="Aylık Palet Giderleri" /> */}
-          <Tooltip enabled={true} />
-          <Legend verticalAlignment="bottom" horizontalAlignment="center" />
-        </Chart>
+  
+  if (user === "manager") {
+    return (
+      <div style={containerStyle}>
+        {pages.map(page => {
+          const Icon = page.icon;
+          return (
+            <div
+              key={page.name}
+              style={{
+                ...cardStyle,
+                backgroundColor: page.color + "33"
+              }}
+              onClick={() => navigate(page.path)}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = "translateY(-4px)";
+                e.currentTarget.style.boxShadow = `0 4px 16px ${page.color}66`;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+              }}
+            >
+              <Icon size={32} style={{ ...iconStyle, color: page.color }} />
+              <div style={titleStyle}>{page.name}</div>
+            </div>
+          );
+        })}
       </div>
+    );
+  }
+  else {
+    return (
+      <div className="dashboard">
+        <Typography variant="h4" className="dashboard-title">Dashboard</Typography>
+        <Grid container spacing={3} className="overview-cards">
+          {statuses.map((item) => (
+            <Grid item xs={12} md={3} key={item.U_Status}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">
+                    {statusMap[item.U_Status] || "Durum Bilinmiyor"}
+                  </Typography>
+                  <Typography variant="h4">
+                    {item.Count}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
 
-      {/* Sales Distribution Pie Chart */}
-      {/* <div className="chart-section">
+        {/* Sales Chart */}
+        <div className="chart-section">
+          <h3>Aylık Palet Giderleri</h3>
+          <Chart dataSource={palletCostData}>
+            <ArgumentAxis />
+            <ValueAxis />
+            <Series
+              valueField="palletCost"
+              argumentField="month"
+              name="Toplam Tutar"
+              type="bar"
+              color="#3b82f6"
+            />
+            {/* <Title text="Aylık Palet Giderleri" /> */}
+            <Tooltip enabled={true} />
+            <Legend verticalAlignment="bottom" horizontalAlignment="center" />
+          </Chart>
+        </div>
+
+        {/* Sales Distribution Pie Chart */}
+        {/* <div className="chart-section">
                 <h3>Sales by Category</h3>
                 <PieChart dataSource={pieData}>
                     <Series
@@ -139,55 +185,56 @@ function MainPage() {
                 </PieChart>
             </div> */}
 
-      {/* Orders DataGrid */}
-      <div className="grid-section" style={{ display: 'flex', gap: '20px' }}>
-        <div >
-          <h3>Bugün Yüklenecekler</h3>
-          <DataGrid
-            selection={true}
-            dataSource={todaySendData}
-            keyExpr="DocEntry"
-            showBorders={true}
-          >
-            <Selection
-              mode="single"
-              selectAllMode="page"
-            />
-            <Column dataField="U_CustomDocNum" caption="Belge No" />
-            <Column dataField="U_Date" format="dd/MM/yyyy" dataType='date' caption="Belge Taihi" />
-            <Column dataField="U_Description" caption="Açıklama" />
-            <Column dataField="U_DriverName" caption="Şöför" />
-            <Column dataField="U_OcrdNo" caption="Muhatap" />
-            <Column dataField="U_PalletQuantity" caption="Toplam Palet Miktarı" alignment='right' />
+        {/* Orders DataGrid */}
+        <div className="grid-section" style={{ display: 'flex', gap: '20px' }}>
+          <div >
+            <h3>Bugün Yüklenecekler</h3>
+            <DataGrid
+              selection={true}
+              dataSource={todaySendData}
+              keyExpr="DocEntry"
+              showBorders={true}
+            >
+              <Selection
+                mode="single"
+                selectAllMode="page"
+              />
+              <Column dataField="U_CustomDocNum" caption="Belge No" />
+              <Column dataField="U_Date" format="dd/MM/yyyy" dataType='date' caption="Belge Taihi" />
+              <Column dataField="U_Description" caption="Açıklama" />
+              <Column dataField="U_DriverName" caption="Şöför" />
+              <Column dataField="U_OcrdNo" caption="Muhatap" />
+              <Column dataField="U_PalletQuantity" caption="Toplam Palet Miktarı" alignment='right' />
 
-          </DataGrid>
+            </DataGrid>
 
-        </div>
-        <div >
-          <h3>Yarın Yüklenecekler</h3>
-          <DataGrid
-            selection={true}
-            dataSource={tomorrowSendData}
-            keyExpr="DocEntry"
-            showBorders={true}
-          >
-            <Selection
-              mode="single"
-              selectAllMode="page"
-            />
-            <Column dataField="U_CustomDocNum" caption="Belge No" />
-            <Column dataField="U_Date" format="dd/MM/yyyy" dataType='date' caption="Belge Taihi" />
-            <Column dataField="U_Description" caption="Açıklama" />
-            <Column dataField="U_DriverName" caption="Şöför" />
-            <Column dataField="U_OcrdNo" caption="Muhatap" />
-            <Column dataField="U_PalletQuantity" caption="Toplam Palet Miktarı" alignment='right' />
+          </div>
+          <div >
+            <h3>Yarın Yüklenecekler</h3>
+            <DataGrid
+              selection={true}
+              dataSource={tomorrowSendData}
+              keyExpr="DocEntry"
+              showBorders={true}
+            >
+              <Selection
+                mode="single"
+                selectAllMode="page"
+              />
+              <Column dataField="U_CustomDocNum" caption="Belge No" />
+              <Column dataField="U_Date" format="dd/MM/yyyy" dataType='date' caption="Belge Taihi" />
+              <Column dataField="U_Description" caption="Açıklama" />
+              <Column dataField="U_DriverName" caption="Şöför" />
+              <Column dataField="U_OcrdNo" caption="Muhatap" />
+              <Column dataField="U_PalletQuantity" caption="Toplam Palet Miktarı" alignment='right' />
 
-          </DataGrid>
+            </DataGrid>
 
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default MainPage

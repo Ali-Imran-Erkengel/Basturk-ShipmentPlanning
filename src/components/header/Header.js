@@ -24,7 +24,7 @@ export default function Header({ menuToggleEnabled, title, toggleMenu }) {
           text={title}
           visible={!!title}
         />
-        <Item
+        {/* <Item
           location={'after'}
           locateInMenu={'auto'}
           menuItemTemplate={'userPanelTemplate'}
@@ -40,7 +40,7 @@ export default function Header({ menuToggleEnabled, title, toggleMenu }) {
         </Item>
         <Template name={'userPanelTemplate'}>
           <UserPanel menuMode={'list'} />
-        </Template>
+        </Template> */}
       </Toolbar>
     </header>
 )}
