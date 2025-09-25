@@ -6,7 +6,7 @@ import { DataGrid, Column, Pager, Paging, Selection } from 'devextreme-react/dat
 import './dashboard.scss';
 import { getLoadToday, getLoadTomorrow, getLogistics, getStatuses } from '../../store/dashboardSlice';
 import { statusMap } from './data';
-import { Home, Truck, Package, RotateCcw, AlertTriangle, ClipboardList, Layers, ArrowLeftRight } from "lucide-react";
+import { Truck, ClipboardList, Layers, ArrowLeftRight, PackageOpen, RotateCcwIcon, WineOff } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useScreenSize } from '../../utils/media-query';
 
@@ -41,24 +41,24 @@ function MainPage() {
   const navigate = useNavigate();
   const { isXSmall } = useScreenSize(); // mobil kontrolü
   const pages = [
-    { name: "Transfer", icon: Truck, path: "/transfer", color: "#3f76db" },
-    { name: "Teslimat", icon: Package, path: "/delivery", color: "#28a745" },
-    { name: "Kalite Transfer", icon: RotateCcw, path: "/kalite-transfer", color: "#ffc107" },
-    { name: "İade", icon: AlertTriangle, path: "/iade", color: "#dc3545" },
-    { name: "Kırık", icon: ClipboardList, path: "/kırık", color: "#6f42c1" },
+    { name: "Transfer", icon: ArrowLeftRight, path: "/transfer", color: "#3f76db" },
+    { name: "Teslimat", icon: Truck, path: "/delivery", color: "#28a745" },
+    // { name: "Kalite Transfer", icon: RotateCcw, path: "/kalite-transfer", color: "#ffc107" },
+    { name: "İade", icon: RotateCcwIcon, path: "/iade", color: "#dc3545" },
+    { name: "Kırık", icon: WineOff, path: "/kırık", color: "#6f42c1" },
     { name: "EMR Ayr", icon: Layers, path: "/emr-ayr", color: "#20c997" },
-    { name: "Repack", icon: ArrowLeftRight, path: "/repack", color: "#fd7e14" },
-    { name: "Nakil Talebinden Transfer", icon: Truck, path: "/nakil-talebinden-transfer", color: "#17a2b8" }
+    { name: "Repack", icon: PackageOpen, path: "/repack", color: "#fd7e14" },
+    { name: "Nakil Talebinden Transfer", icon: ClipboardList, path: "/nakil-talebinden-transfer", color: "#17a2b8" }
   ];
   const containerStyle = {
     display: "flex",
     flexWrap: "wrap",
     gap: "8px",
     justifyContent: "center",
-    flexDirection: isXSmall ? "column" : "row" 
+    flexDirection: isXSmall ? "column" : "row"
   };
   const cardStyle = {
-    flex: isXSmall ? "1 1 100%" : "1 1 200px", 
+    flex: isXSmall ? "1 1 100%" : "1 1 200px",
     minHeight: "120px",
     cursor: "pointer",
     borderRadius: "8px",
@@ -100,7 +100,7 @@ function MainPage() {
       todaySended()
     }
   }, []);
-  
+
   if (user === "manager") {
     return (
       <div style={containerStyle}>

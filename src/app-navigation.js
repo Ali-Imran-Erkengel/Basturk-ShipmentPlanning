@@ -32,7 +32,7 @@ export const navigation = [
   {
     text: 'Lojistik Planlama',
     path: '/logisticsPlanningHome',
-    icon: 'airplane',
+    icon: 'globe',
     visible: userName !== 'kantar'
   },
   {
@@ -47,7 +47,7 @@ export const navigation = [
   // },
   {
     text: 'Terminal Ekranları',
-    icon: 'datatrending',
+    icon: 'columnchooser',
     visible: userName !== 'kantar',
     items: [
       {
