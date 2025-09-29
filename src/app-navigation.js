@@ -53,6 +53,10 @@ export const navigation = [
       {
         text: 'Teslimat',
         path: '/delivery'
+      },
+      {
+        text: 'Transfer',
+        path: '/transfer'
       }
      
     ]

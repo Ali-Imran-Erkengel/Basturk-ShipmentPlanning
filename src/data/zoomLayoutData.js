@@ -253,3 +253,18 @@ export const declarationColumns = [
         "Caption": "Muhatap Adı"
     }
 ]
+export const binLocationFilters = ["AbsEntry", "BinCode", "Warehouse"];
+export const binLocationColumns = [
+    {
+        "DataField": "AbsEntry",
+        "Caption": "Depo Yeri Entry"
+    },
+    {
+        "DataField": "BinCode",
+        "Caption": "Depo Yeri Kodu"
+    },
+    {
+        "DataField": "Warehouse",
+        "Caption": "Depo"
+    }
+]

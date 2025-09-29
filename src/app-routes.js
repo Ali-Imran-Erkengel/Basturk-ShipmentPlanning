@@ -7,6 +7,8 @@ import LogisticsAdd from './pages/logisticsPlanning/LogisticsAdd';
 import ShipmentReportPO from './pages/shipmentReport/ShipmentRepotPO';
 import ShippingArchive from './pages/shipmentReport/ShippingArchive';
 import Delivery from './pages/terminal/Delivery';
+import AplatzBinLocation from './pages/supportTables/LineBinLocation/AplatzBinLocation';
+import Transfer from './pages/terminal/Transfer';
 
 
 const routes = [
@@ -93,6 +95,14 @@ const routes = [
     {
         path: '/delivery',
         element: Delivery
+    },
+    {
+        path: '/transfer',
+        element: Transfer
+    },
+    {
+        path: '/aplatzBinLocation',
+        element: AplatzBinLocation
     }
 
 ];

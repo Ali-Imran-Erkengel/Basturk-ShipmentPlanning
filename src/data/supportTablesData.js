@@ -11,6 +11,10 @@ export const tableCategories = [
     {
       id: 3,
       text: 'Kantar',
+    },
+    {
+      id: 4,
+      text: 'Depo',
     }
   ];
   export const tables = [
@@ -34,11 +38,11 @@ export const tableCategories = [
       type: 3,
       navigate:'trailerTypeHome'
     },
-    // {
-    //   text: 'Destek Tablosu 2',
-    //   type: 3,
-    //   navigate:'driverHome'
-    // },
+    {
+      text: 'Hat Karşılığı Depo Yeri',
+      type: 4,
+      navigate:'aplatzBinLocation'
+    },
 
   ];
   

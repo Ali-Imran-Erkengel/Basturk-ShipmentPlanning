@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { querymanager } from "../config/config";
+import { hostName, querymanager } from "../config/config";
 import notify from "devextreme/ui/notify";
 axios.defaults.withCredentials = true;
 export let initialState = {
@@ -44,6 +44,14 @@ const terminalSlice = createSlice({
     //     })
   }
 });
+export const getAplatz = async () => {
+  let params = {};
+  return sendGetRequest({ endpoint: "getaplatz", params: params })
+}
+export const getAplatzBinData = async () => {
+  let params = {};
+  return sendGetRequest({ endpoint: "getaplatzbindata", params: params })
+}
 export const getTermDeliveryDocs = async () => {
   let params = {};
   return sendGetRequest({ endpoint: "gettermdeliverydocs", params: params })

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { hostName, querymanager } from "../config/config";
+import {  hostName, querymanager } from "../config/config";
 import ODataStore from 'devextreme/data/odata/store';
 import DataSource from 'devextreme/data/data_source';
 import notify from 'devextreme/ui/notify';
@@ -40,6 +40,7 @@ export const getItemById = createAsyncThunk(
 export const updateData = createAsyncThunk(
     'updateData',
     async ({ tableName, id, updatedData }) => {
+        debugger
         const request = await axios.patch(`${hostName}/${tableName}(${id})`, updatedData);
 
         const response = await request.data;
@@ -103,8 +104,8 @@ const handleNotify = ({ message, type }) => {
     );
 }
 
-export const filter = ({ tableName, tableKey, filtersConfig, filterValues, notDeleted }) => {
-    const oDataSource = createODataSource(tableName, tableKey, notDeleted);
+export const filter = ({ tableName, tableKey, filtersConfig, filterValues, notDeleted,isBeas }) => {
+    const oDataSource = createODataSource(tableName, tableKey, notDeleted,isBeas);
     const filters = [];
     filtersConfig.forEach(({ field, operator }) => {
         const value = filterValues[field];
