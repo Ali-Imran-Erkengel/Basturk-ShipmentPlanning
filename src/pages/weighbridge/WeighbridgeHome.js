@@ -21,7 +21,7 @@ function WeighbridgeHome() {
   const tableName = "SML_WGHB_HDR";
   const [dataSource, setDataSource] = useState(null);
   const [selectedItem, setSelectedItem] = useState('');
-  const notDeleted = "";// ["U_IsDeleted", "=", "N"];
+  const customFilter = "";// ["U_IsDeleted", "=", "N"];
   const navigate = useNavigate();
   const [filterValues, setFilterValues] = useState({
     U_Description: '',
@@ -51,7 +51,7 @@ function WeighbridgeHome() {
     // console.log(selectedItem);
   }, [selectedItem])
   useEffect(() => {
-    const myDataSource = createODataSource(tableName, tableKey, notDeleted);
+    const myDataSource = createODataSource(tableName, tableKey, customFilter);
     setActiveComponent('');
     sessionStorage.setItem('activeComponent', null)
     //açınca bi dert kapatınca bi dert
@@ -254,7 +254,7 @@ function WeighbridgeHome() {
               hideOnOutsideClick={true}
               onHiding={togglePopupLgt}
             >
-              <ZoomLayout onRowSelected={handleLgtSelection} tableName={"SML_LGT_HDR"} tableKey={"DocEntry"} notDeleted={""} filters={logisticsFilters} columns={logisticsColumns}></ZoomLayout>
+              <ZoomLayout onRowSelected={handleLgtSelection} tableName={"SML_LGT_HDR"} tableKey={"DocEntry"} customFilter={""} filters={logisticsFilters} columns={logisticsColumns}></ZoomLayout>
             </Popup>
           </div>
         )

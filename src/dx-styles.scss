@@ -254,22 +254,25 @@ body {
 .datagridShippingArchive .dx-row {
   background-color: #6de0c7;
 }
+
 /* terminalForm.css */
 /* Genel form container */
 .terminal-form .dx-field {
-  margin: 0 !important;       /* satırlar arası boşluk */
+  margin: 0 !important;
+  /* satırlar arası boşluk */
   padding: 0 !important;
 }
 
 /* Label spacing */
 .terminal-form .dx-field-label {
   font-size: 13px;
-  margin: 0 !important;       /* label ile editor arası boşluk */
+  margin: 0 !important;
+  /* label ile editor arası boşluk */
   padding: 0 !important;
 }
 
 /* TextBox / Checkbox yüksekliği ve padding */
-.terminal-form .dx-texteditor, 
+.terminal-form .dx-texteditor,
 .terminal-form .dx-texteditor-input,
 .terminal-form .dx-checkbox .dx-checkbox-container {
   height: 30px !important;
@@ -295,50 +298,108 @@ body {
   font-size: 14px;
   padding: 0 6px !important;
 }
+
 .terminal-form-container {
-  padding: 8px;          /* container padding */
-  max-width: 900px;      /* form maksimum genişlik */
-  margin: 0 auto;        /* ortala */
+  padding: 8px;
+  /* container padding */
+  max-width: 900px;
+  /* form maksimum genişlik */
+  margin: 0 auto;
+  /* ortala */
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row {
-  height: 28px;      /* Varsayılan ~40px, biraz daha sıkı */
-  font-size: 12px;   /* Yazıyı küçült */
+  height: 28px;
+  /* Varsayılan ~40px, biraz daha sıkı */
+  font-size: 12px;
+  /* Yazıyı küçült */
 }
+
 .datagridTerminalDelivery .dx-datagrid-headers .dx-header-row {
   height: 30px;
   font-size: 12px;
 }
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row > td {
-  padding: 2px 6px;  /* Varsayılan genelde 8px */
+
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row>td {
+  padding: 2px 6px;
+  /* Varsayılan genelde 8px */
 }
+
 /* Özel class'ınızla birlikte - en güvenilir yöntem */
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt,
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt > td {
-    background-color: #f0f9f4     !important;
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt>td {
+  background-color: #f0f9f4 !important;
 }
 
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt),
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt) > td {
-    background-color: #c8e6c9     !important;
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt)>td {
+  background-color: #c8e6c9 !important;
 }
 
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover,
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover > td {
-    background-color: #93e095 !important;
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover>td {
+  background-color: #93e095 !important;
 }
+
 .datagridTerminalDelivery .dx-header-row {
   background-color: #c8e6c9;
   /* Mor tonları */
   color: #000000;
 
 }
+
 /* Seçili satır */
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection,
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection > td {
-    background-color: #3dc444 !important;  /* Daha koyu yeşil */
-    color: #000 !important;               /* Yazılar net görünsün */
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection>td {
+  background-color: #3dc444 !important;
+  /* Daha koyu yeşil */
+  color: #000 !important;
+  /* Yazılar net görünsün */
+}
+
+/////////////////transfer parti bilgisi
+/// 
+.parti-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-top: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  // max-width: 500px;
+  background: #c2e7ff;
+}
+
+.parti-card-header {
+  padding: 2px 8px;         /* üst-alt boşluk minimum */
+  font-weight: bold;  
+  background-color: #92d3ff;       /* kalın yazı */
+  font-size: 12px;           /* küçük ve modern */
+  color: #111827;            /* koyu renk */
+  border-bottom: 1px solid #9ab9f7;
+  line-height: 1;            /* satır yüksekliğini minimum */
+  text-align: center;         /* ortala */
+  letter-spacing: 0.5px;
+}
+.parti-card-body {
+  padding: 20px;
+}
+
+.parti-card .dx-field-item-label {
+  font-weight: 500;
+  color: #374151;
+  min-width: 120px;
+}
+
+.parti-card .dx-texteditor-input {
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.parti-card .btn-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
 }

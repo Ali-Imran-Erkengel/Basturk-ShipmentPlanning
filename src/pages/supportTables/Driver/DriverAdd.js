@@ -71,8 +71,8 @@ function DriverAdd({ onBack }) {
                 showCloseButton={true}
                  height="auto"
             >
-                <ZoomLayout onRowSelected={handleRowSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardSector} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
-                {/* <ZoomLayout onRowSelected={handleRowSelection} tableName={"Items"} tableKey={"ItemCode"} notDeleted={""} filters={itemsFilters} columns={itemsColumns}></ZoomLayout> */}
+                <ZoomLayout onRowSelected={handleRowSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardSector} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+                {/* <ZoomLayout onRowSelected={handleRowSelection} tableName={"Items"} tableKey={"ItemCode"} customFilter={""} filters={itemsFilters} columns={itemsColumns}></ZoomLayout> */}
             </Popup>
         </div>
     )

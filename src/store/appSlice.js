@@ -47,7 +47,7 @@ export const updateData = createAsyncThunk(
         return response;
     }
 );
-export const createODataSource = (tableName, tableKey, notDeleted) => {
+export const createODataSource = (tableName, tableKey, customFilter) => {
     const oDataStore = new ODataStore({
         url: `${hostName}/${tableName}`,
         key: tableKey,
@@ -62,7 +62,7 @@ export const createODataSource = (tableName, tableKey, notDeleted) => {
     return new DataSource({
         store: oDataStore,
         paginate: true,
-        filter: notDeleted,
+        filter: customFilter,
         sort: [{ selector: tableKey, desc: true }], 
         pageSize: 10,
         requireTotalCount: true,
@@ -104,8 +104,8 @@ const handleNotify = ({ message, type }) => {
     );
 }
 
-export const filter = ({ tableName, tableKey, filtersConfig, filterValues, notDeleted,isBeas }) => {
-    const oDataSource = createODataSource(tableName, tableKey, notDeleted,isBeas);
+export const filter = ({ tableName, tableKey, filtersConfig, filterValues, customFilter,isBeas }) => {
+    const oDataSource = createODataSource(tableName, tableKey, customFilter,isBeas);
     const filters = [];
     filtersConfig.forEach(({ field, operator }) => {
         const value = filterValues[field];
@@ -118,8 +118,8 @@ export const filter = ({ tableName, tableKey, filtersConfig, filterValues, notDe
     oDataSource.load();
     return oDataSource;
 };
-export const filterWgh = ({ tableName, tableKey, filtersConfig, filterValues, notDeleted }) => {
-    const oDataSource = createODataSource(tableName, tableKey, notDeleted);
+export const filterWgh = ({ tableName, tableKey, filtersConfig, filterValues, customFilter }) => {
+    const oDataSource = createODataSource(tableName, tableKey, customFilter);
     const filters = [];
 
     filtersConfig.forEach(({ field, operator, key }) => {

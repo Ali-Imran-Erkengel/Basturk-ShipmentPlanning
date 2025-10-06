@@ -119,7 +119,7 @@ function CreateBankAccount({ dataAddAfter, bankCode, bankKey }) {
                 title='Defteri Kebir Hesapları'
                 showCloseButton={true}
             >
-                <ZoomLayout onRowSelected={handleRowSelectionGLAccount} tableName={"ChartOfAccounts"} tableKey={"Code"} notDeleted={glaccountsFilter} filters={GLAccountFilters} columns={GLAccountColumns}></ZoomLayout>
+                <ZoomLayout onRowSelected={handleRowSelectionGLAccount} tableName={"ChartOfAccounts"} tableKey={"Code"} customFilter={glaccountsFilter} filters={GLAccountFilters} columns={GLAccountColumns}></ZoomLayout>
             </Popup>
 
         </>

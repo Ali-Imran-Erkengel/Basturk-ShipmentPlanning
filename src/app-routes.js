@@ -9,6 +9,8 @@ import ShippingArchive from './pages/shipmentReport/ShippingArchive';
 import Delivery from './pages/terminal/Delivery';
 import AplatzBinLocation from './pages/supportTables/LineBinLocation/AplatzBinLocation';
 import Transfer from './pages/terminal/Transfer';
+import Returns from './pages/terminal/Returns';
+import BarcodedProcess from './pages/terminal/BarcodedProcess';
 
 
 const routes = [
@@ -99,6 +101,14 @@ const routes = [
     {
         path: '/transfer',
         element: Transfer
+    },
+    {
+        path: '/returns',
+        element: Returns
+    },
+    {
+        path: '/barcodedProcess',
+        element: BarcodedProcess
     },
     {
         path: '/aplatzBinLocation',

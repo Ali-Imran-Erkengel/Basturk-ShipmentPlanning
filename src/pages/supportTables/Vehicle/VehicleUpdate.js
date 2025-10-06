@@ -155,15 +155,15 @@ function VehicleUpdate({ id, onBack }) {
                     showCloseButton={true}
                     height="auto"
                 >
-                    <ZoomLayout onRowSelected={handleRowSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardSector} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
-                    {/* <ZoomLayout onRowSelected={handleRowSelection} tableName={"Items"} tableKey={"ItemCode"} notDeleted={""} filters={itemsFilters} columns={itemsColumns}></ZoomLayout> */}
+                    <ZoomLayout onRowSelected={handleRowSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardSector} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+                    {/* <ZoomLayout onRowSelected={handleRowSelection} tableName={"Items"} tableKey={"ItemCode"} customFilter={""} filters={itemsFilters} columns={itemsColumns}></ZoomLayout> */}
                 </Popup>
                 <Popup
                     visible={isPopupVisibleTrailer}
                     hideOnOutsideClick={true}
                     onHiding={togglePopupTrailer}
                 >
-                    <ZoomLayout onRowSelected={handleTrailerSelection} tableName={"SML_TRL_TYPE"} tableKey={"DocEntry"} notDeleted={""} filters={trailerTypeFilters} columns={trailerTypeColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleTrailerSelection} tableName={"SML_TRL_TYPE"} tableKey={"DocEntry"} customFilter={""} filters={trailerTypeFilters} columns={trailerTypeColumns}></ZoomLayout>
                 </Popup>
             </div>
         </div>

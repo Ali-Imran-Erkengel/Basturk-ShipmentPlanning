@@ -422,21 +422,21 @@ function LogisticsUpdate({ id, onBack }) {
                     hideOnOutsideClick={true}
                     onHiding={togglePopupCardCode1}
                 >
-                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardTypeFilter1} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardTypeFilter1} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleCardCode2}
                     hideOnOutsideClick={true}
                     onHiding={togglePopupCardCode2}
                 >
-                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardTypeFilter2} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardTypeFilter2} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleVehicle}
                     hideOnOutsideClick={true}
                     onHiding={togglePopupVehicle}
                 >
-                    <ZoomLayout onRowSelected={handleVehicleSelection} tableName={"SML_BAS_VHL"} tableKey={"DocEntry"} notDeleted={notDeletedFilter} filters={vehicleFilters} columns={vehicleColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleVehicleSelection} tableName={"SML_BAS_VHL"} tableKey={"DocEntry"} customFilter={notDeletedFilter} filters={vehicleFilters} columns={vehicleColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     showCloseButton={true}

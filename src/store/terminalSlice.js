@@ -99,10 +99,19 @@ export const terminalControlTempItems = async ({ documentNo, module }) => {
   };
   return sendGetRequest({ endpoint: "deliverytempcontrol", params: params })
 }
+export const getLastTransferRecord = async () => {
+  let params = {};
+  return sendGetRequest({ endpoint: "getlasttransferrecord", params: params })
+}
 export const saveDelivery = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
-  return sendPostRequest({ endpoint: "teslimat", params: params })
+  return sendPostRequest({ endpoint: "teslimatweb", params: params })
+}
+export const saveTransfer = async ({ payload }) => {
+  console.log("payload", payload)
+  let params = payload;
+  return sendPostRequest({ endpoint: "transferweb", params: params })
 }
 export const createTempData = async ({ tempData }) => {
   let params = {
@@ -121,7 +130,7 @@ export const createTempData = async ({ tempData }) => {
 export const deleteAllTempData = async ({ tempData }) => {
   let params = {
     documentNo: tempData.DocumentNo,
-    module:tempData.Module
+    module: tempData.Module
   };
   console.log("payload", params)
   return sendGetRequest({ endpoint: "deliverytempdeleteall", params: params })
@@ -129,16 +138,67 @@ export const deleteAllTempData = async ({ tempData }) => {
 export const deleteTempData = async ({ tempData }) => {
   let params = {
     documentNo: tempData.DocumentNo,
-    module:tempData.Module,
-    barcode:tempData.Batch
+    module: tempData.Module,
+    barcode: tempData.Batch
   };
   console.log("payload", params)
   return sendGetRequest({ endpoint: "deliverytempdelete", params: params })
 }
-
-
-
-
+export const getBinUsingBatch = async ({ barcode }) => {
+  let params = {
+    barcode: barcode
+  };
+  console.log("payload", params)
+  return sendGetRequest({ endpoint: "terminalgetbin", params: params })
+}
+export const getCustomerInvoicesForReturns = async ({ cardCode }) => {
+  let params = {
+    cardCode: cardCode
+  };
+  return sendGetRequest({ endpoint: "getcustomerinvoices", params: params })
+}
+export const getTermReturnDoc = async ({ docEntry }) => {
+  let params = {
+    docEntry: docEntry
+  };
+  return sendGetRequest({ endpoint: "gettermdeliverydoc", params: params })
+}
+export const returnBatchControl = async ({ documentNo, barcode }) => {
+  let params = {
+    documentNo: documentNo,
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "returnbatchcontrol", params: params })
+}
+export const saveReturns = async ({ payload }) => {
+  console.log("payload", payload)
+  let params = payload;
+  debugger
+  return sendPostRequest({ endpoint: "returnsweb", params: params })
+}
+export const getTransferRequest = async ({ whsCode, status1, status2 }) => {
+  let params = {
+    whsCode: whsCode,
+    status1: status1,
+    status2: status2
+  };
+  return sendGetRequest({ endpoint: "barcodedprocgettransferreq", params: params })
+}
+export const requestIsBatch = async ({ docEntry}) => {
+  let params = {
+    documentNo:docEntry
+  };
+  return sendGetRequest({ endpoint: "requestisbatch", params: params })
+}
+export const getBarcodedProcessBatch = async ({docEntry, whsCode, status1, status2 }) => {
+  let params = {
+    documentNo:docEntry,
+    whsCode: whsCode,
+    status1: status1,
+    status2: status2
+  };
+  return sendGetRequest({ endpoint: "requestwithbatch", params: params })
+}
 const sendGetRequest = async ({ endpoint, params }) => {
   try {
     const response = await axios.get(`${querymanager}/${endpoint}`, {

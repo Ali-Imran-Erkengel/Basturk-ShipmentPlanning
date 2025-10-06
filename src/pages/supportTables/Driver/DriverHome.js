@@ -20,7 +20,7 @@ function DriverHome() {
   const tableName = "SML_BAS_DRV";
   const [dataSource, setDataSource] = useState(null);
   const [selectedItem, setSelectedItem] = useState('');
-  const notDeleted = ["U_IsDeleted", "=", "N"];
+  const customFilter = ["U_IsDeleted", "=", "N"];
   const cardSector = [["Industry", "=", 8],["CardType","=","cSupplier"]]
 
   const [filterValues, setFilterValues] = useState({
@@ -32,7 +32,7 @@ function DriverHome() {
   useEffect(() => {
   }, [selectedItem])
   useEffect(() => {
-    const myDataSource = createODataSource(tableName, tableKey, notDeleted);
+    const myDataSource = createODataSource(tableName, tableKey, customFilter);
     setActiveComponent('');
     sessionStorage.setItem('activeComponent', null)
     //açınca bi dert kapatınca bi dert
@@ -159,8 +159,8 @@ function DriverHome() {
               showCloseButton={true}
                height="auto"
             >
-              <ZoomLayout onRowSelected={handleRowSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardSector} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
-              {/* <ZoomLayout onRowSelected={handleRowSelection} tableName={"Items"} tableKey={"ItemCode"} notDeleted={""} filters={itemsFilters} columns={itemsColumns}></ZoomLayout> */}
+              <ZoomLayout onRowSelected={handleRowSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardSector} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+              {/* <ZoomLayout onRowSelected={handleRowSelection} tableName={"Items"} tableKey={"ItemCode"} customFilter={""} filters={itemsFilters} columns={itemsColumns}></ZoomLayout> */}
             </Popup>
           </div>
         )

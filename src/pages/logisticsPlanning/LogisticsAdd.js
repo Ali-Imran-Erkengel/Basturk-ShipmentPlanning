@@ -548,7 +548,7 @@ function LogisticsAdd({ onBack }) {
                     showCloseButton={true}
                     title='Tedarikçi Listesi'
                 >
-                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardTypeFilter1} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardTypeFilter1} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleCardCode2}
@@ -557,7 +557,7 @@ function LogisticsAdd({ onBack }) {
                     showCloseButton={true}
                     title='Müşteri Listesi'
                 >
-                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} notDeleted={cardTypeFilter2} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleCardSelection} tableName={"BusinessPartners"} tableKey={"CardCode"} customFilter={cardTypeFilter2} filters={businessPartnersFilters} columns={businessPartnersColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleVehicle}
@@ -566,7 +566,7 @@ function LogisticsAdd({ onBack }) {
                     showCloseButton={true}
                     title='Araç Listesi'
                 >
-                    <ZoomLayout onRowSelected={handleVehicleSelection} tableName={"SML_BAS_VHL"} tableKey={"DocEntry"} notDeleted={notDeletedFilter} filters={vehicleFilters} columns={vehicleColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleVehicleSelection} tableName={"SML_BAS_VHL"} tableKey={"DocEntry"} customFilter={notDeletedFilter} filters={vehicleFilters} columns={vehicleColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     showCloseButton={true}

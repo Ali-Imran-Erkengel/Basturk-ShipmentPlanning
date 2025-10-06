@@ -7,6 +7,35 @@ export const terminalDeliveryData = {
   "OldBarcode": false,
   "Barcode": "",
 }
+export const terminalTransferLastData = {
+  "DistNumber": "",
+  "ItemCode": "",
+  "Dscription": "",
+  "FromWhsCod": "",
+  "WhsCode": "",
+  "FromBinCode": "",
+  "ToBinCode": "",
+  "DocNum": ""
+}
+export const terminalReturnData = {
+  "PreparerCode": "",
+  "PreparerName": "",
+  "LoaderCode": "",
+  "LoaderName": "",
+  "GetBack": false,
+  "OldBarcode": false,
+  "Barcode": "",
+  "CardCode":"",
+  "CardName":""
+}
+export const terminalBarcodedProcessData={
+  "PreparerName": "",
+  "LoaderCode": "",
+  "LoaderName": "",
+  "GetBack": false,
+  "OldBarcode": false,
+  "Barcode": ""
+}
 
 // export const terminalBatchData = {
 //   "ItemCode": "",
@@ -70,3 +99,38 @@ export const deliveryColumns = [
   { dataField: "Toplam Palet Miktarı", caption: "Top. Palet", alignment: "right" },
   { dataField: "Plaka Kodu", caption: "Plaka Kodu", alignment: "left" },
   { dataField: "Şöför", caption: "Şöför", alignment: "left" }];
+export const returnColumns = [
+  { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
+  { dataField: "Belge No", caption: "Belge No", alignment: "left" },
+  { dataField: "Kayıt Tarihi", caption: "Kayıt Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
+  { dataField: "Teslim Tarihi", caption: "Teslim Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
+  { dataField: "Müşteri", caption: "Müşteri", alignment: "left" },
+  { dataField: "Açıklama", caption: "Açıklama", alignment: "left" }];
+  export const terminalRetrunColumns = [
+    { dataField: "Batch", caption: "Parti", alignment: "left" },
+    { dataField: "CardCode", caption: "Muhatap Kodu", alignment: "left" },
+    { dataField: "ItemCode", caption: "Kalem Kodu", alignment: "left" },
+    { dataField: "ItemName", caption: "Kalem Adı", alignment: "left" },
+    { dataField: "DocEntry", caption: "Belge No", alignment: "left" },
+    { dataField: "LineNum", caption: "Belge Sıra", alignment: "left" },
+    { dataField: "Quantity", caption: "Miktar", alignment: "right"  },
+    { dataField: "PalletQuantity", caption: "Palet Miktarı", alignment: "right" },
+  ];
+  export const terminalBarcodedProcessColumns = [
+    { dataField: "ApplyEntry", caption: "Parti", alignment: "left" },
+    { dataField: "ApplyLine", caption: "Muhatap Kodu", alignment: "left" },
+    { dataField: "BinAbsEntry", caption: "Kalem Kodu", alignment: "left" },
+    { dataField: "BinCode", caption: "Kalem Adı", alignment: "left" },
+    { dataField: "BinDescription", caption: "Belge No", alignment: "left" },
+    { dataField: "CardCode", caption: "Belge Sıra", alignment: "left" },
+    { dataField: "DistNumber", caption: "Miktar", alignment: "right"  },
+    { dataField: "FromWhsCod", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "InnerQtyOfPallet", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "ItemCode", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "itemName", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "MdAbsEntry", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "Quantity", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "SNB_ALLOCATED_QTY", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "WhsCode", caption: "Palet Miktarı", alignment: "right" },
+    { dataField: "WhsName", caption: "Palet Miktarı", alignment: "right" },
+  ];

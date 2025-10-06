@@ -259,7 +259,7 @@ function OpenBusinessPartners({ dataAddAfter }) {
                 title='Bankalar'
                 showCloseButton={true}
             >
-                <ZoomLayout onRowSelected={handleRowSelectionBank} tableName={"Banks"} tableKey={"BankCode"} notDeleted={""} filters={bankFilters} columns={bankColumns}></ZoomLayout>
+                <ZoomLayout onRowSelected={handleRowSelectionBank} tableName={"Banks"} tableKey={"BankCode"} customFilter={""} filters={bankFilters} columns={bankColumns}></ZoomLayout>
             </Popup>
             <Popup
                 visible={isPopupVisibleSector}
@@ -268,7 +268,7 @@ function OpenBusinessPartners({ dataAddAfter }) {
                 title='Sektör'
                 showCloseButton={true}
             >
-                <ZoomLayout onRowSelected={handleRowSelectionSector} tableName={"Industries"} tableKey={"IndustryCode"} notDeleted={industryFilter} filters={industryFilters} columns={industryColumns}></ZoomLayout>
+                <ZoomLayout onRowSelected={handleRowSelectionSector} tableName={"Industries"} tableKey={"IndustryCode"} customFilter={industryFilter} filters={industryFilters} columns={industryColumns}></ZoomLayout>
             </Popup>
             <Popup
                 visible={isPopupVisibleBankAccount}

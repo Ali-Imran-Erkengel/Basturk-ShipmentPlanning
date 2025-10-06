@@ -516,7 +516,7 @@ function WeighbridgeAdd({ onBack }) {
                     hideOnOutsideClick={true}
                     onHiding={togglePopupDriver}
                 >
-                    <ZoomLayout onRowSelected={handleDriverSelection} tableName={"SML_BAS_DRV"} tableKey={"DocEntry"} notDeleted={""} filters={driverFilters} columns={driverColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleDriverSelection} tableName={"SML_BAS_DRV"} tableKey={"DocEntry"} customFilter={""} filters={driverFilters} columns={driverColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleLgtS}
@@ -526,7 +526,7 @@ function WeighbridgeAdd({ onBack }) {
                     showCloseButton={true}
                     title='Lojistik Planları (Satış)'
                 >
-                    {/* <ZoomLayout onRowSelected={handleLgtSelection} tableName={"SML_LGT_HDR"} tableKey={"DocEntry"} notDeleted={logisticsSales} filters={logisticsFilters} columns={logisticsColumns}></ZoomLayout> */}
+                    {/* <ZoomLayout onRowSelected={handleLgtSelection} tableName={"SML_LGT_HDR"} tableKey={"DocEntry"} customFilter={logisticsSales} filters={logisticsFilters} columns={logisticsColumns}></ZoomLayout> */}
                     <LogisticsList onRowSelected={handleLgtSelection} formMode='a' gridData={gridData} type={1}>
 
                     </LogisticsList>
@@ -542,28 +542,28 @@ function WeighbridgeAdd({ onBack }) {
                     <LogisticsList onRowSelected={handleLgtSelection} formMode='a' gridData={gridData} type={2}>
 
                     </LogisticsList>
-                    {/* <ZoomLayout onRowSelected={handleLgtSelection} tableName={"SML_LGT_HDR"} tableKey={"DocEntry"} notDeleted={logisticsPurchase} filters={logisticsFilters} columns={logisticsColumns}></ZoomLayout> */}
+                    {/* <ZoomLayout onRowSelected={handleLgtSelection} tableName={"SML_LGT_HDR"} tableKey={"DocEntry"} customFilter={logisticsPurchase} filters={logisticsFilters} columns={logisticsColumns}></ZoomLayout> */}
                 </Popup>
                 <Popup
                     visible={isPopupVisibleEmp}
                     hideOnOutsideClick={true}
                     onHiding={togglePopupEmp}
                 >
-                    <ZoomLayout onRowSelected={handleEmpSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} notDeleted={""} filters={employeeFilters} columns={employeeColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleEmpSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={""} filters={employeeFilters} columns={employeeColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleVehicle}
                     hideOnOutsideClick={true}
                     onHiding={togglePopupVehicle}
                 >
-                    <ZoomLayout onRowSelected={handleVehicleSelection} tableName={"SML_BAS_VHL"} tableKey={"DocEntry"} notDeleted={notDeletedFilter} filters={vehicleFilters} columns={vehicleColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleVehicleSelection} tableName={"SML_BAS_VHL"} tableKey={"DocEntry"} customFilter={notDeletedFilter} filters={vehicleFilters} columns={vehicleColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisiblePO}
                     hideOnOutsideClick={true}
                     onHiding={togglePopupPO}
                 >
-                    <ZoomLayout onRowSelected={handlePOSelection} tableName={"PurchaseOrders"} tableKey={"DocEntry"} notDeleted={poFilter} filters={poFilters} columns={poColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handlePOSelection} tableName={"PurchaseOrders"} tableKey={"DocEntry"} customFilter={poFilter} filters={poFilters} columns={poColumns}></ZoomLayout>
                 </Popup>
 
             </div>

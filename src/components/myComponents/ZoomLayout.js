@@ -3,7 +3,7 @@ import { Form, SimpleItem } from 'devextreme-react/form'
 import React, { useEffect, useState } from 'react'
 import { createODataSource, filter } from '../../store/appSlice';
 
-function ZoomLayout({ tableName, tableKey, notDeleted, filters, columns, onRowSelected }) {
+function ZoomLayout({ tableName, tableKey, customFilter, filters, columns, onRowSelected }) {
   
   const initialFilterValues = filters.reduce((acc, value) => {
     acc[value.DataField] = '';
@@ -17,11 +17,11 @@ function ZoomLayout({ tableName, tableKey, notDeleted, filters, columns, onRowSe
       { field: value, operator: 'contains', type: 'string' }
     ))
   useEffect(() => {
-    const myDataSource = createODataSource(tableName, tableKey, notDeleted);
+    const myDataSource = createODataSource(tableName, tableKey, customFilter);
     setDataSource(myDataSource);
   }, []);
   const applyFilter = () => {
-    const newDataSource = filter({ tableName: tableName, tableKey: tableKey, filtersConfig: filtersConfig, filterValues: filterValues, notDeleted: notDeleted });
+    const newDataSource = filter({ tableName: tableName, tableKey: tableKey, filtersConfig: filtersConfig, filterValues: filterValues, customFilter: customFilter });
     setDataSource(newDataSource);
   };
   const handleSelectionChanged = (e) => {

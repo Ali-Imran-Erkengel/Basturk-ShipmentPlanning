@@ -57,6 +57,10 @@ export const navigation = [
       {
         text: 'Transfer',
         path: '/transfer'
+      },
+      {
+        text: 'İade',
+        path: '/returns'
       }
      
     ]

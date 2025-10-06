@@ -39,16 +39,15 @@ function MainPage() {
   const [tomorrowSendData, setTomorrowSendData] = useState([]);
   const [todaySendData, setTodaySendData] = useState([]);
   const navigate = useNavigate();
-  const { isXSmall } = useScreenSize(); // mobil kontrolü
+  const { isXSmall } = useScreenSize(); 
   const pages = [
     { name: "Transfer", icon: ArrowLeftRight, path: "/transfer", color: "#3f76db" },
     { name: "Teslimat", icon: Truck, path: "/delivery", color: "#28a745" },
-    // { name: "Kalite Transfer", icon: RotateCcw, path: "/kalite-transfer", color: "#ffc107" },
-    { name: "İade", icon: RotateCcwIcon, path: "/iade", color: "#dc3545" },
-    { name: "Kırık", icon: WineOff, path: "/kırık", color: "#6f42c1" },
-    { name: "EMR Ayr", icon: Layers, path: "/emr-ayr", color: "#20c997" },
-    { name: "Repack", icon: PackageOpen, path: "/repack", color: "#fd7e14" },
-    { name: "Nakil Talebinden Transfer", icon: ClipboardList, path: "/nakil-talebinden-transfer", color: "#17a2b8" }
+    { name: "İade", icon: RotateCcwIcon, path: "/returns", color: "#dc3545" },
+    { name: "Kırık", icon: WineOff, path: "/barcodedProcess", color: "#6f42c1",code:"BRK" },
+    { name: "Emr Ayr", icon: Layers, path: "/barcodedProcess", color: "#20c997",code:"EMR"},
+    { name: "Repack", icon: PackageOpen, path: "/barcodedProcess", color: "#fd7e14",code:"REP" },
+    { name: "Nakil Talebinden Transfer", icon: ClipboardList, path: "/barcodedProcess", color: "#17a2b8",code:"REQ" }
   ];
   const containerStyle = {
     display: "flex",
@@ -113,7 +112,9 @@ function MainPage() {
                 ...cardStyle,
                 backgroundColor: page.color + "33"
               }}
-              onClick={() => navigate(page.path)}
+              onClick={() => {
+                navigate(page.path, { state: { processType: page.code || null } });
+              }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = "translateY(-4px)";
                 e.currentTarget.style.boxShadow = `0 4px 16px ${page.color}66`;

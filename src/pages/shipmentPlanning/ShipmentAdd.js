@@ -208,7 +208,7 @@ function ShipmentAdd({ onBack }) {
                     showCloseButton={true}
                     title='İhracat Belgeleri'
                 >
-                    <ZoomLayout onRowSelected={handleDeclarationSelection} tableName={"SML_EXP_HDR"} tableKey={"DocEntry"} notDeleted={""} filters={declarationFilters} columns={declarationColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleDeclarationSelection} tableName={"SML_EXP_HDR"} tableKey={"DocEntry"} customFilter={""} filters={declarationFilters} columns={declarationColumns}></ZoomLayout>
                 </Popup>
                 <Popup
                     visible={isPopupVisibleTradeFilePurchase}
@@ -217,7 +217,7 @@ function ShipmentAdd({ onBack }) {
                     showCloseButton={true}
                     title='İthalat Belgeleri'
                 >
-                    <ZoomLayout onRowSelected={handleDeclarationSelection} tableName={"SML_DCR_HDR"} tableKey={"DocEntry"} notDeleted={""} filters={declarationFilters} columns={declarationColumns}></ZoomLayout>
+                    <ZoomLayout onRowSelected={handleDeclarationSelection} tableName={"SML_DCR_HDR"} tableKey={"DocEntry"} customFilter={""} filters={declarationFilters} columns={declarationColumns}></ZoomLayout>
                 </Popup>
             </div>
         </div>
