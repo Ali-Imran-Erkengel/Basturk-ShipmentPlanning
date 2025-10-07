@@ -3,13 +3,13 @@ import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getBarcodedProcessBatch, getCustomerInvoicesForReturns, getTransferRequest, requestIsBatch, returnBatchControl, saveReturns } from "../../store/terminalSlice";
+import { getBarcodedProcessBatch, getCustomerInvoicesForReturns, getTransferRequest, requestIsBatch, returnBatchControl, saveBarcodedProcess, saveReturns } from "../../store/terminalSlice";
 import { returnColumns, terminalBarcodedProcessColumns, terminalBarcodedProcessData, terminalRetrunColumns, terminalReturnData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayout from "../../components/myComponents/ZoomLayout";
 import { businessPartnersColumns, businessPartnersFilters, employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const handleNotify = ({ message, type }) => {
     notify(
@@ -29,6 +29,7 @@ const handleNotify = ({ message, type }) => {
 
 const BarcodedProcess = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const processType = location.state?.processType;
     const [invoiceGrid, setInvoiceGrid] = useState();
     const [tabIndex, setTabIndex] = useState(0);
@@ -37,6 +38,7 @@ const BarcodedProcess = () => {
     const [isPopupVisibleLoader, setPopupVisibilityLoader] = useState(false);
     const [isPopupVisiblePreparer, setPopupVisibilityPreparer] = useState(false);
     const [formData, setFormData] = useState({ ...terminalBarcodedProcessData });
+    const [isBatchExists, setIsBatchExists] = useState('N');
     const employeeFilter = ["Department", "=", 10];
     const barcodeRef = useRef(null);
     const { title, whsCode, status1, status2 } = getProcessConfig(processType);
@@ -138,9 +140,25 @@ const BarcodedProcess = () => {
         let result = await requestIsBatch({ docEntry: docEntry });
         if (result[0].item === 'N') return handleNotify({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
         if (result[0].batch === 'Y') {
-            let items = await getBarcodedProcessBatch({docEntry:docEntry,whsCode:whsCode,status1:status1,status2:status2 });
+            setIsBatchExists('Y')
+            let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: whsCode, status1: status1, status2: status2 });
+            const duplicates = items.reduce((acc, cur) => {
+                const key = `${cur.ItemCode}-${cur.DistNumber}`;
+                if (!acc[key]) acc[key] = new Set();
+                acc[key].add(cur.BinCode);
+                return acc;
+            }, {});
+
+            const conflicts = Object.entries(duplicates)
+                .filter(([_, binSet]) => binSet.size > 1)
+                .map(([key]) => key);
+
+            if (conflicts.length > 0) {
+                handleNotify({ message: `Bu Belgede Bulunan Parti Birden Fazla Depo Yerinde Bulundu`, type: 'error' })
+                return
+            }
             setBatchGrid(items)
-console.log("items",items)
+            console.log("items", items)
         }
         setSelectedDocEntry(docEntry);
         setFormData({ ...terminalReturnData })
@@ -171,15 +189,18 @@ console.log("items",items)
             if (!validateBeforeSave({ formData })) return;
             const preparer = formData.PreparerCode;
             const loadedBy = formData.LoaderCode;
-
+            console.log("whs", whsCode)
             const entries = batchGrid?.map(batch => ({
-                docNum: batch.DocEntry,
-                docLine: batch.LineNum,
-                cardCode: batch.CardCode,
-                batchNumber: batch.Batch,
-                quantity: batch.PalletQuantity,
+                docNum: batch.ApplyEntry,
+                docLine: batch.ApplyLine,
+                batchNumber: batch.DistNumber,
+                quantity: batch.InnerQtyOfPallet,
                 itemCode: batch.ItemCode,
-                innerQtyOfPallet: batch.Quantity,
+                binEntry: batch.BinAbsEntry,
+                innerQtyOfPallet: batch.InnerQtyOfPallet,
+                sWhsCode: batch.FromWhsCod,
+                tWhsCode: whsCode
+
             }));
             const grouped = entries.reduce((acc, entry) => {
                 const key = entry.docLine;
@@ -199,6 +220,9 @@ console.log("items",items)
                     totalQuantity: group.reduce((sum, x) => sum + parseInt(x.innerQtyOfPallet || 0), 0),
                     itemCode: first.itemCode,
                     LoadedBy: loadedBy,
+                    sWhsCode: first.sWhsCode,
+                    tWhsCode: whsCode,
+                    binEntry:first.binEntry,
                     Preparer: preparer
                 };
             });
@@ -207,8 +231,8 @@ console.log("items",items)
                 batchList: entries
             };
             debugger
-            let result = await saveReturns({ payload: payload })
-            setFormData({ ...terminalReturnData })
+            let result = await saveBarcodedProcess({ payload: payload })
+            setFormData({ ...terminalBarcodedProcessData })
             setBatchGrid([]);
             setTabIndex(0);
             setSelectedDocEntry(0)
@@ -256,6 +280,8 @@ console.log("items",items)
             }
 
             debugger
+            readWithBatch({ barcode: barcode })
+            return
             let apiResponse = await batchControl({ documentNo: selectedDocEntry, barcode: barcodeValue })
             if (apiResponse.length === 0) return handleNotify({ message: "Girilen Barkod Seçilen Müşteri Faturasında Mevcut Değil", type: "error" });
             const newRow = {
@@ -294,7 +320,29 @@ console.log("items",items)
             setTimeout(focusBarcodeInput, 50);
         }
     };
+    function readWithBatch({ barcode }) {
+        try {
+            setBatchGrid(prevItems => {
+                const newData = [...prevItems];
+                const idx = newData.findIndex(item => item.DistNumber === barcode);
 
+                if (idx === -1) {
+                    handleNotify({ message: `${barcode} Barkodu listede bulunamadı`, type: "error" });
+                    return newData;
+                }
+
+                if (newData[idx].Readed === 'N') {
+                    newData[idx] = { ...newData[idx], Readed: 'Y' };
+                } else {
+                    handleNotify({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
+                }
+
+                return newData;
+            });
+        } catch (error) {
+            console.error("readWithBatch error:", error);
+        }
+    }
     const focusBarcodeInput = () => {
         const inst = barcodeRef.current;
         if (!inst) return;
@@ -356,7 +404,7 @@ console.log("items",items)
                     </div>
                 </Item>
 
-                {/* TAB 2 - İade */}
+                {/* TAB 2 - Process */}
                 <Item title={title}>
                     <div className="page-container">
                         <Form

@@ -199,6 +199,12 @@ export const getBarcodedProcessBatch = async ({docEntry, whsCode, status1, statu
   };
   return sendGetRequest({ endpoint: "requestwithbatch", params: params })
 }
+export const saveBarcodedProcess = async ({ payload }) => {
+  console.log("payload", payload)
+  let params = payload;
+  debugger
+  return sendPostRequest({ endpoint: "barcodedprocessweb", params: params })
+}
 const sendGetRequest = async ({ endpoint, params }) => {
   try {
     const response = await axios.get(`${querymanager}/${endpoint}`, {

@@ -91,7 +91,7 @@ function MainPage() {
 
       setTodaySendData(today)
     };
-    if (user === "alskdj") {
+    if (user === "manager") {
 
       fetchStatuses();
       logistics();
