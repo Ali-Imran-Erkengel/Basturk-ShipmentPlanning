@@ -11,6 +11,7 @@ import AplatzBinLocation from './pages/supportTables/LineBinLocation/AplatzBinLo
 import Transfer from './pages/terminal/Transfer';
 import Returns from './pages/terminal/Returns';
 import BarcodedProcess from './pages/terminal/BarcodedProcess';
+import TransferFromRequest from './pages/terminal/TransferFromRequest';
 
 
 const routes = [
@@ -109,6 +110,10 @@ const routes = [
     {
         path: '/barcodedProcess',
         element: BarcodedProcess
+    },
+    {
+        path: '/transferFromRequest',
+        element: TransferFromRequest
     },
     {
         path: '/aplatzBinLocation',

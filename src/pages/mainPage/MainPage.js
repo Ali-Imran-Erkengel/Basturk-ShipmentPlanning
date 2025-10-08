@@ -47,7 +47,7 @@ function MainPage() {
     { name: "Kırık", icon: WineOff, path: "/barcodedProcess", color: "#6f42c1",code:"BRK" },
     { name: "Emr Ayr", icon: Layers, path: "/barcodedProcess", color: "#20c997",code:"EMR"},
     { name: "Repack", icon: PackageOpen, path: "/barcodedProcess", color: "#fd7e14",code:"REP" },
-    { name: "Nakil Talebinden Transfer", icon: ClipboardList, path: "/barcodedProcess", color: "#17a2b8",code:"REQ" }
+    { name: "Nakil Talebinden Transfer", icon: ClipboardList, path: "/transferFromRequest", color: "#17a2b8"}
   ];
   const containerStyle = {
     display: "flex",

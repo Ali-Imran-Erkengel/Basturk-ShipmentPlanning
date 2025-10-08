@@ -99,13 +99,13 @@ export const deliveryColumns = [
   { dataField: "Toplam Palet Miktarı", caption: "Top. Palet", alignment: "right" },
   { dataField: "Plaka Kodu", caption: "Plaka Kodu", alignment: "left" },
   { dataField: "Şöför", caption: "Şöför", alignment: "left" }];
-export const returnColumns = [
-  { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
-  { dataField: "Belge No", caption: "Belge No", alignment: "left" },
-  { dataField: "Kayıt Tarihi", caption: "Kayıt Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
-  { dataField: "Teslim Tarihi", caption: "Teslim Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
-  { dataField: "Müşteri", caption: "Müşteri", alignment: "left" },
-  { dataField: "Açıklama", caption: "Açıklama", alignment: "left" }];
+  export const returnColumns = [
+    { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
+    { dataField: "Belge No", caption: "Belge No", alignment: "left" },
+    { dataField: "Kayıt Tarihi", caption: "Kayıt Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
+    { dataField: "Teslim Tarihi", caption: "Teslim Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
+    { dataField: "Müşteri", caption: "Müşteri", alignment: "left" },
+    { dataField: "Açıklama", caption: "Açıklama", alignment: "left" }];
   export const terminalRetrunColumns = [
     { dataField: "Batch", caption: "Parti", alignment: "left" },
     { dataField: "CardCode", caption: "Muhatap Kodu", alignment: "left" },
@@ -121,10 +121,32 @@ export const returnColumns = [
     { dataField: "ApplyLine", caption: "Belge Sıra", alignment: "left" },
     { dataField: "BinAbsEntry", caption: "Bin Entry", alignment: "left" },
     { dataField: "BinCode", caption: "Depo Yeri", alignment: "left" },
-    { dataField: "DistNumber", caption: "Parti No", alignment: "right"  },
-    { dataField: "FromWhsCod", caption: "Kaynak Depo", alignment: "right" },
+    { dataField: "DistNumber", caption: "Parti No", alignment: "left"  },
+    { dataField: "FromWhsCod", caption: "Kaynak Depo", alignment: "left" },
     { dataField: "InnerQtyOfPallet", caption: "Miktar", alignment: "right" },
-    { dataField: "ItemCode", caption: "Kalem Kodu", alignment: "right" },
-    { dataField: "itemName", caption: "Kalem Adı", alignment: "right" },
+    { dataField: "ItemCode", caption: "Kalem Kodu", alignment: "left" },
+    { dataField: "itemName", caption: "Kalem Adı", alignment: "left" },
     { dataField: "Readed", caption: "Okutuldu", alignment: "left"},
   ];
+  export const terminalTransferFromRequestColumns = [
+    { dataField: "ApplyEntry", caption: "Belge No", alignment: "left" },
+    { dataField: "ApplyLine", caption: "Belge Sıra", alignment: "left" },
+    { dataField: "DistNumber", caption: "Parti No", alignment: "left"  },
+    { dataField: "FromWhsCod", caption: "Kaynak Depo", alignment: "left" },
+    { dataField: "WhsCode", caption: "Hedef Depo", alignment: "left" },
+    { dataField: "InnerQtyOfPallet", caption: "Miktar", alignment: "right" },
+    { dataField: "ItemCode", caption: "Kalem Kodu", alignment: "left" },
+    { dataField: "itemName", caption: "Kalem Adı", alignment: "left" },
+    { dataField: "Readed", caption: "Okutuldu", alignment: "left"},
+    { dataField: "U_SourceBinEntry", caption: "Kaynak Bin Entry", alignment: "left"},
+    { dataField: "U_SourceBin", caption: "Kaynak Depo Yeri", alignment: "left"},
+    { dataField: "U_TargetBinEntry", caption: "Hedef Bin Entry", alignment: "left"},
+    { dataField: "U_TargetBin", caption: "Hedef Depo Yeri", alignment: "left"},
+  ];
+  export const transferRequestColumns = [
+    { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
+    { dataField: "Belge No", caption: "Belge No", alignment: "left" },
+    { dataField: "Kayıt Tarihi", caption: "Kayıt Tarihi", alignment: "left" ,dataType:"date",format:"dd/MM/yyyy"},
+    { dataField: "Açıklama", caption: "Açıklama", alignment: "left" },
+    { dataField: "Kalem Kodu", caption: "Kalem Kodu", alignment: "left" },
+    { dataField: "Kalem Adı", caption: "Kalem Adı", alignment: "left" }];

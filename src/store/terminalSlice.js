@@ -184,26 +184,52 @@ export const getTransferRequest = async ({ whsCode, status1, status2 }) => {
   };
   return sendGetRequest({ endpoint: "barcodedprocgettransferreq", params: params })
 }
-export const requestIsBatch = async ({ docEntry}) => {
+export const requestIsBatch = async ({ docEntry }) => {
   let params = {
-    documentNo:docEntry
+    documentNo: docEntry
   };
   return sendGetRequest({ endpoint: "requestisbatch", params: params })
 }
-export const getBarcodedProcessBatch = async ({docEntry, whsCode, status1, status2 }) => {
+export const getBarcodedProcessBatch = async ({ docEntry, whsCode, status1, status2 }) => {
   let params = {
-    documentNo:docEntry,
+    documentNo: docEntry,
     whsCode: whsCode,
     status1: status1,
     status2: status2
   };
   return sendGetRequest({ endpoint: "requestwithbatch", params: params })
 }
+export const requestWithoutBatchControl = async ({ documentNo, barcode }) => {
+  let params = {
+    documentNo: documentNo,
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "requestwithoutbatchcontrol", params: params })
+}
 export const saveBarcodedProcess = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
   debugger
   return sendPostRequest({ endpoint: "barcodedprocessweb", params: params })
+}
+export const transferFromReqStatusControl = async ({ barcode }) => {
+  let params = {
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "transferfromreqstatuscontrol", params: params })
+}
+export const isBinActiveTransferFromReq = async ({ docEntry, barcode }) => {
+  let params = {
+    documentNo: docEntry,
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "isbinactivetransferfromreq", params: params })
+}
+export const saveTransferFromRequest = async ({ payload }) => {
+  console.log("payload", payload)
+  let params = payload;
+  debugger
+  return sendPostRequest({ endpoint: "transferfromreqweb", params: params })
 }
 const sendGetRequest = async ({ endpoint, params }) => {
   try {

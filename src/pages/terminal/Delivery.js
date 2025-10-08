@@ -10,6 +10,8 @@ import ZoomLayout from "../../components/myComponents/ZoomLayout";
 import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { confirm } from "devextreme/ui/dialog";
+import { Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const handleNotify = ({ message, type }) => {
   notify(
@@ -28,6 +30,7 @@ const handleNotify = ({ message, type }) => {
 }
 
 const Delivery = () => {
+  const navigate=useNavigate();
   const [deliveryGrid, setDeliveryGrid] = useState();
   const [tabIndex, setTabIndex] = useState(0);
   const [itemGrid, setItemGrid] = useState();
@@ -404,7 +407,7 @@ const Delivery = () => {
       setTimeout(focusBarcodeInput, 50);
     }
   };
-  
+
   const focusBarcodeInput = () => {
     const inst = barcodeRef.current;
     if (!inst) return;
@@ -433,13 +436,25 @@ const Delivery = () => {
         <Item title="Belge Seç">
           <div className="page-container">
             <div style={{ marginBottom: "20px" }}>
-              <Button
-                text="🗘"
-                type="default"
-                stylingMode="contained"
-                width="100%"
-                onClick={fetchWaitForLoadDocs}
-                elementAttr={{ style: "font-size: 34px; width: 100%" }} />
+              <Grid container spacing={1} paddingBottom={1}>
+                <Grid item>
+                  <Button
+                    icon="arrowleft"
+                    type="default"
+                    stylingMode="contained"
+                    onClick={() => navigate('/mainPage')}
+                  />
+                </Grid>
+                <Grid item>
+                  <Button
+                    text="🗘"
+                    type="default"
+                    stylingMode="contained"
+                    onClick={fetchWaitForLoadDocs}
+                    elementAttr={{ style: "font-size: 34px; width: 100%" }}
+                  />
+                </Grid>
+              </Grid>
             </div>
             <DataGrid
               dataSource={deliveryGrid}

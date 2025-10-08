@@ -3,12 +3,14 @@ import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getCustomerInvoicesForReturns, returnBatchControl,  saveReturns } from "../../store/terminalSlice";
-import { returnColumns ,  terminalRetrunColumns, terminalReturnData } from "./data/data";
+import { getCustomerInvoicesForReturns, returnBatchControl, saveReturns } from "../../store/terminalSlice";
+import { returnColumns, terminalRetrunColumns, terminalReturnData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayout from "../../components/myComponents/ZoomLayout";
 import { businessPartnersColumns, businessPartnersFilters, employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
+import { Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const handleNotify = ({ message, type }) => {
   notify(
@@ -27,6 +29,7 @@ const handleNotify = ({ message, type }) => {
 }
 
 const Returns = () => {
+  const navigate = useNavigate();
   const [invoiceGrid, setInvoiceGrid] = useState();
   const [tabIndex, setTabIndex] = useState(0);
   const [batchGrid, setBatchGrid] = useState([]);
@@ -128,11 +131,11 @@ const Returns = () => {
       if (!validateBeforeSave({ formData })) return;
       const preparer = formData.PreparerCode;
       const loadedBy = formData.LoaderCode;
-      
-      const entries  = batchGrid?.map(batch => ({
-        docNum:batch.DocEntry,
-        docLine:batch.LineNum,
-        cardCode:batch.CardCode,
+
+      const entries = batchGrid?.map(batch => ({
+        docNum: batch.DocEntry,
+        docLine: batch.LineNum,
+        cardCode: batch.CardCode,
         batchNumber: batch.Batch,
         quantity: batch.PalletQuantity,
         itemCode: batch.ItemCode,
@@ -144,8 +147,8 @@ const Returns = () => {
         acc[key].push(entry);
         return acc;
       }, {});
-      
-      debugger     
+
+      debugger
       const summaryList = Object.keys(grouped).map(key => {
         const group = grouped[key];
         const first = group[0];
@@ -162,7 +165,7 @@ const Returns = () => {
       const payload = {
         itemList: summaryList,
         batchList: entries
-      };      
+      };
       debugger
       let result = await saveReturns({ payload: payload })
       setFormData({ ...terminalReturnData })
@@ -214,14 +217,14 @@ const Returns = () => {
 
       debugger
       let apiResponse = await batchControl({ documentNo: selectedDocEntry, barcode: barcodeValue })
-      if(apiResponse.length===0)return handleNotify({ message: "Girilen Barkod Seçilen Müşteri Faturasında Mevcut Değil", type: "error" });
+      if (apiResponse.length === 0) return handleNotify({ message: "Girilen Barkod Seçilen Müşteri Faturasında Mevcut Değil", type: "error" });
       const newRow = {
         ItemCode: apiResponse[0].ItemCode,
         ItemName: apiResponse[0].Dscription,
-        DocEntry:apiResponse[0].DocEntry,
-        LineNum:apiResponse[0].LineNum,
+        DocEntry: apiResponse[0].DocEntry,
+        LineNum: apiResponse[0].LineNum,
         Quantity: apiResponse[0].Quantity,
-        CardCode:apiResponse[0].CardCode,
+        CardCode: apiResponse[0].CardCode,
         PalletQuantity: 1,
         Batch: apiResponse[0].BatchNum
       };
@@ -279,6 +282,16 @@ const Returns = () => {
         {/* TAB 1 - Belge Seç */}
         <Item title="Belge Seç">
           <div className="page-container">
+            <Grid container spacing={1} paddingBottom={1}>
+              <Grid item>
+                <Button
+                  icon="arrowleft"
+                  type="default"
+                  stylingMode="contained"
+                  onClick={() => navigate('/mainPage')}
+                />
+              </Grid>
+            </Grid>
             <div style={{ marginBottom: "20px" }}>
               <Form
                 formData={formData}
@@ -313,13 +326,17 @@ const Returns = () => {
 
 
               </Form>
-              <Button
-                text="🗘"
-                type="default"
-                stylingMode="contained"
-                width="100%"
-                onClick={fetchWaitForLoadDocs}
-                elementAttr={{ style: "font-size: 34px; width: 100%" }} />
+              <Grid container spacing={1} paddingBottom={1}>
+                <Grid item>
+                  <Button
+                    text="🗘"
+                    type="default"
+                    stylingMode="contained"
+                    onClick={fetchWaitForLoadDocs}
+                    elementAttr={{ style: "font-size: 34px; width: 100%" }}
+                  />
+                </Grid>
+              </Grid>
             </div>
             <DataGrid
               dataSource={invoiceGrid}

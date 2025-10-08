@@ -3,13 +3,13 @@ import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getBarcodedProcessBatch, getCustomerInvoicesForReturns, getTransferRequest, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveBarcodedProcess, saveReturns } from "../../store/terminalSlice";
-import { returnColumns, terminalBarcodedProcessColumns, terminalBarcodedProcessData, terminalRetrunColumns, terminalReturnData, transferRequestColumns } from "./data/data";
+import { getBarcodedProcessBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqStatusControl } from "../../store/terminalSlice";
+import { terminalBarcodedProcessData, terminalReturnData, terminalTransferFromRequestColumns, transferRequestColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayout from "../../components/myComponents/ZoomLayout";
-import { businessPartnersColumns, businessPartnersFilters, employeeColumns } from "../../data/zoomLayoutData";
+import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
 
 const handleNotify = ({ message, type }) => {
@@ -28,10 +28,8 @@ const handleNotify = ({ message, type }) => {
     );
 }
 
-const BarcodedProcess = () => {
-    const location = useLocation();
+const TransferFromRequest = () => {
     const navigate = useNavigate();
-    const processType = location.state?.processType;
     const [invoiceGrid, setInvoiceGrid] = useState();
     const [tabIndex, setTabIndex] = useState(0);
     const [batchGrid, setBatchGrid] = useState([]);
@@ -42,7 +40,6 @@ const BarcodedProcess = () => {
     const [isBatchExists, setIsBatchExists] = useState('N');
     const employeeFilter = ["Department", "=", 10];
     const barcodeRef = useRef(null);
-    const { title, whsCode, status1, status2 } = getProcessConfig(processType);
 
     useEffect(() => {
         fetchWaitForLoadDocs();
@@ -65,41 +62,7 @@ const BarcodedProcess = () => {
             ],
         };
     };
-    function getProcessConfig(processType) {
-        let config = {
-            title: "",
-            whsCode: "",
-            status1: "",
-            status2: ""
-        };
 
-        switch (processType) {
-            case "BRK":
-                config.title = "Kırık";
-                config.whsCode = "KR01";
-                config.status1 = "-4";
-                config.status2 = "-2";
-                break;
-
-            case "EMR":
-                config.title = "EMR/AYR";
-                config.whsCode = "EM01";
-                config.status1 = "-4";
-                config.status2 = "-2";
-                break;
-
-            case "REP":
-                config.title = "Repack";
-                config.whsCode = "RP01";
-                config.status1 = "-5";
-                config.status2 = "-3";
-                break;
-            default:
-                break;
-        }
-
-        return config;
-    }
     const togglePopupZoomLayout = ({ variable }) => {
         switch (variable) {
             case "loader":
@@ -127,17 +90,16 @@ const BarcodedProcess = () => {
 
     // #region requests
     const fetchWaitForLoadDocs = async () => {
-        let docs = await getTransferRequest({ whsCode: whsCode, status1: status1, status2: status2 });
+        let docs = await getTransferRequest({ whsCode: '', status1: '', status2: '' });
         setInvoiceGrid(docs);
     };
     const goForReadBarcodes = async ({ docEntry }) => {
         let result = await requestIsBatch({ docEntry: docEntry });
         setBatchGrid([])
-
         if (result[0].item === 'N') return handleNotify({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
         if (result[0].batch === 'Y') {
             setIsBatchExists('Y')
-            let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: whsCode, status1: status1, status2: status2 });
+            let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: '', status1: '', status2: '' });
             const duplicates = items.reduce((acc, cur) => {
                 const key = `${cur.ItemCode}-${cur.DistNumber}`;
                 if (!acc[key]) acc[key] = new Set();
@@ -156,7 +118,7 @@ const BarcodedProcess = () => {
             setBatchGrid(items)
             console.log("items", items)
         }
-        else{
+        else {
             setIsBatchExists('N')
         }
         setSelectedDocEntry(docEntry);
@@ -188,17 +150,18 @@ const BarcodedProcess = () => {
             if (!validateBeforeSave({ formData })) return;
             const preparer = formData.PreparerCode;
             const loadedBy = formData.LoaderCode;
-            console.log("whs", whsCode)
             const entries = batchGrid?.map(batch => ({
                 docNum: batch.ApplyEntry,
                 docLine: batch.ApplyLine,
                 batchNumber: batch.DistNumber,
                 quantity: batch.InnerQtyOfPallet,
                 itemCode: batch.ItemCode,
-                binEntry: batch.BinAbsEntry,
+                sBinEntry: batch.U_SourceBinEntry,
+                tBinEntry: batch.U_TargetBinEntry,
                 innerQtyOfPallet: batch.InnerQtyOfPallet,
                 sWhsCode: batch.FromWhsCod,
-                tWhsCode: whsCode
+                tWhsCode: batch.WhsCode,
+
 
             }));
             const grouped = entries.reduce((acc, entry) => {
@@ -220,7 +183,7 @@ const BarcodedProcess = () => {
                     itemCode: first.itemCode,
                     LoadedBy: loadedBy,
                     sWhsCode: first.sWhsCode,
-                    tWhsCode: whsCode,
+                    tWhsCode: first.tWhsCode,
                     binEntry: first.binEntry,
                     Preparer: preparer
                 };
@@ -230,7 +193,7 @@ const BarcodedProcess = () => {
                 batchList: entries
             };
             debugger
-            let result = await saveBarcodedProcess({ payload: payload })
+            let result = await saveTransferFromRequest({ payload: payload })
             setFormData({ ...terminalBarcodedProcessData })
             setBatchGrid([]);
             setTabIndex(0);
@@ -257,7 +220,27 @@ const BarcodedProcess = () => {
             </div>
         );
     };
-
+    const batchStatusControl = async ({barcode }) => {
+        let result=await transferFromReqStatusControl({barcode:barcode});
+        if(result.length===0)
+        {
+            return "OK"
+        }
+        else{
+            return result[0].Warning
+        }
+    }
+    const controlBinActive = async ({barcode }) => {
+        let result=await isBinActiveTransferFromReq({docEntry:selectedDocEntry,barcode:barcode})
+        console.log(result)
+        if(result.length===0)
+        {
+            return "ERROR"
+        }
+        else{
+            return result[0].BinActivat
+        }
+    }
     const handleBarcodeEnter = async (barcode) => {
         try {
             let isGetBack = formData.GetBack;
@@ -277,7 +260,10 @@ const BarcodedProcess = () => {
                 handleNotify({ message: "Okutma geri alındı.", type: "success" });
                 return;
             }
-            debugger
+            let warning = await batchStatusControl({barcode});
+            
+            //if (warning!=="OK") return  handleNotify({message:warning,type:'error'})
+              
             if (isBatchExists === 'Y') {
 
                 readWithBatch({ barcode: barcode })
@@ -319,6 +305,14 @@ const BarcodedProcess = () => {
     }
     async function readWithoutBatch({ barcode }) {
         try {
+            let isBinActive=await controlBinActive({barcode:barcode}); 
+           if (isBinActive==="ERROR") return  handleNotify({message:"Depo Yeri Aktifliği Kontrolünde Geçersiz Parti.",type:'error'})
+            if(isBinActive==='Y'){
+                
+            }
+            
+            
+            return
             let apiResponse = await requestWithoutBatchControl({ documentNo: selectedDocEntry, barcode: barcode })
             if (apiResponse.length === 0) {
                 return handleNotify({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
@@ -334,6 +328,11 @@ const BarcodedProcess = () => {
                     BinCode: apiResponse[0].U_TargetBin,
                     DistNumber: apiResponse[0].DistNumber,
                     FromWhsCod: apiResponse[0].FromWhsCod,
+                    WhsCode: apiResponse[0].WhsCode,
+                    U_SourceBinEntry: apiResponse[0].U_SourceBinEntry,
+                    U_SourceBin: apiResponse[0].U_SourceBin,
+                    U_TargetBinEntry: apiResponse[0].U_TargetBinEntry,
+                    U_TargetBin: apiResponse[0].U_TargetBin,
                     InnerQtyOfPallet: apiResponse[0].InnerQtyOfPallet,
                     ItemCode: apiResponse[0].ItemCode,
                     itemName: apiResponse[0].Dscription,
@@ -430,7 +429,7 @@ const BarcodedProcess = () => {
                 </Item>
 
                 {/* TAB 2 - Process */}
-                <Item title={title}>
+                <Item title="Stok Naklinden Transfer">
                     <div className="page-container">
                         <Form
                             formData={formData}
@@ -516,7 +515,7 @@ const BarcodedProcess = () => {
                             rowAlternationEnabled={true}
                             columnMinWidth={100}
                             className="datagridTerminalDelivery">
-                            {terminalBarcodedProcessColumns.map(col => (
+                            {terminalTransferFromRequestColumns.map(col => (
                                 <Column key={col.dataField} {...col} />
                             ))}
                         </DataGrid>
@@ -545,4 +544,4 @@ const BarcodedProcess = () => {
         </div>
     );
 };
-export default BarcodedProcess;
+export default TransferFromRequest;

@@ -7,6 +7,8 @@ import { Popup } from "devextreme-react/popup";
 import ZoomLayout from "../../components/myComponents/ZoomLayout";
 import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
+import { Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const handleNotify = ({ message, type }) => {
   notify(
@@ -25,6 +27,7 @@ const handleNotify = ({ message, type }) => {
 }
 
 const Transfer = () => {
+  const navigate = useNavigate();
   const [isPopupVisibleLoader, setPopupVisibilityLoader] = useState(false);
   const [isPopupVisiblePreparer, setPopupVisibilityPreparer] = useState(false);
   const [formData, setFormData] = useState({ ...terminalDeliveryData });
@@ -32,7 +35,7 @@ const Transfer = () => {
   const employeeFilter = ["Department", "=", 10];
   const barcodeRef = useRef(null);
 
-  
+
   const createTextBoxWithButtonOptions = (type) => {
     return {
       buttons: [
@@ -76,53 +79,27 @@ const Transfer = () => {
   // #region requests
 
 
-const getLastInventoryTransferRecord=async()=>{
-  try {
-    let lastTransfer=await getLastTransferRecord();
-      let trnData={
-        DistNumber:lastTransfer[0].DistNumber,
-        ItemCode:lastTransfer[0].ItemCode,
-        Dscription:lastTransfer[0].Dscription,
-        FromWhsCod:lastTransfer[0].FromWhsCod,
-        WhsCode:lastTransfer[0].WhsCode,
-        FromBinCode:lastTransfer[0].FromBinCode ,
-        ToBinCode:lastTransfer[0].ToBinCode ,
-        DocNum:lastTransfer[0].DocNum
+  const getLastInventoryTransferRecord = async () => {
+    try {
+      let lastTransfer = await getLastTransferRecord();
+      let trnData = {
+        DistNumber: lastTransfer[0].DistNumber,
+        ItemCode: lastTransfer[0].ItemCode,
+        Dscription: lastTransfer[0].Dscription,
+        FromWhsCod: lastTransfer[0].FromWhsCod,
+        WhsCode: lastTransfer[0].WhsCode,
+        FromBinCode: lastTransfer[0].FromBinCode,
+        ToBinCode: lastTransfer[0].ToBinCode,
+        DocNum: lastTransfer[0].DocNum
       }
-      console.log("transfer",lastTransfer)
+      console.log("transfer", lastTransfer)
       setTransferData(trnData)
-  } catch (err) {
-    console.error("err:", err.message);
-    throw err
+    } catch (err) {
+      console.error("err:", err.message);
+      throw err
+    }
   }
-}
-  const warehouseControl = async ({ itemCode, barcode }) => {
-    try {
-      let result = await terminalWarehouseControl({ itemCode, barcode });
-      return result[0]?.DepoAdi;
-    } catch (err) {
-      console.error("err:", err.message);
-      throw err
-    }
-  };
-  const statusControl = async ({ itemCode, barcode }) => {
-    try {
-      let result = await terminalStatusControl({ itemCode, barcode });
-      return result[0]?.Warning;
-    } catch (err) {
-      console.error("err:", err.message);
-      throw err
-    }
-  };
-  const batchBinControl = async ({ itemCode, barcode, whsCode, stockQuantity }) => {
-    try {
-      let result = await terminalBinControl({ itemCode: itemCode, barcode: barcode, whsCode: whsCode, stockQuantity: stockQuantity });
-      return result;
-    } catch (err) {
-      console.error("err:", err.message);
-      throw err
-    }
-  };
+  
   const validateBeforeSave = ({ formData, }) => {
     if (!formData.PreparerCode || !formData.LoaderCode) {
       handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
@@ -134,7 +111,7 @@ const getLastInventoryTransferRecord=async()=>{
   const handleSave = async ({ item }) => {
     try {
 
-    
+
       const preparer = formData.PreparerCode;
       const loadedBy = formData.LoaderCode;
       const itemList = {
@@ -142,10 +119,10 @@ const getLastInventoryTransferRecord=async()=>{
         quantity: item.OnHandQty,
         stockQty: 1,
         tWhsCode: "MA01",
-        sWhsCode:item.WhsCode,
+        sWhsCode: item.WhsCode,
         innerQtyOfPallet: item.InnerQty,
         sBinEntry: item.AbsEntry,
-        tBinEntry:19,
+        tBinEntry: 19,
         batchNumber: item.DistNumber,
         loadedBy: loadedBy,
         preparer: preparer
@@ -187,7 +164,7 @@ const getLastInventoryTransferRecord=async()=>{
         let innerQtyOfPallet = apiResponse[0].InnerQty;
         if (binCode.includes("SİSTEM")) {
           if (quantity < innerQtyOfPallet) return handleNotify({ message: `Yetersiz Miktar.`, type: "error" });
-          await handleSave({item:apiResponse[0]})
+          await handleSave({ item: apiResponse[0] })
         }
         else {
           return handleNotify({ message: `Okutulan Barkod ${binCode} Depo Yerinde!`, type: "error" });
@@ -223,6 +200,16 @@ const getLastInventoryTransferRecord=async()=>{
   return (
     <div className="p-4">
       <div className="page-container">
+        <Grid container spacing={1} paddingBottom={1}>
+          <Grid item>
+            <Button
+              icon="arrowleft"
+              type="default"
+              stylingMode="contained"
+              onClick={() => navigate('/mainPage')}
+            />
+          </Grid>
+        </Grid>
         <Form
           formData={formData}
           labelLocation="left"
@@ -268,7 +255,7 @@ const getLastInventoryTransferRecord=async()=>{
             label={{ text: 'Hazırlayan' }}
             colSpan={6}
           />
-         
+
           <SimpleItem
             dataField="OldBarcode"
             editorType="dxCheckBox"
@@ -286,10 +273,10 @@ const getLastInventoryTransferRecord=async()=>{
           <div className="parti-card-body">
             <Form
               formData={transferData}
-              colCount={2}        
-              labelLocation="left"  
+              colCount={2}
+              labelLocation="left"
               showColonAfterLabel={true}
-              minColWidth={200}  
+              minColWidth={200}
             >
               <SimpleItem dataField="DocNum" editorType="dxTextBox" label={{ text: 'Belge No' }} />
               <SimpleItem dataField="DistNumber" editorType="dxTextBox" label={{ text: 'Parti No' }} />
