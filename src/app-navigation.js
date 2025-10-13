@@ -47,23 +47,8 @@ export const navigation = [
   // },
   {
     text: 'Terminal Ekranları',
-    icon: 'columnchooser',
-    visible: userName !== 'kantar',
-    items: [
-      {
-        text: 'Teslimat',
-        path: '/delivery'
-      },
-      {
-        text: 'Transfer',
-        path: '/transfer'
-      },
-      {
-        text: 'İade',
-        path: '/returns'
-      }
-     
-    ]
+    path: '/selectScreen',
+    icon: 'columnchooser'
   },
   {
     text: 'Sevkiyat Detay Raporu',

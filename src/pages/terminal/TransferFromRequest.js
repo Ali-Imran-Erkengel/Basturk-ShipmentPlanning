@@ -3,7 +3,7 @@ import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getBarcodedProcessBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqStatusControl } from "../../store/terminalSlice";
+import { getBarcodedProcessBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqControlBinActive, transferFromReqControlBinDective, transferFromReqStatusControl } from "../../store/terminalSlice";
 import { terminalBarcodedProcessData, terminalReturnData, terminalTransferFromRequestColumns, transferRequestColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayout from "../../components/myComponents/ZoomLayout";
@@ -220,24 +220,22 @@ const TransferFromRequest = () => {
             </div>
         );
     };
-    const batchStatusControl = async ({barcode }) => {
-        let result=await transferFromReqStatusControl({barcode:barcode});
-        if(result.length===0)
-        {
+    const batchStatusControl = async ({ barcode }) => {
+        let result = await transferFromReqStatusControl({ barcode: barcode });
+        if (result.length === 0) {
             return "OK"
         }
-        else{
+        else {
             return result[0].Warning
         }
     }
-    const controlBinActive = async ({barcode }) => {
-        let result=await isBinActiveTransferFromReq({docEntry:selectedDocEntry,barcode:barcode})
-        console.log(result)
-        if(result.length===0)
-        {
+    const controlBinActive = async ({ barcode }) => {
+        let result = await isBinActiveTransferFromReq({ docEntry: selectedDocEntry, barcode: barcode })
+
+        if (result.length === 0) {
             return "ERROR"
         }
-        else{
+        else {
             return result[0].BinActivat
         }
     }
@@ -260,10 +258,10 @@ const TransferFromRequest = () => {
                 handleNotify({ message: "Okutma geri alındı.", type: "success" });
                 return;
             }
-            let warning = await batchStatusControl({barcode});
-            
+            let warning = await batchStatusControl({ barcode });
+
             //if (warning!=="OK") return  handleNotify({message:warning,type:'error'})
-              
+
             if (isBatchExists === 'Y') {
 
                 readWithBatch({ barcode: barcode })
@@ -305,13 +303,72 @@ const TransferFromRequest = () => {
     }
     async function readWithoutBatch({ barcode }) {
         try {
-            let isBinActive=await controlBinActive({barcode:barcode}); 
-           if (isBinActive==="ERROR") return  handleNotify({message:"Depo Yeri Aktifliği Kontrolünde Geçersiz Parti.",type:'error'})
-            if(isBinActive==='Y'){
-                
+            let isBinActive = await controlBinActive({ barcode: barcode });
+            if (isBinActive === "ERROR") return handleNotify({ message: "Depo Yeri Aktifliği Kontrolünde Geçersiz Parti.", type: 'error' })
+            if (isBinActive === 'Y') {
+                let result = await transferFromReqControlBinActive({ docEntry: selectedDocEntry, barcode: barcode })
+                if (result.length === 0) return handleNotify({ message: "Yetersiz Miktar.", type: 'error' })
+                const newRow = {
+                    ApplyEntry: result[0].DocEntry,
+                    ApplyLine: result[0].LineNum,
+                    BinAbsEntry: result[0].U_TargetBinEntry,
+                    BinCode: result[0].U_TargetBin,
+                    DistNumber: result[0].DistNumber,
+                    FromWhsCod: result[0].FromWhsCod,
+                    WhsCode: result[0].WhsCode,
+                    U_SourceBinEntry: result[0].U_SourceBinEntry,
+                    U_SourceBin: result[0].U_SourceBin,
+                    U_TargetBinEntry: result[0].U_TargetBinEntry,
+                    U_TargetBin: result[0].U_TargetBin,
+                    InnerQtyOfPallet: result[0].InnerQtyOfPallet,
+                    ItemCode: result[0].ItemCode,
+                    itemName: result[0].Dscription,
+                    Readed: 'Y'
+                };
+                setBatchGrid(prev => {
+                    const exists = prev?.some(item => item.DistNumber === newRow.DistNumber);
+                    if (exists) {
+                        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+                        return prev;
+                    } else {
+                        handleNotify({ message: "Okutma Başarılı.", type: "success" });
+                        return [...prev, newRow];
+                    }
+                });
             }
-            
-            
+            else {
+                let result = await transferFromReqControlBinDective({ docEntry: selectedDocEntry, barcode: barcode })
+                if (result.length === 0) return handleNotify({ message: "Yetersiz Miktar.", type: 'error' })
+                const newRow = {
+                    ApplyEntry: result[0].DocEntry,
+                    ApplyLine: result[0].LineNum,
+                    BinAbsEntry: result[0].U_TargetBinEntry,
+                    BinCode: result[0].U_TargetBin,
+                    DistNumber: result[0].DistNumber,
+                    FromWhsCod: result[0].FromWhsCod,
+                    WhsCode: result[0].WhsCode,
+                    U_SourceBinEntry: result[0].U_SourceBinEntry,
+                    U_SourceBin: result[0].U_SourceBin,
+                    U_TargetBinEntry: result[0].U_TargetBinEntry,
+                    U_TargetBin: result[0].U_TargetBin,
+                    InnerQtyOfPallet: result[0].InnerQtyOfPallet,
+                    ItemCode: result[0].ItemCode,
+                    itemName: result[0].Dscription,
+                    Readed: 'Y'
+                };
+                setBatchGrid(prev => {
+                    const exists = prev?.some(item => item.DistNumber === newRow.DistNumber);
+                    if (exists) {
+                        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+                        return prev;
+                    } else {
+                        handleNotify({ message: "Okutma Başarılı.", type: "success" });
+                        return [...prev, newRow];
+                    }
+                });
+            }
+
+
             return
             let apiResponse = await requestWithoutBatchControl({ documentNo: selectedDocEntry, barcode: barcode })
             if (apiResponse.length === 0) {
@@ -393,7 +450,7 @@ const TransferFromRequest = () => {
                             </Grid>
                             <Grid item>
                                 <Button
-                                    text="🗘"
+                                    icon="refresh"
                                     type="default"
                                     stylingMode="contained"
                                     onClick={fetchWaitForLoadDocs}
@@ -429,7 +486,7 @@ const TransferFromRequest = () => {
                 </Item>
 
                 {/* TAB 2 - Process */}
-                <Item title="Stok Naklinden Transfer">
+                <Item title="Nakl Talebinden Transfer">
                     <div className="page-container">
                         <Form
                             formData={formData}
@@ -502,9 +559,6 @@ const TransferFromRequest = () => {
                                 colSpan={6}
                             />
                         </Form>
-                        <b className="mt-2 font-bold">Kalemler</b>
-
-                        <br></br>
                         <hr></hr>
                         <b className="mt-6 font-bold">Okutulan Partiler</b>
                         <DataGrid

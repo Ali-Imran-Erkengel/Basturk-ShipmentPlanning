@@ -122,7 +122,7 @@ const Transfer = () => {
         sWhsCode: item.WhsCode,
         innerQtyOfPallet: item.InnerQty,
         sBinEntry: item.AbsEntry,
-        tBinEntry: 19,
+        tBinEntry: 4,
         batchNumber: item.DistNumber,
         loadedBy: loadedBy,
         preparer: preparer

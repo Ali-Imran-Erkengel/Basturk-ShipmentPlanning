@@ -447,11 +447,10 @@ const Delivery = () => {
                 </Grid>
                 <Grid item>
                   <Button
-                    text="🗘"
+                    icon="refresh"
                     type="default"
                     stylingMode="contained"
                     onClick={fetchWaitForLoadDocs}
-                    elementAttr={{ style: "font-size: 34px; width: 100%" }}
                   />
                 </Grid>
               </Grid>
@@ -559,11 +558,11 @@ const Delivery = () => {
             <DataGrid
               dataSource={itemGrid}
               columnAutoWidth={true}
-              width="100%"
+              // width="100%"
               showBorders={true}
               keyExpr="Index"
               rowAlternationEnabled={true}
-              columnMinWidth={100}
+               columnMinWidth={120}
               onSelectionChanged={(e) => setSelectedItem(e.selectedRowsData[0])}
               selectedRowKeys={[selectedItem?.Index]}
               selection={{ mode: "single" }}
@@ -581,9 +580,9 @@ const Delivery = () => {
               dataSource={batchGrid}
               showBorders={true}
               columnAutoWidth={true}
-              width="100%"
+              width="auto"
               rowAlternationEnabled={true}
-              columnMinWidth={100}
+              // columnMinWidth={100}
               className="datagridTerminalDelivery">
               {terminalBatchColumns.map(col => (
                 <Column key={col.dataField} {...col} />

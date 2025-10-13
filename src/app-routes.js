@@ -12,6 +12,9 @@ import Transfer from './pages/terminal/Transfer';
 import Returns from './pages/terminal/Returns';
 import BarcodedProcess from './pages/terminal/BarcodedProcess';
 import TransferFromRequest from './pages/terminal/TransferFromRequest';
+import BatchDetails from './pages/terminal/BatchDetails';
+import SelectScreen from './pages/terminal/SelectScreen';
+import InventoryTransfer from './pages/terminal/InventoryTransfer';
 
 
 const routes = [
@@ -114,6 +117,18 @@ const routes = [
     {
         path: '/transferFromRequest',
         element: TransferFromRequest
+    },
+    {
+        path: '/batchDetails',
+        element: BatchDetails
+    },
+    {
+        path: '/inventoryTransfer',
+        element: InventoryTransfer
+    },
+    {
+        path: '/selectScreen',
+        element: SelectScreen
     },
     {
         path: '/aplatzBinLocation',

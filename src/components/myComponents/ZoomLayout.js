@@ -51,6 +51,9 @@ function ZoomLayout({ tableName, tableKey, customFilter, filters, columns, onRow
         dataSource={dataSource}
         keyExpr={tableKey}
         showBorders={true}
+        columnAutoWidth={true}
+        columnMinWidth={120}
+        allowColumnResizing={false}
       >
         <Selection
           mode="single"

@@ -113,6 +113,7 @@ export const saveTransfer = async ({ payload }) => {
   let params = payload;
   return sendPostRequest({ endpoint: "transferweb", params: params })
 }
+
 export const createTempData = async ({ tempData }) => {
   let params = {
     itemCode: tempData.ItemCode,
@@ -148,7 +149,6 @@ export const getBinUsingBatch = async ({ barcode }) => {
   let params = {
     barcode: barcode
   };
-  console.log("payload", params)
   return sendGetRequest({ endpoint: "terminalgetbin", params: params })
 }
 export const getCustomerInvoicesForReturns = async ({ cardCode }) => {
@@ -225,11 +225,55 @@ export const isBinActiveTransferFromReq = async ({ docEntry, barcode }) => {
   };
   return sendGetRequest({ endpoint: "isbinactivetransferfromreq", params: params })
 }
+export const transferFromReqControlBinActive = async ({ docEntry, barcode }) => {
+  let params = {
+    documentNo: docEntry,
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "transferfromreqcontrolbinactive", params: params })
+}
+export const transferFromReqControlBinDective = async ({ docEntry, barcode }) => {
+  let params = {
+    documentNo: docEntry,
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "transferfromreqcontrolbindeactive", params: params })
+}
 export const saveTransferFromRequest = async ({ payload }) => {
-  console.log("payload", payload)
   let params = payload;
   debugger
   return sendPostRequest({ endpoint: "transferfromreqweb", params: params })
+}
+export const getBatchDetails = async ({barcode}) => {
+  let params = {
+    barcode:barcode
+  };
+  return sendGetRequest({ endpoint: "getbatchdetails", params: params })
+}
+export const saveInventoryTransfer = async ({ payload }) => {
+  console.log("payload", payload)
+  let params = payload;
+  return sendPostRequest({ endpoint: "inventorytransferweb", params: params })
+}
+export const getBinAndWhs = async ({binCode}) => {
+  let params = {
+    binCode:binCode
+  };
+  return sendGetRequest({ endpoint: "getbinandwhs", params: params })
+}
+export const findBinAndWhs = async ({ barcode }) => {
+  let params = {
+    barcode: barcode
+  };
+  return sendGetRequest({ endpoint: "findbinandwhs", params: params })
+}
+export const batchControl = async ({ barcode,whsCode,binEntry }) => {
+  let params = {
+    barcode: barcode,
+    whsCode: whsCode,
+    binEntry: binEntry,
+  };
+  return sendGetRequest({ endpoint: "batchcontrol", params: params })
 }
 const sendGetRequest = async ({ endpoint, params }) => {
   try {

@@ -268,3 +268,14 @@ export const binLocationColumns = [
         "Caption": "Depo"
     }
 ]
+export const warehouseFilters = ["WarehouseCode", "WarehouseName"];
+export const warehouseColumns = [
+    {
+        "DataField": "WarehouseCode",
+        "Caption": "Depo Kodu"
+    },
+    {
+        "DataField": "WarehouseName",
+        "Caption": "Depo Adı"
+    }
+]

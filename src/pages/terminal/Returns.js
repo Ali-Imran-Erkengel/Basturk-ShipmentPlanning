@@ -312,7 +312,7 @@ const Returns = () => {
                   editorType="dxTextBox"
                   cssClass="transparent-bg"
                   label={{ text: 'Müşteri Kodu' }}
-                  colSpan={2}
+                  colSpan={6}
                 />
 
                 <SimpleItem
@@ -321,7 +321,7 @@ const Returns = () => {
                   editorType="dxTextBox"
                   cssClass="transparent-bg"
                   label={{ text: 'Müşteri Adı' }}
-                  colSpan={4}
+                  colSpan={6}
                 />
 
 
@@ -329,11 +329,10 @@ const Returns = () => {
               <Grid container spacing={1} paddingBottom={1}>
                 <Grid item>
                   <Button
-                    text="🗘"
+                    icon="refresh"
                     type="default"
                     stylingMode="contained"
                     onClick={fetchWaitForLoadDocs}
-                    elementAttr={{ style: "font-size: 34px; width: 100%" }}
                   />
                 </Grid>
               </Grid>
@@ -437,9 +436,7 @@ const Returns = () => {
                 colSpan={6}
               />
             </Form>
-            <b className="mt-2 font-bold">Kalemler</b>
 
-            <br></br>
             <hr></hr>
             <b className="mt-6 font-bold">Okutulan Partiler</b>
             <DataGrid
