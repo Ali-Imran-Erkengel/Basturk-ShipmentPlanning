@@ -1,10 +1,10 @@
-import React, {  useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Form, GroupItem, SimpleItem } from 'devextreme-react/form'
 import { Button } from "devextreme-react/button";
 import { batchControl, findBinAndWhs, getBinAndWhs, getBinUsingBatch, getLastTransferRecord, saveInventoryTransfer, saveTransfer } from "../../store/terminalSlice";
 import { terminalDeliveryData, terminalTransferLastData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayout from "../../components/myComponents/ZoomLayout";
+import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
 import { binLocationColumns, binLocationFilters, employeeColumns, warehouseColumns, warehouseFilters } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { Grid } from "@mui/material";
@@ -38,7 +38,7 @@ const InventoryTransfer = () => {
     const [transferData, setTransferData] = useState({ ...terminalTransferLastData });
     const barcodeRef = useRef(null);
     const employeeFilter = ["Department", "=", 10];
-    const [whsFilter,setWhsFilter]=useState(["Inactive","=","tNO"])
+    const [whsFilter, setWhsFilter] = useState(["Inactive", "=", "tNO"])
 
 
     const createTextBoxWithButtonOptions = (type) => {
@@ -121,16 +121,16 @@ const InventoryTransfer = () => {
         setFormData((prev) => ({
             ...prev,
             TargetWhsCode: whsCode,
-            TargetBinCode:"",
-            TargetBinEntry:0
+            TargetBinCode: "",
+            TargetBinEntry: 0
         }));
     }
     const handleSourceWarehouseEnter = async (whsCode) => {
         setFormData((prev) => ({
             ...prev,
             SourceWhsCode: whsCode,
-            SourceBinCode:"",
-            SourceBinEntry:0
+            SourceBinCode: "",
+            SourceBinEntry: 0
         }));
     }
     // #region requests
@@ -235,16 +235,16 @@ const InventoryTransfer = () => {
             if (!validateBeforeSave({ formData })) return;
             let oldBarcode = formData.OldBarcode;
             let barcodeValue = formData.Barcode;
-            let whsCode=formData.SourceWhsCode;
-            let binEntry=formData.SourceBinEntry;
+            let whsCode = formData.SourceWhsCode;
+            let binEntry = formData.SourceBinEntry;
             if (!oldBarcode) {
                 barcodeValue = barcode.substring(3)
             }
-            let apiResponse = await batchControl({ barcode: barcodeValue,whsCode:whsCode,binEntry:binEntry })
+            let apiResponse = await batchControl({ barcode: barcodeValue, whsCode: whsCode, binEntry: binEntry })
             if (apiResponse.length === 0) {
                 return handleNotify({ message: "Girlen Parametrelere Ait Kaynak Depoda Veri Bulunamadı", type: "error" });
             }
-           
+
             else {
                 let quantity = apiResponse[0].OnHandQty;
                 let innerQtyOfPallet = apiResponse[0].InnerQty;
@@ -282,23 +282,46 @@ const InventoryTransfer = () => {
     return (
         <div className="p-4">
             <div className="page-container">
-                <Grid container spacing={1} paddingBottom={1}>
+                <Grid
+                    container
+                    spacing={1}
+                    alignItems="center"
+                    justifyContent="space-between"
+                    paddingBottom={1}
+                >
+                    {/* Sol tarafta butonlar */}
                     <Grid item>
-                        <Button
-                            icon="arrowleft"
-                            type="default"
-                            stylingMode="contained"
-                            onClick={() => navigate('/mainPage')}
-                        />
+                        <Grid container spacing={1}>
+                            <Grid item>
+                                <Button
+                                    className="nav-btn"
+                                    icon="arrowleft"
+                                    type="default"
+                                    stylingMode="contained"
+                                    onClick={() => navigate('/selectScreen')}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    className="nav-btn"
+                                    icon="refresh"
+                                    type="default"
+                                    stylingMode="contained"
+                                    onClick={() => clean()}
+                                />
+                            </Grid>
+                        </Grid>
                     </Grid>
-                    <Grid item>
-                        <Button
-                            icon="refresh"
-                            type="default"
-                            stylingMode="contained"
-                            onClick={() => clean()}
-                        />
+
+                    {/* Ortada başlık */}
+                    <Grid item xs>
+                        <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                            TRANSFER
+                        </div>
                     </Grid>
+
+                    {/* Sağda boşluk (ileride buton eklenebilir) */}
+                    <Grid item style={{ width: 100 }}></Grid>
                 </Grid>
                 <Form
                     formData={formData}
@@ -437,7 +460,7 @@ const InventoryTransfer = () => {
                     </div>
                     <div className="parti-card-body">
                         <Form
-                          className="transfer-form"
+                            className="transfer-form"
                             formData={transferData}
                             colCount={2}
                             labelLocation="left"
@@ -448,10 +471,10 @@ const InventoryTransfer = () => {
                             <SimpleItem dataField="DistNumber" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti No' }} />
                             <SimpleItem dataField="ItemCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Kodu' }} />
                             <SimpleItem dataField="Dscription" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Adı' }} />
-                            <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kaynak Depo' }} />
-                            <SimpleItem dataField="WhsCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Hedef Depo' }} />
-                            <SimpleItem dataField="FromBinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kaynak Depo Yeri' }} />
-                            <SimpleItem dataField="ToBinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Hedef Depo Yeri' }} />
+                            <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'K. Depo' }} />
+                            <SimpleItem dataField="FromBinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'K. Depo Yeri' }} />
+                            <SimpleItem dataField="WhsCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'H. Depo' }} />
+                            <SimpleItem dataField="ToBinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'H. Depo Yeri' }} />
 
                             <GroupItem colSpan={2}>
                                 <div className="btn-area">
@@ -472,53 +495,59 @@ const InventoryTransfer = () => {
                 showCloseButton={true}
                 title='Yükleyen Listesi'
             >
-                <ZoomLayout onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+                <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
             </Popup>
             <Popup
                 visible={isPopupVisiblePreparer}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
                 showCloseButton={true}
                 title='Hazırlayan Listesi'
             >
-                <ZoomLayout onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+                <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
             </Popup>
 
             <Popup
                 visible={isPopupVisibleTargetWhs}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "targetWhs" })}
                 showCloseButton={true}
                 title='Depo Listesi'
             >
-                <ZoomLayout key={formData.TargetWhsCode} onRowSelected={handleTargetWhsSelection} tableName={"Warehouses"} tableKey={"WarehouseCode"} customFilter={whsFilter} filters={warehouseFilters} columns={warehouseColumns}></ZoomLayout>
+                <ZoomLayoutTerminal key={formData.TargetWhsCode} onRowSelected={handleTargetWhsSelection} tableName={"Warehouses"} tableKey={"WarehouseCode"} customFilter={whsFilter} filters={warehouseFilters} columns={warehouseColumns}></ZoomLayoutTerminal>
             </Popup>
             <Popup
                 visible={isPopupVisibleTargetBin}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "targetBin" })}
                 showCloseButton={true}
                 title='Depo Yeri Listesi'
             >
-                <ZoomLayout key={formData.TargetBinEntry} onRowSelected={handleTargetBinSelection} tableName={"BinLocations"} tableKey={"AbsEntry"} customFilter={""} filters={binLocationFilters} columns={binLocationColumns}></ZoomLayout>
+                <ZoomLayoutTerminal key={formData.TargetBinEntry} onRowSelected={handleTargetBinSelection} tableName={"BinLocations"} tableKey={"AbsEntry"} customFilter={""} filters={binLocationFilters} columns={binLocationColumns}></ZoomLayoutTerminal>
             </Popup>
             <Popup
                 visible={isPopupVisibleSourceWhs}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "sourceWhs" })}
                 showCloseButton={true}
                 title='Depo Listesi'
             >
-                <ZoomLayout key={formData.SourceWhsCode} onRowSelected={handleSourceWhsSelection} tableName={"Warehouses"} tableKey={"WarehouseCode"} customFilter={whsFilter} filters={warehouseFilters} columns={warehouseColumns}></ZoomLayout>
+                <ZoomLayoutTerminal key={formData.SourceWhsCode} onRowSelected={handleSourceWhsSelection} tableName={"Warehouses"} tableKey={"WarehouseCode"} customFilter={whsFilter} filters={warehouseFilters} columns={warehouseColumns}></ZoomLayoutTerminal>
             </Popup>
             <Popup
                 visible={isPopupVisibleSourceBin}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "sourceBin" })}
                 showCloseButton={true}
                 title='Depo Yeri Listesi'
+                className="terminal-popup"
             >
-                <ZoomLayout key={formData.SourceBinEntry} onRowSelected={handleSourceBinSelection} tableName={"BinLocations"} tableKey={"AbsEntry"} customFilter={""} filters={binLocationFilters} columns={binLocationColumns}></ZoomLayout>
+                <ZoomLayoutTerminal key={formData.SourceBinEntry} onRowSelected={handleSourceBinSelection} tableName={"BinLocations"} tableKey={"AbsEntry"} customFilter={""} filters={binLocationFilters} columns={binLocationColumns}></ZoomLayoutTerminal>
             </Popup>
         </div>
     );

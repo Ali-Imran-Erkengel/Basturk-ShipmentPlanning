@@ -6,7 +6,7 @@ import { Button } from "devextreme-react/button";
 import { createTempData, deleteAllTempData, deleteTempData, getTermDeliveryDoc, getTermDeliveryDocs, saveDelivery, terminalBinControl, terminalControlTempItems, terminalGetTempItems, terminalStatusControl, terminalWarehouseControl } from "../../store/terminalSlice";
 import { deliveryColumns, terminalBatchColumns, terminalDeliveryData, terminalItemColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayout from "../../components/myComponents/ZoomLayout";
+import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
 import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { confirm } from "devextreme/ui/dialog";
@@ -278,6 +278,7 @@ const Delivery = () => {
     return (
       <div style={{ display: 'flex', gap: '8px' }}>
         <Button
+        className="nav-btn"
           icon='send'
           onClick={() => goForReadBarcodes({ docEntry: docEntry })}
           type="default"
@@ -439,14 +440,16 @@ const Delivery = () => {
               <Grid container spacing={1} paddingBottom={1}>
                 <Grid item>
                   <Button
+                  className="nav-btn"
                     icon="arrowleft"
                     type="default"
                     stylingMode="contained"
-                    onClick={() => navigate('/mainPage')}
+                    onClick={() => navigate('/selectScreen')}
                   />
                 </Grid>
                 <Grid item>
                   <Button
+                  className="nav-btn"
                     icon="refresh"
                     type="default"
                     stylingMode="contained"
@@ -595,20 +598,22 @@ const Delivery = () => {
       <Popup
         visible={isPopupVisibleLoader}
         hideOnOutsideClick={true}
+        fullScreen={true}
         onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
         showCloseButton={true}
         title='Yükleyen Listesi'
       >
-        <ZoomLayout onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+        <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
       </Popup>
       <Popup
         visible={isPopupVisiblePreparer}
         hideOnOutsideClick={true}
+        fullScreen={true}
         onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
         showCloseButton={true}
         title='Hazırlayan Listesi'
       >
-        <ZoomLayout onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+        <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
       </Popup>
     </div>
   );

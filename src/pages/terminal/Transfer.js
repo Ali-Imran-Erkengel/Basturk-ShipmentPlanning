@@ -4,7 +4,7 @@ import { Button } from "devextreme-react/button";
 import { getBinUsingBatch, getLastTransferRecord, saveDelivery, saveTransfer, terminalBinControl, terminalStatusControl, terminalWarehouseControl } from "../../store/terminalSlice";
 import { terminalDeliveryData, terminalTransferLastData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayout from "../../components/myComponents/ZoomLayout";
+import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayout";
 import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { Grid } from "@mui/material";
@@ -99,7 +99,7 @@ const Transfer = () => {
       throw err
     }
   }
-  
+
   const validateBeforeSave = ({ formData, }) => {
     if (!formData.PreparerCode || !formData.LoaderCode) {
       handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
@@ -203,10 +203,11 @@ const Transfer = () => {
         <Grid container spacing={1} paddingBottom={1}>
           <Grid item>
             <Button
+            className="nav-btn"
               icon="arrowleft"
               type="default"
               stylingMode="contained"
-              onClick={() => navigate('/mainPage')}
+              onClick={() => navigate('/selectScreen')}
             />
           </Grid>
         </Grid>
@@ -272,6 +273,7 @@ const Transfer = () => {
           </div>
           <div className="parti-card-body">
             <Form
+              className="transfer-form"
               formData={transferData}
               colCount={2}
               labelLocation="left"
@@ -282,10 +284,10 @@ const Transfer = () => {
               <SimpleItem dataField="DistNumber" editorType="dxTextBox" label={{ text: 'Parti No' }} />
               <SimpleItem dataField="ItemCode" editorType="dxTextBox" label={{ text: 'Kalem Kodu' }} />
               <SimpleItem dataField="Dscription" editorType="dxTextBox" label={{ text: 'Kalem Adı' }} />
-              <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" label={{ text: 'Kaynak Depo' }} />
-              <SimpleItem dataField="WhsCode" editorType="dxTextBox" label={{ text: 'Hedef Depo' }} />
-              <SimpleItem dataField="FromBinCode" editorType="dxTextBox" label={{ text: 'Kaynak Depo Yeri' }} />
-              <SimpleItem dataField="ToBinCode" editorType="dxTextBox" label={{ text: 'Hedef Depo Yeri' }} />
+              <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" label={{ text: 'K. Depo' }} />
+              <SimpleItem dataField="FromBinCode" editorType="dxTextBox" label={{ text: 'K. Depo Yeri' }} />
+              <SimpleItem dataField="WhsCode" editorType="dxTextBox" label={{ text: 'H. Depo' }} />
+              <SimpleItem dataField="ToBinCode" editorType="dxTextBox" label={{ text: 'H. Depo Yeri' }} />
 
               <GroupItem colSpan={2}>
                 <div className="btn-area">
@@ -302,20 +304,22 @@ const Transfer = () => {
       <Popup
         visible={isPopupVisibleLoader}
         hideOnOutsideClick={true}
+        fullScreen={true}
         onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
         showCloseButton={true}
         title='Yükleyen Listesi'
       >
-        <ZoomLayout onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+        <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
       </Popup>
       <Popup
         visible={isPopupVisiblePreparer}
         hideOnOutsideClick={true}
+        fullScreen={true}
         onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
         showCloseButton={true}
         title='Hazırlayan Listesi'
       >
-        <ZoomLayout onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+        <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
       </Popup>
     </div>
   );

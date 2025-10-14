@@ -255,161 +255,445 @@ body {
   background-color: #6de0c7;
 }
 
-/* terminalForm.css */
-/* Genel form container */
-.terminal-form .dx-field {
-  margin: 0 !important;
-  /* satırlar arası boşluk */
-  padding: 0 !important;
+
+
+
+/* Form container padding azalt */
+.terminal-form {
+  padding-left: 2px !important;
+  padding-right: 2px !important;
 }
 
-/* Label spacing */
+/* Form satır aralığı */
+.terminal-form .dx-layout-manager .dx-field-item {
+  margin-bottom: 2px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Label stili ve spacing */
 .terminal-form .dx-field-label {
+  font-weight: 700;
   font-size: 16px;
-  margin: 0 !important;
-  /* label ile editor arası boşluk */
-  padding: 0 !important;
+  margin-bottom: 1px !important;
+  padding: 0 2px 0 0 !important;  /* label ile input arası çok az */
+  color: #111827;
 }
 
-/* TextBox / Checkbox yüksekliği ve padding */
+/* Input ve checkbox yüksekliği, padding ve font */
 .terminal-form .dx-texteditor,
 .terminal-form .dx-texteditor-input,
 .terminal-form .dx-checkbox .dx-checkbox-container {
-  height: 20px !important;
+  height: 26px !important;
   margin: 0 !important;
-  padding: 0 0px !important;
-  font-size: 18px;
+  padding: 2px 4px !important;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+/* Sadece tikli checkbox kutusu turkuaz */
+.terminal-form .dx-checkbox.dx-checkbox-checked .dx-checkbox-icon {
+  background-color: #17c3b2 !important; /* tikli kutu rengi */
+  border-color: #149a8d !important;
 }
 
-/* Yan yana iki SimpleItem arasındaki yatay boşluğu azalt */
+/* Tik işareti rengi */
+.terminal-form .dx-checkbox.dx-checkbox-checked .dx-checkbox-icon::after {
+  border-color: #ffffff !important;
+}
+
+/* Yan yana SimpleItem’lar arası padding minimum */
 .terminal-form .dx-field.dx-col-1,
 .terminal-form .dx-field.dx-col-2,
 .terminal-form .dx-field.dx-col-3,
 .terminal-form .dx-field.dx-col-4,
 .terminal-form .dx-field.dx-col-5,
 .terminal-form .dx-field.dx-col-6 {
-  padding-left: 0px !important;
-  padding-right: 0px !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
 }
 
-/* Button yüksekliği ve padding */
+/* Button stil */
 .terminal-form .dx-button {
-  height: 32px !important;
-  font-size: 14px;
+  height: 34px !important;
+  font-size: 15px;
   padding: 0 6px !important;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #17c3b2, #149a8d);
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
 }
 
-.terminal-form-container {
-  padding: 2px;
-  /* container padding */
-  max-width: 900px;
-  /* form maksimum genişlik */
-  margin: 0 auto;
-  /* ortala */
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.terminal-form .dx-button:hover {
+  background: linear-gradient(90deg, #1dd1bb, #16a085);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
+.terminal-form .dx-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive: küçük ekranlarda tek sütuna düşsün */
+@media (max-width: 768px) {
+  .terminal-form .dx-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .terminal-form .dx-field-label {
+    font-size: 17px;
+  }
+
+  .terminal-form .dx-texteditor-input,
+  .terminal-form .dx-texteditor {
+    font-size: 16px;
+    height: 28px !important;
+  }
+}
+
+/* Pagination butonları */
+.datagridTerminalDelivery .dx-page {
+  background-color: #0ca397 !important;
+  color: #ffffff !important;
+}
+
+/* Aktif sayfa butonu */
+.datagridTerminalDelivery .dx-page.dx-selection {
+  background-color: #077064 !important;
+  color: #ffffff !important;
+}
+
+/* Hover durumu */
+.datagridTerminalDelivery .dx-page:hover {
+  background-color: #3ac4b6 !important;
+}
+
+
+/* Tüm pager alanı */
+.datagridTerminalDelivery .dx-pager {
+  background-color: #9fe8e0 !important;
+}
+
+.datagridTerminalDelivery .dx-page-sizes .dx-selection {
+  background-color: #077064 !important;
+}
+
+/* Satır yüksekliği ve font */
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row {
-  height: 28px;
-  /* Varsayılan ~40px, biraz daha sıkı */
-  font-size: 12px;
-  /* Yazıyı küçült */
+  height: 28px !important;         /* kompakt satır */
+  line-height: 28px;               /* yazıyı ortala */
+  font-size: 13px;                 /* okunaklı */
 }
 
+/* Header yüksekliği ve font */
 .datagridTerminalDelivery .dx-datagrid-headers .dx-header-row {
-  height: 30px;
-  font-size: 12px;
+  height: 30px !important;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #9fe8e0;
+  color: #000;
 }
 
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row>td {
-  padding: 2px 6px;
-  /* Varsayılan genelde 8px */
+/* Hücre padding */
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row > td {
+  padding: 2px 6px !important;     /* yatay/dikey sıkı padding */
 }
 
-/* Özel class'ınızla birlikte - en güvenilir yöntem */
+/* Alternating row renkleri */
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt,
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt>td {
-  background-color: #f0f9f4 !important;
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-row-alt > td {
+  background-color: #c4f0ec !important;
 }
 
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt),
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt)>td {
-  background-color: #c8e6c9 !important;
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:not(.dx-row-alt) > td {
+  background-color: #9fe8e0 !important;
 }
 
+/* Hover efekti */
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover,
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover>td {
-  background-color: #93e095 !important;
-}
-
-.datagridTerminalDelivery .dx-header-row {
-  background-color: #c8e6c9;
-  /* Mor tonları */
-  color: #000000;
-
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row:hover > td {
+  background-color: #3ac4b6 !important;
 }
 
 /* Seçili satır */
 .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection,
-.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection>td {
-  background-color: #3dc444 !important;
-  /* Daha koyu yeşil */
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.dx-selection > td {
+  background-color: #17c3b2 !important;
   color: #000 !important;
-  /* Yazılar net görünsün */
 }
-.datagridTerminalDelivery .row-readed {
-  background-color: #3f76db !important; /* Açık yeşil */
+
+/* Özel okunmuş satır (row-readed) */
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.row-readed,
+.datagridTerminalDelivery .dx-datagrid-rowsview .dx-row.row-readed > td {
+  background-color: #149a8d !important;
+  color: #ffffff !important;
 }
+
+/* Responsive: küçük ekranlarda fontu biraz küçült */
+@media (max-width: 768px) {
+  .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row,
+  .datagridTerminalDelivery .dx-datagrid-headers .dx-header-row {
+    font-size: 12px;
+    height: 26px !important;
+    line-height: 26px;
+  }
+
+  .datagridTerminalDelivery .dx-datagrid-rowsview .dx-row > td {
+    padding: 1px 4px !important;
+  }
+}
+
+
 /////////////////transfer parti bilgisi
 /// 
 .parti-card {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
-  margin-top: 20px;
+  margin: 10px 1px 0 1px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  // max-width: 500px;
-  background: #c2e7ff;
+  background: #c4f0ec;
 }
 
 .parti-card-header {
-  padding: 2px 8px;         /* üst-alt boşluk minimum */
-  font-weight: bold;  
-  background-color: #92d3ff;       /* kalın yazı */
-  font-size: 12px;           /* küçük ve modern */
-  color: #111827;            /* koyu renk */
-  border-bottom: 1px solid #9ab9f7;
-  line-height: 1;            /* satır yüksekliğini minimum */
-  text-align: center;         /* ortala */
-  letter-spacing: 0.5px;
+  padding: 1px 8px;
+  font-weight: bold;
+  background-color: #3ac4b6;
+  font-size: 12px;
+  color: #ffffff;
+  border-bottom: 1px solid #17c3b2;
+  text-align: center;
+  letter-spacing: 0.3px;
 }
+
+.parti-card-header h2 {
+  margin: 4px 0 !important;
+  font-size: 13px;
+}
+
 .parti-card-body {
-  padding: 20px;
-}
-
-.parti-card .dx-field-item-label {
-  font-weight: 500;
-  color: #374151;
-  min-width: 120px;
-}
-
-.parti-card .dx-texteditor-input {
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 4px 6px !important;
 }
 
 .parti-card .btn-area {
   display: flex;
   justify-content: flex-end;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
-.transfer-form .dx-field-item-label-text {
-  font-size: 16px !important;
-  font-weight: 600 !important;
+.parti-card .dx-button {
+  background: linear-gradient(90deg, #17c3b2, #149a8d);
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 16px !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
 }
+
+/* Hover efekti */
+.parti-card .dx-button:hover {
+  background: linear-gradient(90deg, #1dd1bb, #16a085);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Click efekti */
+.parti-card .dx-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: "#ffffff";
+}
+/* Form düzeni */
+.transfer-form .dx-layout-manager .dx-field-item {
+  margin-bottom: 2px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.transfer-form .dx-field-item-label {
+  font-weight: 700 !important;     
+  color: #000000;
+  min-width: 90px;
+  padding-right: 4px !important;
+  font-size: 15px !important;       
+}
+
+.transfer-form .dx-texteditor {
+  margin: 0 !important;
+}
+
 .transfer-form .dx-texteditor-input {
-  font-size: 16px 
+  padding: 2px 4px !important;
+  height: 22px !important;
+  font-size: 18px !important;
+  border-radius: 6px;
+}
+
+
+/* Navigation / Icon Button */
+.dx-button.nav-btn {
+  background: linear-gradient(90deg, #08ebd4, #07867a);
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.dx-button.nav-btn:hover {
+  background: linear-gradient(90deg, #07867a, #08ebd4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+.dx-button.nav-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Checkbox turkuaz tema */
+.term-checkbox .dx-checkbox-icon {
+  background-color: #17c3b2 !important; /* tik işareti arkaplanı */
+  border-color: #149a8d !important;     /* sınır çizgisi */
+}
+
+.term-checkbox.dx-checkbox-checked .dx-checkbox-icon {
+  background-color: #17c3b2 !important;
+  border-color: #149a8d !important;
+}
+
+.term-checkbox.dx-checkbox-indeterminate .dx-checkbox-icon {
+  background-color: #1dd1bb !important;
+  border-color: #16a085 !important;
+}
+
+/* Tik işareti rengi */
+.term-checkbox .dx-checkbox-icon::after {
+  border-color: #ffffff !important;
+}
+
+// zoom layout datagrid
+/* Pagination butonları */
+.datagridZoomLayout .dx-page {
+  background-color: #0ca397 !important;
+  color: #ffffff !important;
+}
+
+/* Aktif sayfa butonu */
+.datagridZoomLayout .dx-page.dx-selection {
+  background-color: #077064 !important;
+  color: #ffffff !important;
+}
+
+/* Hover durumu */
+.datagridZoomLayout .dx-page:hover {
+  background-color: #3ac4b6 !important;
+}
+
+
+/* Tüm pager alanı */
+.datagridZoomLayout .dx-pager {
+  background-color: #9fe8e0 !important;
+}
+
+.datagridZoomLayout .dx-page-sizes .dx-selection {
+  background-color: #077064 !important;
+}
+
+/* Satır yüksekliği ve font */
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row {
+  height: 28px !important;         /* kompakt satır */
+  line-height: 28px;               /* yazıyı ortala */
+  font-size: 13px;                 /* okunaklı */
+}
+
+/* Header yüksekliği ve font */
+.datagridZoomLayout .dx-datagrid-headers .dx-header-row {
+  height: 30px !important;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #9fe8e0;
+  color: #000;
+}
+
+/* Hücre padding */
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row > td {
+  padding: 2px 6px !important;     /* yatay/dikey sıkı padding */
+}
+
+/* Alternating row renkleri */
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row.dx-row-alt,
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row.dx-row-alt > td {
+  background-color: #c4f0ec !important;
+}
+
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row:not(.dx-row-alt),
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row:not(.dx-row-alt) > td {
+  background-color: #9fe8e0 !important;
+}
+
+/* Hover efekti */
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row:hover,
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row:hover > td {
+  background-color: #3ac4b6 !important;
+}
+
+/* Seçili satır */
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row.dx-selection,
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row.dx-selection > td {
+  background-color: #17c3b2 !important;
+  color: #000 !important;
+}
+
+/* Özel okunmuş satır (row-readed) */
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row.row-readed,
+.datagridZoomLayout .dx-datagrid-rowsview .dx-row.row-readed > td {
+  background-color: #149a8d !important;
+  color: #ffffff !important;
+}
+
+/* Responsive: küçük ekranlarda fontu biraz küçült */
+@media (max-width: 768px) {
+  .datagridZoomLayout .dx-datagrid-rowsview .dx-row,
+  .datagridZoomLayout .dx-datagrid-headers .dx-header-row {
+    font-size: 12px;
+    height: 26px !important;
+    line-height: 26px;
+  }
+
+  .datagridZoomLayout .dx-datagrid-rowsview .dx-row > td {
+    padding: 1px 4px !important;
+  }
+}
+
+// terminal popup
+
+
+/* Popup'ın tamamının arka plan rengini değiştirir */
+.terminal-popup .dx-overlay-content {
+  background-color: #f5fafa !important;
+  border-radius: 8px;
+}
+
+/* Başlık (title bar) rengi */
+.terminal-popup .dx-popup-title {
+  background-color: #0e5ba8 !important;
+  color: white !important;
+  font-weight: 600;
+  text-align: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* İçerik alanı rengi */
+.terminal-popup .dx-popup-content {
+  background-color: #faf6f5 !important;
 }

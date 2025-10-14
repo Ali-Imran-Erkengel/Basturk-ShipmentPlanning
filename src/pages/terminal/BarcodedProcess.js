@@ -6,11 +6,11 @@ import { Button } from "devextreme-react/button";
 import { getBarcodedProcessBatch, getCustomerInvoicesForReturns, getTransferRequest, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveBarcodedProcess, saveReturns } from "../../store/terminalSlice";
 import { returnColumns, terminalBarcodedProcessColumns, terminalBarcodedProcessData, terminalRetrunColumns, terminalReturnData, transferRequestColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayout from "../../components/myComponents/ZoomLayout";
 import { businessPartnersColumns, businessPartnersFilters, employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { useLocation, useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
+import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
 
 const handleNotify = ({ message, type }) => {
     notify(
@@ -156,7 +156,7 @@ const BarcodedProcess = () => {
             setBatchGrid(items)
             console.log("items", items)
         }
-        else{
+        else {
             setIsBatchExists('N')
         }
         setSelectedDocEntry(docEntry);
@@ -249,9 +249,11 @@ const BarcodedProcess = () => {
         return (
             <div style={{ display: 'flex', gap: '8px' }}>
                 <Button
+                    className="nav-btn"
                     icon='send'
                     onClick={() => goForReadBarcodes({ docEntry: docEntry })}
                     type="default"
+
                 />
 
             </div>
@@ -267,12 +269,28 @@ const BarcodedProcess = () => {
                 barcodeValue = barcode.substring(3)
             }
             if (isGetBack) {
-                const batchExists = batchGrid.some(b => b.Batch === barcodeValue);
+                debugger
+                const batchExists = batchGrid.some(b => b.DistNumber === barcodeValue);
                 if (!batchExists) {
-                    handleNotify({ message: "Bu barkod listede yok!", type: "error" });
+                    handleNotify({ message: "Okutulan barkod listede yok!", type: "error" });
                     return;
                 }
-                setBatchGrid(prev => prev.filter(b => b.Batch !== barcodeValue));
+                if (isBatchExists==='Y') {
+                    setBatchGrid(prevItems => {
+                        const newData = [...prevItems];
+                        const idx = newData.findIndex(item => item.DistNumber === barcodeValue);
+                        if (idx !== -1) {
+                          newData[idx] = {
+                            ...newData[idx],
+                            Readed:'N'
+                          };
+                        }
+                        return newData;
+                      });
+                } else {
+                    
+                    setBatchGrid(prev => prev.filter(b => b.DistNumber !== barcodeValue));
+                }
                 formData.Barcode = "";
                 handleNotify({ message: "Okutma geri alındı.", type: "success" });
                 return;
@@ -386,14 +404,16 @@ const BarcodedProcess = () => {
                         <Grid container spacing={1} paddingBottom={1}>
                             <Grid item>
                                 <Button
+                                className="nav-btn"
                                     icon="arrowleft"
                                     type="default"
                                     stylingMode="contained"
-                                    onClick={() => navigate('/mainPage')}
+                                    onClick={() => navigate('/selectScreen')}
                                 />
                             </Grid>
                             <Grid item>
                                 <Button
+                                className="nav-btn"
                                     icon="refresh"
                                     type="default"
                                     stylingMode="contained"
@@ -523,20 +543,23 @@ const BarcodedProcess = () => {
             <Popup
                 visible={isPopupVisibleLoader}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
                 showCloseButton={true}
                 title='Yükleyen Listesi'
+             
             >
-                <ZoomLayout onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+                <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
             </Popup>
             <Popup
                 visible={isPopupVisiblePreparer}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
                 showCloseButton={true}
                 title='Hazırlayan Listesi'
             >
-                <ZoomLayout onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+                <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
             </Popup>
         </div>
     );

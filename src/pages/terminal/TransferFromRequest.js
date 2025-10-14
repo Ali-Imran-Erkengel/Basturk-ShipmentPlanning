@@ -6,7 +6,7 @@ import { Button } from "devextreme-react/button";
 import { getBarcodedProcessBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqControlBinActive, transferFromReqControlBinDective, transferFromReqStatusControl } from "../../store/terminalSlice";
 import { terminalBarcodedProcessData, terminalReturnData, terminalTransferFromRequestColumns, transferRequestColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayout from "../../components/myComponents/ZoomLayout";
+import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
 import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { useNavigate } from "react-router-dom";
@@ -212,6 +212,7 @@ const TransferFromRequest = () => {
         return (
             <div style={{ display: 'flex', gap: '8px' }}>
                 <Button
+                className="nav-btn"
                     icon='send'
                     onClick={() => goForReadBarcodes({ docEntry: docEntry })}
                     type="default"
@@ -248,26 +249,42 @@ const TransferFromRequest = () => {
                 barcodeValue = barcode.substring(3)
             }
             if (isGetBack) {
-                const batchExists = batchGrid.some(b => b.Batch === barcodeValue);
+                debugger
+                const batchExists = batchGrid.some(b => b.DistNumber === barcodeValue);
                 if (!batchExists) {
-                    handleNotify({ message: "Bu barkod listede yok!", type: "error" });
+                    handleNotify({ message: "Okutulan barkod listede yok!", type: "error" });
                     return;
                 }
-                setBatchGrid(prev => prev.filter(b => b.Batch !== barcodeValue));
+                if (isBatchExists==='Y') {
+                    setBatchGrid(prevItems => {
+                        const newData = [...prevItems];
+                        const idx = newData.findIndex(item => item.DistNumber === barcodeValue);
+                        if (idx !== -1) {
+                          newData[idx] = {
+                            ...newData[idx],
+                            Readed:'N'
+                          };
+                        }
+                        return newData;
+                      });
+                } else {
+                    
+                    setBatchGrid(prev => prev.filter(b => b.DistNumber !== barcodeValue));
+                }
                 formData.Barcode = "";
                 handleNotify({ message: "Okutma geri alındı.", type: "success" });
                 return;
             }
             let warning = await batchStatusControl({ barcode });
 
-            //if (warning!=="OK") return  handleNotify({message:warning,type:'error'})
+            if (warning!=="OK") return  handleNotify({message:warning,type:'error'})
 
             if (isBatchExists === 'Y') {
 
-                readWithBatch({ barcode: barcode })
+                readWithBatch({ barcode: barcodeValue })
             }
             else {
-                readWithoutBatch({ barcode: barcode })
+                readWithoutBatch({ barcode: barcodeValue })
             }
         } catch (error) {
             console.error("Okutma hatası:", error);
@@ -442,14 +459,16 @@ const TransferFromRequest = () => {
                         <Grid container spacing={1} paddingBottom={1}>
                             <Grid item>
                                 <Button
+                                className="nav-btn"
                                     icon="arrowleft"
                                     type="default"
                                     stylingMode="contained"
-                                    onClick={() => navigate('/mainPage')}
+                                    onClick={() => navigate('/selectScreen')}
                                 />
                             </Grid>
                             <Grid item>
                                 <Button
+                                className="nav-btn"
                                     icon="refresh"
                                     type="default"
                                     stylingMode="contained"
@@ -580,20 +599,22 @@ const TransferFromRequest = () => {
             <Popup
                 visible={isPopupVisibleLoader}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
                 showCloseButton={true}
                 title='Yükleyen Listesi'
             >
-                <ZoomLayout onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+                <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
             </Popup>
             <Popup
                 visible={isPopupVisiblePreparer}
                 hideOnOutsideClick={true}
+                fullScreen={true}
                 onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
                 showCloseButton={true}
                 title='Hazırlayan Listesi'
             >
-                <ZoomLayout onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayout>
+                <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
             </Popup>
         </div>
     );

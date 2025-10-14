@@ -3,7 +3,7 @@ import { Form, SimpleItem } from 'devextreme-react/form'
 import React, { useEffect, useState } from 'react'
 import { createODataSource, filter } from '../../store/appSlice';
 
-function ZoomLayout({ tableName, tableKey, customFilter, filters, columns, onRowSelected }) {
+function ZoomLayoutTerminal({ tableName, tableKey, customFilter, filters, columns, onRowSelected }) {
   
   const initialFilterValues = filters.reduce((acc, value) => {
     acc[value.DataField] = '';
@@ -46,6 +46,7 @@ function ZoomLayout({ tableName, tableKey, customFilter, filters, columns, onRow
       </div>
       <DataGrid
         selection={true}
+        className="datagridZoomLayout"
         rowAlternationEnabled={true}
         // onSelectionChanged={(e) => setSelectedItem(e.selectedRowsData[0]?.DocEntry)}
         onSelectionChanged={handleSelectionChanged}
@@ -69,4 +70,4 @@ function ZoomLayout({ tableName, tableKey, customFilter, filters, columns, onRow
     </div>
   )
 }
-export default ZoomLayout
+export default ZoomLayoutTerminal

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Form,  SimpleItem } from 'devextreme-react/form'
+import { Form, SimpleItem } from 'devextreme-react/form'
 import { Button } from "devextreme-react/button";
 import { getBatchDetails } from "../../store/terminalSlice";
 import { terminalBatchDetailData, terminalDeliveryData } from "./data/data";
@@ -115,10 +115,11 @@ const BatchDetails = () => {
                 <Grid container spacing={1} paddingBottom={1}>
                     <Grid item>
                         <Button
+                            className="nav-btn"
                             icon="arrowleft"
                             type="default"
                             stylingMode="contained"
-                            onClick={() => navigate('/mainPage')}
+                            onClick={() => navigate('/selectScreen')}
                         />
                     </Grid>
                 </Grid>
@@ -164,30 +165,34 @@ const BatchDetails = () => {
                     </div>
                     <div className="parti-card-body">
                         <Form
+                            className="transfer-form"
                             formData={batchData}
                             colCount={3}
-                            labelLocation="top"
+                            labelLocation="left"
                             showColonAfterLabel={true}
                             minColWidth={200}
                         >
                             <SimpleItem dataField="DistNumber" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti No' }} />
                             <SimpleItem dataField="ItemCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Kodu' }} />
                             <SimpleItem dataField="ItemName" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Adı' }} />
-                            <SimpleItem dataField="WhsCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Bulunduğu Depo' }} />
-                            <SimpleItem dataField="BinCode" editorType="dxTextBox" editorOptions={{ disabled: true }}  label={{ text: 'Bulunduğu Depo Yeri' }} />
+                            <SimpleItem dataField="WhsCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Depo' }} />
+                            <SimpleItem dataField="BinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Depo Yeri' }} />
                             <SimpleItem dataField="U_Status" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Durum' }} />
                             <SimpleItem dataField="OnHandQty" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Miktar' }} />
                             <SimpleItem dataField="PalletQty" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Palet Miktarı' }} />
-                            <SimpleItem dataField="MnfSerial" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti Niteliği 1' }} />
-                            <SimpleItem dataField="LotNumber" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti Niteliği 2' }} />
-                            <SimpleItem dataField="InDate" editorType="dxDateBox" editorOptions={{disabled: true,  displayFormat: "dd/MM/yyyy" }}  label={{ text: 'Kabul Tarihi' }} />
-                            <SimpleItem dataField="U_StatusUpdateDate" editorType="dxDateBox" editorOptions={{ disabled: true,  displayFormat: "dd/MM/yyyy" }} label={{ text: 'Statü Güncelleme Tarihi' }} />
-                            <SimpleItem dataField="U_BlockReason" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Bloke Nedeni' }} />
-                            <SimpleItem dataField="U_BlockReason2" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Bloke Nedeni 2' }} />
-                            <SimpleItem dataField="U_ErrorDesc" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Hata Açıklaması' }} />
+                            <SimpleItem dataField="MnfSerial" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti Nit. 1' }} />
+                            <SimpleItem dataField="LotNumber" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti Nit. 2' }} />
+                            <SimpleItem dataField="InDate" editorType="dxDateBox" editorOptions={{ disabled: true, displayFormat: "dd/MM/yyyy" }} label={{ text: 'Kabul Tarihi' }} />
+                            <SimpleItem dataField="MnfDate" editorType="dxDateBox" editorOptions={{ disabled: true, displayFormat: "dd/MM/yyyy" }} label={{ text: 'Üretim Tarihi' }} />
+                            <SimpleItem dataField="ExpDate" editorType="dxDateBox" editorOptions={{ disabled: true, displayFormat: "dd/MM/yyyy" }} label={{ text: 'Geç. Sonu' }} />
+                            <SimpleItem dataField="U_StatusUpdateDate" editorType="dxDateBox" editorOptions={{ disabled: true, displayFormat: "dd/MM/yyyy" }} label={{ text: 'Stü. Gün. Tar.' }} />
+                            <SimpleItem dataField="Notes" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Ayrıntılar' }} />
+                            <SimpleItem dataField="U_BlockReason" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Blk. Nedeni' }} />
+                            <SimpleItem dataField="U_BlockReason2" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Blk. Nedeni2' }} />
+                            <SimpleItem dataField="U_ErrorDesc" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Hata Açk.' }} />
                             <SimpleItem dataField="U_TemplateNum" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalıp No' }} />
-                            <SimpleItem dataField="U_ReShrinkCount" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Yeniden Shrinkleme Sayısı' }} />
-                            <SimpleItem dataField="U_ReShrinkDesc" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Yeniden Shrinkleme Açıklaması' }} />
+                            <SimpleItem dataField="U_ReShrinkCount" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Yn. Shr. Say.' }} />
+                            <SimpleItem dataField="U_ReShrinkDesc" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Yn. Shr. Açk.' }} />
                         </Form>
                     </div>
                 </div>
