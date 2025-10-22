@@ -25,12 +25,12 @@ function WeighbridgeHome() {
   const navigate = useNavigate();
   const [filterValues, setFilterValues] = useState({
     U_Description: '',
-    // U_TransactionDate: '',
-    startDate:'',
-    endDate:'',
+    DocEntry: '',
+    startDate: '',
+    endDate: '',
     U_LogisticsNo: '',
     U_WghType: '',
-     U_IsDeleted:'N'
+    U_IsDeleted: 'N'
   });
   const statusOptions = {
     dataSource: statuses,
@@ -42,7 +42,7 @@ function WeighbridgeHome() {
     displayExpr: 'Value',
     valueExpr: 'Key'
 
-};
+  };
   const [isPopupVisibleLgt, setPopupVisibilityLgt] = useState(false);
   const togglePopupLgt = () => {
     setPopupVisibilityLgt(!isPopupVisibleLgt);
@@ -164,27 +164,28 @@ function WeighbridgeHome() {
             <Header title={"Kantar"} nav='home' onBack={returnHome}></Header>
 
             <div className="form-container">
-              <Form formData={filterValues} colCount={6} labelLocation="top" >
+              <Form formData={filterValues} colCount={7} labelLocation="top" >
+                <SimpleItem dataField="DocEntry" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Kantar No' }} />
                 <SimpleItem dataField="U_Description" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Açıklama' }} />
                 {/* <SimpleItem dataField="U_TransactionDate" editorOptions={{ displayFormat: "dd/MM/yyyy" }} editorType="dxDateBox" cssClass="transparent-bg" label={{ text: 'İşlem Tarihi' }} /> */}
-                <SimpleItem 
-  dataField="startDate" 
-  editorOptions={{ displayFormat: "dd/MM/yyyy" }} 
-  editorType="dxDateBox" 
-  cssClass="transparent-bg" 
-  label={{ text: 'Başlangıç Tarihi' }} 
-/>
+                <SimpleItem
+                  dataField="startDate"
+                  editorOptions={{ displayFormat: "dd/MM/yyyy" }}
+                  editorType="dxDateBox"
+                  cssClass="transparent-bg"
+                  label={{ text: 'Başlangıç Tarihi' }}
+                />
 
-<SimpleItem 
-  dataField="endDate" 
-  editorOptions={{ displayFormat: "dd/MM/yyyy" }} 
-  editorType="dxDateBox" 
-  cssClass="transparent-bg" 
-  label={{ text: 'Bitiş Tarihi' }} 
-/>
+                <SimpleItem
+                  dataField="endDate"
+                  editorOptions={{ displayFormat: "dd/MM/yyyy" }}
+                  editorType="dxDateBox"
+                  cssClass="transparent-bg"
+                  label={{ text: 'Bitiş Tarihi' }}
+                />
                 <SimpleItem dataField="U_WghType" editorType="dxSelectBox" editorOptions={statusOptions} cssClass="transparent-bg" label={{ text: 'Tartım Tipi' }} />
                 <SimpleItem editorOptions={{ ...textBoxWithButtonOptionsLgt, value: selectedLgt }} dataField="U_LogisticsNo" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Lojistik Belge' }} />
-                <SimpleItem dataField="U_IsDeleted" editorType="dxSelectBox" editorOptions={yesNoOptions} cssClass="transparent-bg" label={{ text: 'Silindi' }} /> 
+                <SimpleItem dataField="U_IsDeleted" editorType="dxSelectBox" editorOptions={yesNoOptions} cssClass="transparent-bg" label={{ text: 'Silindi' }} />
               </Form>
             </div>
             <Grid container spacing={1} paddingBottom={2}>
@@ -218,7 +219,7 @@ function WeighbridgeHome() {
                   if (e.data.U_SecondWghDone === "N") {
                     e.rowElement.style.backgroundColor = "rgba(235, 232, 66, 0.774)"; // N için sarı
                   } else if (e.data.U_SecondWghDone === "Y") {
-                    e.rowElement.style.backgroundColor =  "rgba(90, 240, 103, 0.774)"; // Y için yeşil
+                    e.rowElement.style.backgroundColor = "rgba(90, 240, 103, 0.774)"; // Y için yeşil
                   }
                 }
                 if (e.rowElement.classList.contains("dx-selection")) {
@@ -232,7 +233,7 @@ function WeighbridgeHome() {
                 mode="single"
                 selectAllMode="page"
               />
-              <Column dataField="DocEntry"  caption="Kantar No" sortOrder='desc' alignment='left'/>
+              <Column dataField="DocEntry" caption="Kantar No" sortOrder='desc' alignment='left' />
               <Column dataField="U_TransactionDate" format="dd/MM/yyyy" caption="Belge Taihi" />
               <Column dataField="U_SecondWghDone" caption="İkinci Tartım Yapıldı Mı?"  >
                 <Lookup dataSource={yesno} displayExpr="Value" valueExpr="Key" />

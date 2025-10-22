@@ -257,7 +257,7 @@ export const viewCrystal = async ({ logisticId }) => {
 };
 export const printShipmentReport = async ({ logisticId }) => {
     try {
-        const response = await axios.get('http://10.44.10.4:4909/ViewCrystal', {
+        const response = await axios.get('http://10.10.1.2:4909/ViewCrystal', {
             params: { logisticId: logisticId },
             responseType: 'blob', // Yanıtı blob olarak alıyoruz
         });

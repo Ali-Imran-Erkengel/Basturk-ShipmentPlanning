@@ -11,6 +11,8 @@ import notify from 'devextreme/ui/notify';
 import { useLocation, useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
 import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
+import EmployeeList from "./components/EmployeeList";
+import { ClockFading } from "lucide-react";
 
 const handleNotify = ({ message, type }) => {
     notify(
@@ -113,16 +115,36 @@ const BarcodedProcess = () => {
         }
     };
 
+    // const handleLoaderSelection = (selectedRowData) => {
+    //     formData.LoaderCode = selectedRowData.EmployeeID;
+    //     formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+    //     setPopupVisibilityLoader(false);
+    // };
+    // const handlePreparerSelection = (selectedRowData) => {
+    //     formData.PreparerCode = selectedRowData.EmployeeID;
+    //     formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+    //     setPopupVisibilityPreparer(false);
+    // };
+    useEffect(() => {
+        console.log("formData:", formData);
+
+    }, [formData]);
     const handleLoaderSelection = (selectedRowData) => {
-        formData.LoaderCode = selectedRowData.EmployeeID;
-        formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-        setPopupVisibilityLoader(false);
-    };
-    const handlePreparerSelection = (selectedRowData) => {
-        formData.PreparerCode = selectedRowData.EmployeeID;
-        formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-        setPopupVisibilityPreparer(false);
-    };
+        setFormData(prev => ({
+           ...prev,
+           LoaderCode: selectedRowData.EmployeeID,
+           LoaderName: selectedRowData.EmployeeName
+       }));
+       setPopupVisibilityLoader(false);
+     };
+     const handlePreparerSelection = (selectedRowData) => {
+       setFormData(prev => ({
+           ...prev,
+           PreparerCode: selectedRowData.EmployeeID,
+           PreparerName: selectedRowData.EmployeeName
+       }));
+       setPopupVisibilityPreparer(false); 
+   };
 
 
     // #region requests
@@ -175,8 +197,8 @@ const BarcodedProcess = () => {
         }
     };
     const validateBeforeSave = ({ formData }) => {
-        if (!formData.PreparerCode || !formData.LoaderCode) {
-            handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
+        if (!formData.PreparerCode) {
+            handleNotify({ message: "Lütfen Operatör Seçiniz", type: "error" });
             return false;
         }
         return true;
@@ -186,8 +208,8 @@ const BarcodedProcess = () => {
         try {
 
             if (!validateBeforeSave({ formData })) return;
-            const preparer = formData.PreparerCode;
-            const loadedBy = formData.LoaderCode;
+            const preparer = formData?.PreparerCode || 0;
+            const loadedBy = formData?.LoaderCode || 0;
             console.log("whs", whsCode)
             const entries = batchGrid?.map(batch => ({
                 docNum: batch.ApplyEntry,
@@ -231,7 +253,11 @@ const BarcodedProcess = () => {
             };
             debugger
             let result = await saveBarcodedProcess({ payload: payload })
-            setFormData({ ...terminalBarcodedProcessData })
+            // setFormData({ ...terminalBarcodedProcessData })
+            setFormData(prev => ({
+                ...prev,
+                Barcode: ""
+              }))
             setBatchGrid([]);
             setTabIndex(0);
             setSelectedDocEntry(0)
@@ -275,20 +301,20 @@ const BarcodedProcess = () => {
                     handleNotify({ message: "Okutulan barkod listede yok!", type: "error" });
                     return;
                 }
-                if (isBatchExists==='Y') {
+                if (isBatchExists === 'Y') {
                     setBatchGrid(prevItems => {
                         const newData = [...prevItems];
                         const idx = newData.findIndex(item => item.DistNumber === barcodeValue);
                         if (idx !== -1) {
-                          newData[idx] = {
-                            ...newData[idx],
-                            Readed:'N'
-                          };
+                            newData[idx] = {
+                                ...newData[idx],
+                                Readed: 'N'
+                            };
                         }
                         return newData;
-                      });
+                    });
                 } else {
-                    
+
                     setBatchGrid(prev => prev.filter(b => b.DistNumber !== barcodeValue));
                 }
                 formData.Barcode = "";
@@ -401,25 +427,41 @@ const BarcodedProcess = () => {
                 {/* TAB 1 - Belge Seç */}
                 <Item title="Belge Seç">
                     <div className="page-container">
-                        <Grid container spacing={1} paddingBottom={1}>
+                        <Grid
+                            container
+                            spacing={1}
+                            alignItems="center"
+                            justifyContent="space-between"
+                            paddingBottom={1}
+                        >
                             <Grid item>
-                                <Button
-                                className="nav-btn"
-                                    icon="arrowleft"
-                                    type="default"
-                                    stylingMode="contained"
-                                    onClick={() => navigate('/selectScreen')}
-                                />
+                                <Grid container spacing={1}>
+                                    <Grid item>
+                                        <Button
+                                            className="nav-btn"
+                                            icon="arrowleft"
+                                            type="default"
+                                            stylingMode="contained"
+                                            onClick={() => navigate('/selectScreen')}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <Button
+                                            className="nav-btn"
+                                            icon="refresh"
+                                            type="default"
+                                            stylingMode="contained"
+                                            onClick={fetchWaitForLoadDocs}
+                                        />
+                                    </Grid>
+                                </Grid>
                             </Grid>
-                            <Grid item>
-                                <Button
-                                className="nav-btn"
-                                    icon="refresh"
-                                    type="default"
-                                    stylingMode="contained"
-                                    onClick={fetchWaitForLoadDocs}
-                                />
+                            <Grid item xs>
+                                <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                                   {title.toUpperCase()}
+                                </div>
                             </Grid>
+                            <Grid item style={{ width: 100 }}></Grid>
                         </Grid>
                         <div style={{ marginBottom: "20px" }}>
                         </div>
@@ -479,21 +521,21 @@ const BarcodedProcess = () => {
                             />
 
 
-                            <SimpleItem
+                            {/* <SimpleItem
                                 dataField="LoaderName"
                                 editorOptions={createTextBoxWithButtonOptions("loader")}
                                 editorType="dxTextBox"
                                 cssClass="transparent-bg"
                                 label={{ text: 'Yükleyen' }}
                                 colSpan={6}
-                            />
+                            /> */}
 
                             <SimpleItem
                                 dataField="PreparerName"
                                 editorOptions={createTextBoxWithButtonOptions("preparer")}
                                 editorType="dxTextBox"
                                 cssClass="transparent-bg"
-                                label={{ text: 'Hazırlayan' }}
+                                label={{ text: 'Operatör' }}
                                 colSpan={6}
                             />
                             <SimpleItem
@@ -547,9 +589,16 @@ const BarcodedProcess = () => {
                 onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
                 showCloseButton={true}
                 title='Yükleyen Listesi'
-             
+                wrapperAttr={{
+                    class:'terminal-popup'
+                }}
+
             >
-                <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+                 <EmployeeList
+          gridData={formData}
+          onRowSelected={handleLoaderSelection}
+        />
+                {/* <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
             </Popup>
             <Popup
                 visible={isPopupVisiblePreparer}
@@ -558,8 +607,15 @@ const BarcodedProcess = () => {
                 onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
                 showCloseButton={true}
                 title='Hazırlayan Listesi'
+                wrapperAttr={{
+                    class:'terminal-popup'
+                }}
             >
-                <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+                 <EmployeeList
+          gridData={formData}
+          onRowSelected={handlePreparerSelection}
+        />
+                {/* <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
             </Popup>
         </div>
     );

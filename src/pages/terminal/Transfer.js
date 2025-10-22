@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form, GroupItem, SimpleItem } from 'devextreme-react/form'
 import { Button } from "devextreme-react/button";
-import { getBinUsingBatch, getLastTransferRecord, saveDelivery, saveTransfer, terminalBinControl, terminalStatusControl, terminalWarehouseControl } from "../../store/terminalSlice";
+import { getBinUsingBatch, getLastTransferRecord, saveTransfer, } from "../../store/terminalSlice";
 import { terminalDeliveryData, terminalTransferLastData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayout";
-import { employeeColumns } from "../../data/zoomLayoutData";
+import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
+import { employeeColumns, employeeFiltersTerm } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import EmployeeList from "./components/EmployeeList";
 
 const handleNotify = ({ message, type }) => {
   notify(
@@ -35,7 +36,9 @@ const Transfer = () => {
   const employeeFilter = ["Department", "=", 10];
   const barcodeRef = useRef(null);
 
-
+  useEffect(() => {
+    console.log("formData değişti:", formData);
+}, [formData]);
   const createTextBoxWithButtonOptions = (type) => {
     return {
       buttons: [
@@ -66,15 +69,21 @@ const Transfer = () => {
   };
 
   const handleLoaderSelection = (selectedRowData) => {
-    formData.LoaderCode = selectedRowData.EmployeeID;
-    formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+     setFormData(prev => ({
+        ...prev,
+        LoaderCode: selectedRowData.EmployeeID,
+        LoaderName: selectedRowData.EmployeeName
+    }));
     setPopupVisibilityLoader(false);
   };
   const handlePreparerSelection = (selectedRowData) => {
-    formData.PreparerCode = selectedRowData.EmployeeID;
-    formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-    setPopupVisibilityPreparer(false);
-  };
+    setFormData(prev => ({
+        ...prev,
+        PreparerCode: selectedRowData.EmployeeID,
+        PreparerName: selectedRowData.EmployeeName
+    }));
+    setPopupVisibilityPreparer(false); 
+};
 
   // #region requests
 
@@ -88,6 +97,8 @@ const Transfer = () => {
         Dscription: lastTransfer[0].Dscription,
         FromWhsCod: lastTransfer[0].FromWhsCod,
         WhsCode: lastTransfer[0].WhsCode,
+        PalletQty: lastTransfer[0].PalletQty,
+        OnHandQty: lastTransfer[0].OnHandQty,
         FromBinCode: lastTransfer[0].FromBinCode,
         ToBinCode: lastTransfer[0].ToBinCode,
         DocNum: lastTransfer[0].DocNum
@@ -101,10 +112,10 @@ const Transfer = () => {
   }
 
   const validateBeforeSave = ({ formData, }) => {
-    if (!formData.PreparerCode || !formData.LoaderCode) {
-      handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
-      return false;
-    }
+    // if (!formData.PreparerCode || !formData.LoaderCode) {
+    //   handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
+    //   return false;
+    // }
     return true;
   };
 
@@ -112,8 +123,9 @@ const Transfer = () => {
     try {
 
 
-      const preparer = formData.PreparerCode;
-      const loadedBy = formData.LoaderCode;
+      const preparer = formData?.PreparerCode || 0;
+      const loadedBy = formData?.LoaderCode || 0;
+      debugger
       const itemList = {
         itemCode: item.ItemCode,
         quantity: item.OnHandQty,
@@ -131,7 +143,11 @@ const Transfer = () => {
 
       let result = await saveTransfer({ payload: itemList })
 
-      setFormData({ ...terminalDeliveryData })
+      // setFormData({ ...terminalDeliveryData })
+      setFormData(prev => ({
+        ...prev,
+        Barcode: ""
+      }))
       handleNotify({ message: "Kayıt başarılı", type: "success" });
       getLastInventoryTransferRecord()
     } catch (err) {
@@ -200,16 +216,32 @@ const Transfer = () => {
   return (
     <div className="p-4">
       <div className="page-container">
-        <Grid container spacing={1} paddingBottom={1}>
+        <Grid
+          container
+          spacing={1}
+          alignItems="center"
+          justifyContent="space-between"
+          paddingBottom={1}
+        >
           <Grid item>
-            <Button
-            className="nav-btn"
-              icon="arrowleft"
-              type="default"
-              stylingMode="contained"
-              onClick={() => navigate('/selectScreen')}
-            />
+            <Grid container spacing={1}>
+              <Grid item>
+                <Button
+                  className="nav-btn"
+                  icon="arrowleft"
+                  type="default"
+                  stylingMode="contained"
+                  onClick={() => navigate('/selectScreen')}
+                />
+              </Grid>
+            </Grid>
           </Grid>
+          <Grid item xs>
+            <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+              HATTAN TRANSFER
+            </div>
+          </Grid>
+          <Grid item style={{ width: 100 }}></Grid>
         </Grid>
         <Form
           formData={formData}
@@ -239,21 +271,21 @@ const Transfer = () => {
           />
 
 
-          <SimpleItem
+          {/* <SimpleItem
             dataField="LoaderName"
             editorOptions={createTextBoxWithButtonOptions("loader")}
             editorType="dxTextBox"
             cssClass="transparent-bg"
             label={{ text: 'Yükleyen' }}
             colSpan={6}
-          />
+          /> */}
 
           <SimpleItem
             dataField="PreparerName"
             editorOptions={createTextBoxWithButtonOptions("preparer")}
             editorType="dxTextBox"
             cssClass="transparent-bg"
-            label={{ text: 'Hazırlayan' }}
+            label={{ text: 'Operatör' }}
             colSpan={6}
           />
 
@@ -284,6 +316,8 @@ const Transfer = () => {
               <SimpleItem dataField="DistNumber" editorType="dxTextBox" label={{ text: 'Parti No' }} />
               <SimpleItem dataField="ItemCode" editorType="dxTextBox" label={{ text: 'Kalem Kodu' }} />
               <SimpleItem dataField="Dscription" editorType="dxTextBox" label={{ text: 'Kalem Adı' }} />
+              <SimpleItem dataField="OnHandQty" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Miktar' }} />
+              <SimpleItem dataField="PalletQty" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Plt. Miktarı' }} />
               <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" label={{ text: 'K. Depo' }} />
               <SimpleItem dataField="FromBinCode" editorType="dxTextBox" label={{ text: 'K. Depo Yeri' }} />
               <SimpleItem dataField="WhsCode" editorType="dxTextBox" label={{ text: 'H. Depo' }} />
@@ -308,8 +342,14 @@ const Transfer = () => {
         onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
         showCloseButton={true}
         title='Yükleyen Listesi'
+        wrapperAttr={{
+          class: 'terminal-popup'
+        }}
       >
-        <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+         <EmployeeList
+          gridData={formData}
+          onRowSelected={handleLoaderSelection}
+        />
       </Popup>
       <Popup
         visible={isPopupVisiblePreparer}
@@ -318,8 +358,12 @@ const Transfer = () => {
         onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
         showCloseButton={true}
         title='Hazırlayan Listesi'
+        wrapperAttr={{ class: 'terminal-popup' }}
       >
-        <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+        <EmployeeList
+          gridData={formData}
+          onRowSelected={handlePreparerSelection}
+        />
       </Popup>
     </div>
   );

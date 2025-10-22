@@ -12,6 +12,7 @@ import notify from 'devextreme/ui/notify';
 import { confirm } from "devextreme/ui/dialog";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import EmployeeList from "./components/EmployeeList";
 
 const handleNotify = ({ message, type }) => {
   notify(
@@ -30,7 +31,7 @@ const handleNotify = ({ message, type }) => {
 }
 
 const Delivery = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [deliveryGrid, setDeliveryGrid] = useState();
   const [tabIndex, setTabIndex] = useState(0);
   const [itemGrid, setItemGrid] = useState();
@@ -77,16 +78,36 @@ const Delivery = () => {
     }
   };
 
-  const handleLoaderSelection = (selectedRowData) => {
-    formData.LoaderCode = selectedRowData.EmployeeID;
-    formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-    setPopupVisibilityLoader(false);
-  };
-  const handlePreparerSelection = (selectedRowData) => {
-    formData.PreparerCode = selectedRowData.EmployeeID;
-    formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-    setPopupVisibilityPreparer(false);
-  };
+  // const handleLoaderSelection = (selectedRowData) => {
+  //   formData.LoaderCode = selectedRowData.EmployeeID;
+  //   formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+  //   setPopupVisibilityLoader(false);
+  // };
+  // const handlePreparerSelection = (selectedRowData) => {
+  //   formData.PreparerCode = selectedRowData.EmployeeID;
+  //   formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+  //   setPopupVisibilityPreparer(false);
+  // };
+  useEffect(() => {
+    console.log("formData:", formData);
+
+}, [formData]);
+const handleLoaderSelection = (selectedRowData) => {
+    setFormData(prev => ({
+       ...prev,
+       LoaderCode: selectedRowData.EmployeeID,
+       LoaderName: selectedRowData.EmployeeName
+   }));
+   setPopupVisibilityLoader(false);
+ };
+ const handlePreparerSelection = (selectedRowData) => {
+   setFormData(prev => ({
+       ...prev,
+       PreparerCode: selectedRowData.EmployeeID,
+       PreparerName: selectedRowData.EmployeeName
+   }));
+   setPopupVisibilityPreparer(false); 
+};
 
   // #region requests
   const fetchWaitForLoadDocs = async () => {
@@ -209,8 +230,9 @@ const Delivery = () => {
     try {
 
       if (!validateBeforeSave({ formData, itemGrid })) return;
-      const preparer = formData.PreparerCode;
-      const loadedBy = formData.LoaderCode;
+      const preparer = formData?.PreparerCode || 0;
+      const loadedBy = formData?.LoaderCode || 0;
+      debugger
       const headerList = itemGrid?.map(item => ({
         itemCode: item.U_ItemCode,
         quantity: item.U_Quantity,
@@ -278,7 +300,7 @@ const Delivery = () => {
     return (
       <div style={{ display: 'flex', gap: '8px' }}>
         <Button
-        className="nav-btn"
+          className="nav-btn"
           icon='send'
           onClick={() => goForReadBarcodes({ docEntry: docEntry })}
           type="default"
@@ -437,25 +459,41 @@ const Delivery = () => {
         <Item title="Belge Seç">
           <div className="page-container">
             <div style={{ marginBottom: "20px" }}>
-              <Grid container spacing={1} paddingBottom={1}>
+              <Grid
+                container
+                spacing={1}
+                alignItems="center"
+                justifyContent="space-between"
+                paddingBottom={1}
+              >
                 <Grid item>
-                  <Button
-                  className="nav-btn"
-                    icon="arrowleft"
-                    type="default"
-                    stylingMode="contained"
-                    onClick={() => navigate('/selectScreen')}
-                  />
+                  <Grid container spacing={1}>
+                    <Grid item>
+                      <Button
+                        className="nav-btn"
+                        icon="arrowleft"
+                        type="default"
+                        stylingMode="contained"
+                        onClick={() => navigate('/selectScreen')}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        className="nav-btn"
+                        icon="refresh"
+                        type="default"
+                        stylingMode="contained"
+                        onClick={fetchWaitForLoadDocs}
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <Button
-                  className="nav-btn"
-                    icon="refresh"
-                    type="default"
-                    stylingMode="contained"
-                    onClick={fetchWaitForLoadDocs}
-                  />
+                <Grid item xs>
+                  <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                    TESLİMAT
+                  </div>
                 </Grid>
+                <Grid item style={{ width: 100 }}></Grid>
               </Grid>
             </div>
             <DataGrid
@@ -565,7 +603,7 @@ const Delivery = () => {
               showBorders={true}
               keyExpr="Index"
               rowAlternationEnabled={true}
-               columnMinWidth={120}
+              columnMinWidth={120}
               onSelectionChanged={(e) => setSelectedItem(e.selectedRowsData[0])}
               selectedRowKeys={[selectedItem?.Index]}
               selection={{ mode: "single" }}
@@ -602,8 +640,15 @@ const Delivery = () => {
         onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
         showCloseButton={true}
         title='Yükleyen Listesi'
+        wrapperAttr={{
+          class:'terminal-popup'
+      }}
       >
-        <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+         <EmployeeList
+          gridData={formData}
+          onRowSelected={handleLoaderSelection}
+        />
+        {/* <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
       </Popup>
       <Popup
         visible={isPopupVisiblePreparer}
@@ -612,8 +657,15 @@ const Delivery = () => {
         onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
         showCloseButton={true}
         title='Hazırlayan Listesi'
+        wrapperAttr={{
+          class:'terminal-popup'
+      }}
       >
-        <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+         <EmployeeList
+          gridData={formData}
+          onRowSelected={handlePreparerSelection}
+        />
+        {/* <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
       </Popup>
     </div>
   );

@@ -54,6 +54,9 @@ const BatchDetails = () => {
                 OnHandQty: result[0].OnHandQty,
                 PalletQty: result[0].PalletQty,
                 MnfSerial: result[0].MnfSerial,
+                MnfDate: result[0].MnfDate,
+                ExpDate: result[0].ExpDate,
+                Notes: result[0].Notes,
                 LotNumber: result[0].LotNumber,
                 InDate: result[0].InDate,
                 U_StatusUpdateDate: result[0].U_StatusUpdateDate,
@@ -112,16 +115,32 @@ const BatchDetails = () => {
     return (
         <div className="p-4">
             <div className="page-container">
-                <Grid container spacing={1} paddingBottom={1}>
+                <Grid
+                    container
+                    spacing={1}
+                    alignItems="center"
+                    justifyContent="space-between"
+                    paddingBottom={1}
+                >
                     <Grid item>
-                        <Button
-                            className="nav-btn"
-                            icon="arrowleft"
-                            type="default"
-                            stylingMode="contained"
-                            onClick={() => navigate('/selectScreen')}
-                        />
+                        <Grid container spacing={1}>
+                            <Grid item>
+                                <Button
+                                    className="nav-btn"
+                                    icon="arrowleft"
+                                    type="default"
+                                    stylingMode="contained"
+                                    onClick={() => navigate('/selectScreen')}
+                                />
+                            </Grid>
+                        </Grid>
                     </Grid>
+                    <Grid item xs>
+                        <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                            PARTİ AYRINTILARI
+                        </div>
+                    </Grid>
+                    <Grid item style={{ width: 100 }}></Grid>
                 </Grid>
                 <Form
                     formData={formData}
@@ -161,7 +180,7 @@ const BatchDetails = () => {
                 <hr></hr>
                 <div className="parti-card">
                     <div className="parti-card-header">
-                        <h2>Parti Ayrıntıları</h2>
+                        <h2>Ayrıntılar</h2>
                     </div>
                     <div className="parti-card-body">
                         <Form

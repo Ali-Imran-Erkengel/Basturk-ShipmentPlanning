@@ -94,6 +94,7 @@ export const logisticsColumns = [
     }
 ]
 export const employeeFilters = ["DocNum", "U_Description", "U_OcrdNo"];
+export const employeeFiltersTerm = ["FirstName", "LastName"];
 export const employeeColumns = [
     {
         "DataField": "FirstName",

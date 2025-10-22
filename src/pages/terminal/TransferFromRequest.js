@@ -11,6 +11,7 @@ import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
+import EmployeeList from "./components/EmployeeList";
 
 const handleNotify = ({ message, type }) => {
     notify(
@@ -76,16 +77,37 @@ const TransferFromRequest = () => {
         }
     };
 
+    useEffect(() => {
+        console.log("formData:", formData);
+    
+    }, [formData]);
     const handleLoaderSelection = (selectedRowData) => {
-        formData.LoaderCode = selectedRowData.EmployeeID;
-        formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-        setPopupVisibilityLoader(false);
+        setFormData(prev => ({
+           ...prev,
+           LoaderCode: selectedRowData.EmployeeID,
+           LoaderName: selectedRowData.EmployeeName
+       }));
+       setPopupVisibilityLoader(false);
+     };
+     const handlePreparerSelection = (selectedRowData) => {
+       setFormData(prev => ({
+           ...prev,
+           PreparerCode: selectedRowData.EmployeeID,
+           PreparerName: selectedRowData.EmployeeName
+       }));
+       setPopupVisibilityPreparer(false); 
     };
-    const handlePreparerSelection = (selectedRowData) => {
-        formData.PreparerCode = selectedRowData.EmployeeID;
-        formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
-        setPopupVisibilityPreparer(false);
-    };
+    
+    // const handleLoaderSelection = (selectedRowData) => {
+    //     formData.LoaderCode = selectedRowData.EmployeeID;
+    //     formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+    //     setPopupVisibilityLoader(false);
+    // };
+    // const handlePreparerSelection = (selectedRowData) => {
+    //     formData.PreparerCode = selectedRowData.EmployeeID;
+    //     formData.PreparerName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
+    //     setPopupVisibilityPreparer(false);
+    // };
 
 
     // #region requests
@@ -137,8 +159,8 @@ const TransferFromRequest = () => {
         }
     };
     const validateBeforeSave = ({ formData }) => {
-        if (!formData.PreparerCode || !formData.LoaderCode) {
-            handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
+        if (!formData.PreparerCode) {
+            handleNotify({ message: "Lütfen Operatör Seçiniz", type: "error" });
             return false;
         }
         return true;
@@ -148,8 +170,8 @@ const TransferFromRequest = () => {
         try {
 
             if (!validateBeforeSave({ formData })) return;
-            const preparer = formData.PreparerCode;
-            const loadedBy = formData.LoaderCode;
+            const preparer = formData?.PreparerCode || 0;
+            const loadedBy = formData?.LoaderCode || 0;
             const entries = batchGrid?.map(batch => ({
                 docNum: batch.ApplyEntry,
                 docLine: batch.ApplyLine,
@@ -194,7 +216,11 @@ const TransferFromRequest = () => {
             };
             debugger
             let result = await saveTransferFromRequest({ payload: payload })
-            setFormData({ ...terminalBarcodedProcessData })
+            // setFormData({ ...terminalBarcodedProcessData })
+            setFormData(prev => ({
+                ...prev,
+                Barcode: ""
+              }))
             setBatchGrid([]);
             setTabIndex(0);
             setSelectedDocEntry(0)
@@ -456,27 +482,42 @@ const TransferFromRequest = () => {
                 {/* TAB 1 - Belge Seç */}
                 <Item title="Belge Seç">
                     <div className="page-container">
-                        <Grid container spacing={1} paddingBottom={1}>
-                            <Grid item>
-                                <Button
-                                className="nav-btn"
-                                    icon="arrowleft"
-                                    type="default"
-                                    stylingMode="contained"
-                                    onClick={() => navigate('/selectScreen')}
-                                />
-                            </Grid>
-                            <Grid item>
-                                <Button
-                                className="nav-btn"
-                                    icon="refresh"
-                                    type="default"
-                                    stylingMode="contained"
-                                    onClick={fetchWaitForLoadDocs}
-                                    elementAttr={{ style: "font-size: 34px; width: 100%" }}
-                                />
-                            </Grid>
-                        </Grid>
+                    <Grid
+              container
+              spacing={1}
+              alignItems="center"
+              justifyContent="space-between"
+              paddingBottom={1}
+            >
+              <Grid item>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <Button
+                      className="nav-btn"
+                      icon="arrowleft"
+                      type="default"
+                      stylingMode="contained"
+                      onClick={() => navigate('/selectScreen')}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      className="nav-btn"
+                      icon="refresh"
+                      type="default"
+                      stylingMode="contained"
+                      onClick={fetchWaitForLoadDocs}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs>
+                <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                  NAKİL TALEBİNDEN TRANSFER
+                </div>
+              </Grid>
+              <Grid item style={{ width: 100 }}></Grid>
+            </Grid>
                         <div style={{ marginBottom: "20px" }}>
                         </div>
                         <DataGrid
@@ -535,21 +576,21 @@ const TransferFromRequest = () => {
                             />
 
 
-                            <SimpleItem
+                            {/* <SimpleItem
                                 dataField="LoaderName"
                                 editorOptions={createTextBoxWithButtonOptions("loader")}
                                 editorType="dxTextBox"
                                 cssClass="transparent-bg"
                                 label={{ text: 'Yükleyen' }}
                                 colSpan={6}
-                            />
+                            /> */}
 
                             <SimpleItem
                                 dataField="PreparerName"
                                 editorOptions={createTextBoxWithButtonOptions("preparer")}
                                 editorType="dxTextBox"
                                 cssClass="transparent-bg"
-                                label={{ text: 'Hazırlayan' }}
+                                label={{ text: 'Operatör' }}
                                 colSpan={6}
                             />
                             <SimpleItem
@@ -603,8 +644,15 @@ const TransferFromRequest = () => {
                 onHiding={() => togglePopupZoomLayout({ variable: "loader" })}
                 showCloseButton={true}
                 title='Yükleyen Listesi'
+                wrapperAttr={{
+                    class:'terminal-popup'
+                }}
             >
-                <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+                              <EmployeeList
+          gridData={formData}
+          onRowSelected={handleLoaderSelection}
+        />
+                {/* <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
             </Popup>
             <Popup
                 visible={isPopupVisiblePreparer}
@@ -613,8 +661,15 @@ const TransferFromRequest = () => {
                 onHiding={() => togglePopupZoomLayout({ variable: "preparer" })}
                 showCloseButton={true}
                 title='Hazırlayan Listesi'
+                wrapperAttr={{
+                    class:'terminal-popup'
+                }}
             >
-                <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal>
+                              <EmployeeList
+          gridData={formData}
+          onRowSelected={handlePreparerSelection}
+        />
+                {/* <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
             </Popup>
         </div>
     );

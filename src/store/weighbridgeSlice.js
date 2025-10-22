@@ -133,7 +133,7 @@ export const getLoadingRamps = async () => {
 }
 export const printWghReport = async ({ wghId }) => {
     try {
-        const response = await axios.get('http://10.44.10.4:4909/viewcrystalwgh', {
+        const response = await axios.get('http://10.10.1.2:4909/viewcrystalwgh', {
             params: { wghId: wghId },
             responseType: 'blob', // Yanıtı blob olarak alıyoruz
         });

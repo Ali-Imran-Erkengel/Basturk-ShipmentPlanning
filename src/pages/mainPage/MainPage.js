@@ -69,7 +69,7 @@ function MainPage() {
     }
   }, []);
 
-  if (user === "manager") {
+  if (user.includes("term")) {
     return (
      <SelectScreen></SelectScreen>
     );

@@ -19,6 +19,8 @@ export const terminalTransferLastData = {
   "Dscription": "",
   "FromWhsCod": "",
   "WhsCode": "",
+  "OnHandQty":"",
+  "PalletQty":"",
   "FromBinCode": "",
   "ToBinCode": "",
   "DocNum": ""

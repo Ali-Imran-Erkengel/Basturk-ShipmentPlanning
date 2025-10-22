@@ -15,7 +15,7 @@ export let initialState = {
 export const printShipmentDetail = async ({ beginDate, endDate, cardName, customDocNum, plateCode, type }) => {
     try {
         debugger
-        const response = await axios.get('http://10.44.10.4:4909/viewcrystalshipmentdetail', {
+        const response = await axios.get('http://10.10.1.2:4909/viewcrystalshipmentdetail', {
             params: {
                 beginDate: beginDate,
                 endDate: endDate,
@@ -47,7 +47,7 @@ export const printShipmentDetail = async ({ beginDate, endDate, cardName, custom
 export const printShippingArchive = async ({ beginDate, endDate, cardCode, cardName, customDocNum, deliveryStatus, invoiceStatus, paymentStatus, plateCode, driverName }) => {
     try {
         debugger
-        const response = await axios.get('http://10.44.10.4:4909/ViewCrystalShipArchive', {
+        const response = await axios.get('http://10.10.1.2:4909/ViewCrystalShipArchive', {
             params: {
                 beginDate: beginDate,
                 endDate: endDate,

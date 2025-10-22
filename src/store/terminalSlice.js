@@ -44,6 +44,94 @@ const terminalSlice = createSlice({
     //     })
   }
 });
+export const getEmployees = async ({ filterValues }) => {
+  try {
+      const response = await axios.get(`${querymanager}/getemployeestermlic`, {
+          headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+          },
+          withCredentials: true,
+          params: {
+            name: encodeURIComponent(filterValues.firstName),
+            surname: encodeURIComponent(filterValues.lastName),
+          }
+      });
+      const jsonArray = JSON.parse(response.data);
+      return jsonArray;
+  } catch (error) {
+      console.error('API isteğinde hata:', error.response || error.message);
+      if (error.response) {
+          console.error('Durum kodu:', error.response.status);
+          console.error('Yanıt içeriği:', error.response.data);
+      }
+  }
+}
+export const getWarehouses = async ({ filterValues }) => {
+  try {
+      const response = await axios.get(`${querymanager}/getwarehousestermlic`, {
+          headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+          },
+          withCredentials: true,
+          params: {
+              whsCode: filterValues.whsCode,
+              whsName:encodeURIComponent(filterValues.whsName),
+          }
+      });
+      const jsonArray = JSON.parse(response.data);
+      return jsonArray;
+  } catch (error) {
+      console.error('API isteğinde hata:', error.response || error.message);
+      if (error.response) {
+          console.error('Durum kodu:', error.response.status);
+          console.error('Yanıt içeriği:', error.response.data);
+      }
+  }
+}
+export const getBinLocations = async ({ filterValues }) => {
+  try {
+      const response = await axios.get(`${querymanager}/getbinlocationstermlic`, {
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+          params: {
+              whsCode: filterValues.whsCode,
+              binCode: filterValues.binCode,
+          }
+      });
+      const jsonArray = JSON.parse(response.data);
+      return jsonArray;
+  } catch (error) {
+      console.error('API isteğinde hata:', error.response || error.message);
+      if (error.response) {
+          console.error('Durum kodu:', error.response.status);
+          console.error('Yanıt içeriği:', error.response.data);
+      }
+  }
+}
+export const getBusinessPartners = async ({ filterValues }) => {
+  try {
+      const response = await axios.get(`${querymanager}/getbusinesspartnerstermlic`, {
+          headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+          },
+          withCredentials: true,
+          params: {
+              cardCode: filterValues.cardCode,
+              cardName: encodeURIComponent( filterValues.cardName),
+          }
+      });
+      const jsonArray = JSON.parse(response.data);
+      return jsonArray;
+  } catch (error) {
+      console.error('API isteğinde hata:', error.response || error.message);
+      if (error.response) {
+          console.error('Durum kodu:', error.response.status);
+          console.error('Yanıt içeriği:', error.response.data);
+      }
+  }
+}
 export const getAplatz = async () => {
   let params = {};
   return sendGetRequest({ endpoint: "getaplatz", params: params })

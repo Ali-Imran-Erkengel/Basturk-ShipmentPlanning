@@ -8,6 +8,7 @@ export const filtersConfig = [
   { field: 'U_WghType', operator: '=', type: 'string' },
   { field: 'U_IsDeleted', operator: '=', type: 'string' },
   { field: 'U_LogisticsNo', operator: '=', type: 'string' },
+  { field: 'DocEntry', operator: 'contains', type: 'string' }
   
 ];
 export const formData = {
@@ -35,7 +36,6 @@ export const formData = {
   "U_SecondWghDone":"N",
   "U_TrailerPlateCode":"",
   "U_DeliveryNoteNo":""
-
 };
 
 
