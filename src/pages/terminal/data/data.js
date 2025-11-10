@@ -25,6 +25,20 @@ export const terminalTransferLastData = {
   "ToBinCode": "",
   "DocNum": ""
 }
+export const terminalPrevEopData = {
+  "Kayıt_Sırası": "",
+  "Parti_No": "",
+  "Stok_Kodu": "",
+  "Kalem_Adı": "",
+  "Depo_Kodu": "",
+  "Depo_Yeri": "",
+  "Üretim_Tarihi":"",
+  "Parti_Tarih":"",
+  "Hat_No": "",
+  "Günlük_Lot_No": "",
+  "Bekleme_Süresi(Saat)": "",
+  "Statü": ""
+}
 export const terminalBatchDetailData = {
   "ItemCode": "",
   "ItemName": "",

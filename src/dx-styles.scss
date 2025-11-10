@@ -449,6 +449,67 @@ body {
 }
 
 
+/////////////////hattan transfer eop önceki kayıt
+.prev-parti-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin: 10px 1px 0 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  background: #e6b863;
+}
+
+.prev-parti-card-header {
+  padding: 1px 8px;
+  font-weight: bold;
+  background-color: #c4943a;
+  font-size: 12px;
+  color: #ffffff;
+  border-bottom: 1px solid #c78b1a;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.prev-parti-card-header h2 {
+  margin: 4px 0 !important;
+  font-size: 13px;
+}
+
+.prev-parti-card-body {
+  padding: 4px 6px !important;
+}
+
+.prev-parti-card .btn-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.prev-parti-card .dx-button {
+  background: linear-gradient(90deg, #b87c0c, #855703);
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 16px !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover efekti */
+.prev-parti-card .dx-button:hover {
+  background: linear-gradient(90deg, #c48511, #885c0a);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Click efekti */
+.prev-parti-card .dx-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: "#ffffff";
+}
 /////////////////transfer parti bilgisi
 /// 
 .parti-card {

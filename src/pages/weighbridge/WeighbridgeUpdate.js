@@ -361,6 +361,8 @@ function WeighbridgeUpdate({ id, onBack }) {
         if (result.meta.arg.updatedData.U_WghType === 2 && result.meta.arg.updatedData.U_LogisticsNo) {
 
             const logisticsId = result.meta.arg.updatedData.U_LogisticsNo;
+            const plateCode = result.meta.arg.updatedData.U_PlateCode;
+            const docTotal = result.meta.arg.updatedData.U_DocTotal;
             const lgtData = {
                 "U_Status": 6
             }
@@ -380,7 +382,7 @@ function WeighbridgeUpdate({ id, onBack }) {
                     const domestic = res.data.value[0]["Items"].U_YurticiNakliye
                     const cardCode = res.data.value[0]["SML_LGT_HDR"].U_OcrdNo;
                     const shippingExpenseItem = customerCode.startsWith("MD") ? abroad : domestic;
-                    await addPurchaseOrder({ amount: amount, cardCode: cardCode, shippingExpenseItem: shippingExpenseItem, logisticNo: logisticsId })
+                    await addPurchaseOrder({ amount: amount, cardCode: cardCode, shippingExpenseItem: shippingExpenseItem, logisticNo: logisticsId, plateCode: plateCode, docTotal: docTotal })
                 }
             }
 
@@ -392,16 +394,17 @@ function WeighbridgeUpdate({ id, onBack }) {
 
     }
 
-    const addPurchaseOrder = async ({ amount, cardCode, shippingExpenseItem, logisticNo }) => {
-        //debugger
+    const addPurchaseOrder = async ({ amount, cardCode, shippingExpenseItem, logisticNo, plateCode, docTotal }) => {
+        debugger
         const isExists = await isExistsPO({ logisticNo: logisticNo });
-        //debugger
+        debugger
         if (isExists.data.value.length === 0) {
             //debugger
             let purchaseOrder = {
                 "CardCode": cardCode,
                 "U_LogisticNo": logisticNo,
                 "PriceList": -1,
+                "Comments": `Plaka Kodu:${plateCode} Belge Toplamı:${docTotal}`,
                 "DocumentLines": [
                     {
                         "ItemCode": shippingExpenseItem,
@@ -422,7 +425,7 @@ function WeighbridgeUpdate({ id, onBack }) {
         }
     }
     const addPOGoodsReceipt = async ({ result }) => {
-        // debugger
+        debugger
         if (result.meta.arg.updatedData.U_PODocNo && result.meta.arg.updatedData.U_WghType === 2) {
             const logisticsId = result.meta.arg.updatedData.U_LogisticsNo;
             //  const isClosed = await isClosedOrder({ orderNo:result.meta.arg.updatedData.U_PODocNo});

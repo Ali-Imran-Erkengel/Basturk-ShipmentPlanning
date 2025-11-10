@@ -26,7 +26,7 @@ const handleNotify = ({ message, type }) => {
             }
         },
         type,
-        1500
+        5000
     );
 }
 
@@ -505,6 +505,10 @@ const BarcodedProcess = () => {
                                 editorType="dxTextBox"
                                 editorOptions={{
                                     showClearButton: true,
+                                    inputAttr: {
+                                        inputmode: "none",   
+                                        autocomplete: "off",
+                                      },
                                     onEnterKey: (e) => {
                                         const value = e.component.option("value");
                                         handleBarcodeEnter(value);

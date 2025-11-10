@@ -46,90 +46,90 @@ const terminalSlice = createSlice({
 });
 export const getEmployees = async ({ filterValues }) => {
   try {
-      const response = await axios.get(`${querymanager}/getemployeestermlic`, {
-          headers: {
-              'Content-Type': 'application/json; charset=UTF-8',
-          },
-          withCredentials: true,
-          params: {
-            name: encodeURIComponent(filterValues.firstName),
-            surname: encodeURIComponent(filterValues.lastName),
-          }
-      });
-      const jsonArray = JSON.parse(response.data);
-      return jsonArray;
-  } catch (error) {
-      console.error('API isteğinde hata:', error.response || error.message);
-      if (error.response) {
-          console.error('Durum kodu:', error.response.status);
-          console.error('Yanıt içeriği:', error.response.data);
+    const response = await axios.get(`${querymanager}/getemployeestermlic`, {
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      withCredentials: true,
+      params: {
+        name: encodeURIComponent(filterValues.firstName),
+        surname: encodeURIComponent(filterValues.lastName),
       }
+    });
+    const jsonArray = JSON.parse(response.data);
+    return jsonArray;
+  } catch (error) {
+    console.error('API isteğinde hata:', error.response || error.message);
+    if (error.response) {
+      console.error('Durum kodu:', error.response.status);
+      console.error('Yanıt içeriği:', error.response.data);
+    }
   }
 }
 export const getWarehouses = async ({ filterValues }) => {
   try {
-      const response = await axios.get(`${querymanager}/getwarehousestermlic`, {
-          headers: {
-              'Content-Type': 'application/json; charset=UTF-8',
-          },
-          withCredentials: true,
-          params: {
-              whsCode: filterValues.whsCode,
-              whsName:encodeURIComponent(filterValues.whsName),
-          }
-      });
-      const jsonArray = JSON.parse(response.data);
-      return jsonArray;
-  } catch (error) {
-      console.error('API isteğinde hata:', error.response || error.message);
-      if (error.response) {
-          console.error('Durum kodu:', error.response.status);
-          console.error('Yanıt içeriği:', error.response.data);
+    const response = await axios.get(`${querymanager}/getwarehousestermlic`, {
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      withCredentials: true,
+      params: {
+        whsCode: filterValues.whsCode,
+        whsName: encodeURIComponent(filterValues.whsName),
       }
+    });
+    const jsonArray = JSON.parse(response.data);
+    return jsonArray;
+  } catch (error) {
+    console.error('API isteğinde hata:', error.response || error.message);
+    if (error.response) {
+      console.error('Durum kodu:', error.response.status);
+      console.error('Yanıt içeriği:', error.response.data);
+    }
   }
 }
 export const getBinLocations = async ({ filterValues }) => {
   try {
-      const response = await axios.get(`${querymanager}/getbinlocationstermlic`, {
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          withCredentials: true,
-          params: {
-              whsCode: filterValues.whsCode,
-              binCode: filterValues.binCode,
-          }
-      });
-      const jsonArray = JSON.parse(response.data);
-      return jsonArray;
-  } catch (error) {
-      console.error('API isteğinde hata:', error.response || error.message);
-      if (error.response) {
-          console.error('Durum kodu:', error.response.status);
-          console.error('Yanıt içeriği:', error.response.data);
+    const response = await axios.get(`${querymanager}/getbinlocationstermlic`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+      params: {
+        whsCode: filterValues.whsCode,
+        binCode: filterValues.binCode,
       }
+    });
+    const jsonArray = JSON.parse(response.data);
+    return jsonArray;
+  } catch (error) {
+    console.error('API isteğinde hata:', error.response || error.message);
+    if (error.response) {
+      console.error('Durum kodu:', error.response.status);
+      console.error('Yanıt içeriği:', error.response.data);
+    }
   }
 }
 export const getBusinessPartners = async ({ filterValues }) => {
   try {
-      const response = await axios.get(`${querymanager}/getbusinesspartnerstermlic`, {
-          headers: {
-              'Content-Type': 'application/json; charset=UTF-8',
-          },
-          withCredentials: true,
-          params: {
-              cardCode: filterValues.cardCode,
-              cardName: encodeURIComponent( filterValues.cardName),
-          }
-      });
-      const jsonArray = JSON.parse(response.data);
-      return jsonArray;
-  } catch (error) {
-      console.error('API isteğinde hata:', error.response || error.message);
-      if (error.response) {
-          console.error('Durum kodu:', error.response.status);
-          console.error('Yanıt içeriği:', error.response.data);
+    const response = await axios.get(`${querymanager}/getbusinesspartnerstermlic`, {
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      withCredentials: true,
+      params: {
+        cardCode: filterValues.cardCode,
+        cardName: encodeURIComponent(filterValues.cardName),
       }
+    });
+    const jsonArray = JSON.parse(response.data);
+    return jsonArray;
+  } catch (error) {
+    console.error('API isteğinde hata:', error.response || error.message);
+    if (error.response) {
+      console.error('Durum kodu:', error.response.status);
+      console.error('Yanıt içeriği:', error.response.data);
+    }
   }
 }
 export const getAplatz = async () => {
@@ -191,6 +191,12 @@ export const getLastTransferRecord = async () => {
   let params = {};
   return sendGetRequest({ endpoint: "getlasttransferrecord", params: params })
 }
+export const getPreviousEndOfProcess = async ({barcode}) => {
+  let params = {
+    barcode:barcode
+  };
+  return sendGetRequest({ endpoint: "terminaleopprevrecord", params: params })
+}
 export const saveDelivery = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
@@ -211,7 +217,10 @@ export const createTempData = async ({ tempData }) => {
     binEntry: tempData.BinEntry,
     documentNo: tempData.DocumentNo,
     userCode: tempData.UserCode,
-    module: tempData.Module
+    module: tempData.Module,
+    loadedBy: tempData.LoadedBy,
+    preparer: tempData.Preparer
+
   };
   console.log("payload", params)
   return sendPostRequest({ endpoint: "deliverytempinsert", params: params })
@@ -332,9 +341,9 @@ export const saveTransferFromRequest = async ({ payload }) => {
   debugger
   return sendPostRequest({ endpoint: "transferfromreqweb", params: params })
 }
-export const getBatchDetails = async ({barcode}) => {
+export const getBatchDetails = async ({ barcode }) => {
   let params = {
-    barcode:barcode
+    barcode: barcode
   };
   return sendGetRequest({ endpoint: "getbatchdetails", params: params })
 }
@@ -343,9 +352,9 @@ export const saveInventoryTransfer = async ({ payload }) => {
   let params = payload;
   return sendPostRequest({ endpoint: "inventorytransferweb", params: params })
 }
-export const getBinAndWhs = async ({binCode}) => {
+export const getBinAndWhs = async ({ binCode }) => {
   let params = {
-    binCode:binCode
+    binCode: binCode
   };
   return sendGetRequest({ endpoint: "getbinandwhs", params: params })
 }
@@ -355,7 +364,7 @@ export const findBinAndWhs = async ({ barcode }) => {
   };
   return sendGetRequest({ endpoint: "findbinandwhs", params: params })
 }
-export const batchControl = async ({ barcode,whsCode,binEntry }) => {
+export const batchControl = async ({ barcode, whsCode, binEntry }) => {
   let params = {
     barcode: barcode,
     whsCode: whsCode,

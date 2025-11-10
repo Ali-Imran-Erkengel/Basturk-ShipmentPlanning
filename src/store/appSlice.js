@@ -40,7 +40,6 @@ export const getItemById = createAsyncThunk(
 export const updateData = createAsyncThunk(
     'updateData',
     async ({ tableName, id, updatedData }) => {
-        debugger
         const request = await axios.patch(`${hostName}/${tableName}(${id})`, updatedData);
 
         const response = await request.data;

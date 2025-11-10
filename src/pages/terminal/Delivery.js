@@ -26,7 +26,7 @@ const handleNotify = ({ message, type }) => {
       }
     },
     type,
-    1500
+    5000
   );
 }
 
@@ -154,6 +154,15 @@ const handleLoaderSelection = (selectedRowData) => {
       });
 
       setItemGrid(updatedItemGrid);
+      if (temp.batches?.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          LoaderCode: temp.batches[0].LoadedBy || "",
+          LoaderName: temp.batches[0].LoadedByName || "",
+          PreparerCode: temp.batches[0].Preparer || "",
+          PreparerName: temp.batches[0].PreparerName || "",
+        }));
+      }
       setBatchGrid(temp.batches || []);
     }
   }
@@ -185,11 +194,11 @@ const handleLoaderSelection = (selectedRowData) => {
     }
   };
   const validateBeforeSave = ({ formData, itemGrid }) => {
-    if (!formData.PreparerCode || !formData.LoaderCode) {
-      handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
-      return false;
-    }
-
+    // if (!formData.PreparerCode || !formData.LoaderCode) {
+    //   handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
+    //   return false;
+    // }
+debugger
     const notCompleted = itemGrid?.some(item => (item.ReadedQty ?? 0) !== item.U_Quantity);
     if (notCompleted) {
       handleNotify({ message: "Tüm kalemlerin okutulan miktarı, teslimat miktarına eşit olmalı!", type: "error" });
@@ -198,7 +207,7 @@ const handleLoaderSelection = (selectedRowData) => {
 
     return true;
   };
-  const insertToTempTable = async (rowData) => {
+  const insertToTempTable = async ({rowData,loader,preparer}) => {
     try {
       const payload = {
         ItemCode: rowData.ItemCode,
@@ -208,7 +217,9 @@ const handleLoaderSelection = (selectedRowData) => {
         BinEntry: rowData.BinEntry,
         DocumentNo: selectedItem?.DocEntry || 0,
         UserCode: sessionStorage.getItem('userName') || "Unknown",
-        Module: "DLV"
+        Module: "DLV",
+        LoadedBy:loader,
+        Preparer:preparer
       };
       let result = await createTempData({ tempData: payload })
     } catch (err) {
@@ -312,6 +323,10 @@ const handleLoaderSelection = (selectedRowData) => {
 
   const handleBarcodeEnter = async (barcode) => {
     try {
+      if (!formData.PreparerCode || !formData.LoaderCode) {
+        handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
+        return false;
+      }
       if (!selectedItem) {
         handleNotify({ message: "Lütfen Satır Seçiniz", type: "error" })
         return;
@@ -365,7 +380,6 @@ const handleLoaderSelection = (selectedRowData) => {
       if (warehouseMsg) return handleNotify({ message: warehouseMsg, type: "error" });
       const statusMsg = await statusControl({ itemCode, barcode: barcodeValue });
       if (statusMsg) return handleNotify({ message: statusMsg, type: "error" });
-      debugger
       if (readedQuantity >= quantity) return handleNotify({ message: "Miktar Teslimat Miktarını Geçemez", type: "error" });
       let apiResponse = await batchBinControl({ itemCode: itemCode, barcode: barcodeValue, whsCode: whsCode, stockQuantity: innerQtyOfPallet })
       switch (apiResponse[0].Result) {
@@ -396,8 +410,9 @@ const handleLoaderSelection = (selectedRowData) => {
         } else {
 
           setItemGrid(prevItems => {
+            debugger
             const newData = [...prevItems];
-            const idx = newData.findIndex(item => item.U_ItemCode === selectedItem.U_ItemCode);
+            const idx = newData.findIndex(item => item.U_ItemCode === selectedItem.U_ItemCode& item.Index===selectedItem.Index);
             if (idx !== -1) {
               newData[idx] = {
                 ...newData[idx],
@@ -412,7 +427,9 @@ const handleLoaderSelection = (selectedRowData) => {
           });
 
           handleNotify({ message: "Okutma Başarılı.", type: "success" });
-          insertToTempTable(newRow);
+          const preparer = formData?.PreparerCode || 0;
+          const loadedBy = formData?.LoaderCode || 0;
+          insertToTempTable({rowData: newRow,loader:loadedBy,preparer:preparer});
           return [...prev, newRow];
         }
       });
@@ -536,6 +553,10 @@ const handleLoaderSelection = (selectedRowData) => {
                 editorType="dxTextBox"
                 editorOptions={{
                   showClearButton: true,
+                  inputAttr: {
+                    inputmode: "none",   
+                    autocomplete: "off",
+                  },
                   onEnterKey: (e) => {
                     const value = e.component.option("value");
                     handleBarcodeEnter(value);

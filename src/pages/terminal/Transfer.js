@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Form, GroupItem, SimpleItem } from 'devextreme-react/form'
 import { Button } from "devextreme-react/button";
-import { getBinUsingBatch, getLastTransferRecord, saveTransfer, } from "../../store/terminalSlice";
-import { terminalDeliveryData, terminalTransferLastData } from "./data/data";
+import { getBinUsingBatch, getLastTransferRecord, getPreviousEndOfProcess, saveTransfer, } from "../../store/terminalSlice";
+import { terminalDeliveryData, terminalPrevEopData, terminalTransferLastData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
 import { employeeColumns, employeeFiltersTerm } from "../../data/zoomLayoutData";
@@ -23,7 +23,7 @@ const handleNotify = ({ message, type }) => {
       }
     },
     type,
-    1500
+    5000
   );
 }
 
@@ -33,12 +33,13 @@ const Transfer = () => {
   const [isPopupVisiblePreparer, setPopupVisibilityPreparer] = useState(false);
   const [formData, setFormData] = useState({ ...terminalDeliveryData });
   const [transferData, setTransferData] = useState({ ...terminalTransferLastData });
+  const [prevEopData, setPrevEopData] = useState({ ...terminalPrevEopData });
   const employeeFilter = ["Department", "=", 10];
   const barcodeRef = useRef(null);
 
   useEffect(() => {
     console.log("formData değişti:", formData);
-}, [formData]);
+  }, [formData]);
   const createTextBoxWithButtonOptions = (type) => {
     return {
       buttons: [
@@ -69,21 +70,21 @@ const Transfer = () => {
   };
 
   const handleLoaderSelection = (selectedRowData) => {
-     setFormData(prev => ({
-        ...prev,
-        LoaderCode: selectedRowData.EmployeeID,
-        LoaderName: selectedRowData.EmployeeName
+    setFormData(prev => ({
+      ...prev,
+      LoaderCode: selectedRowData.EmployeeID,
+      LoaderName: selectedRowData.EmployeeName
     }));
     setPopupVisibilityLoader(false);
   };
   const handlePreparerSelection = (selectedRowData) => {
     setFormData(prev => ({
-        ...prev,
-        PreparerCode: selectedRowData.EmployeeID,
-        PreparerName: selectedRowData.EmployeeName
+      ...prev,
+      PreparerCode: selectedRowData.EmployeeID,
+      PreparerName: selectedRowData.EmployeeName
     }));
-    setPopupVisibilityPreparer(false); 
-};
+    setPopupVisibilityPreparer(false);
+  };
 
   // #region requests
 
@@ -103,14 +104,45 @@ const Transfer = () => {
         ToBinCode: lastTransfer[0].ToBinCode,
         DocNum: lastTransfer[0].DocNum
       }
-      console.log("transfer", lastTransfer)
       setTransferData(trnData)
     } catch (err) {
       console.error("err:", err.message);
       throw err
     }
   }
-
+  const getPreviousRecordEndOfProcess = async () => {
+    try {
+      let oldBarcode = formData.OldBarcode;
+      let barcodeValue = formData.Barcode;
+      if (!barcodeValue) return handleNotify({ message: "Lütfen Önce Barkod Alanını Doldurunuz.", type: "error" }) ;
+      if (!oldBarcode) {
+        barcodeValue = formData.Barcode.substring(3)
+      }
+     
+      let prevRecord = await getPreviousEndOfProcess({ barcode: barcodeValue });
+      if (prevRecord.length > 0) {
+        let eop = {
+          Kayıt_Sırası: prevRecord[0]["Kayıt Sırası"],
+          Parti_No: prevRecord[0]["Parti No"],
+          Stok_Kodu: prevRecord[0]["Stok Kodu"],
+          Kalem_Adı: prevRecord[0]["Kalem Adı"],
+          Depo_Kodu: prevRecord[0]["Depo Kodu"],
+          Depo_Yeri: prevRecord[0]["Depo Yeri"],
+          Üretim_Tarihi: prevRecord[0]["Üretim Tarihi"],
+          Parti_Tarih: prevRecord[0]["Parti Tarih"],
+          Hat_No: prevRecord[0]["Hat No"],
+          Günlük_Lot_No: prevRecord[0]["Günlük Lot No"],
+          Bekleme_Süresi: prevRecord[0]["Bekleme Süresi(Saat)"],
+          Statü: prevRecord[0]["Statü"],
+        }
+        handleNotify({ message: "Önceden Okutulmamış Palet Var", type: "error" })
+        setPrevEopData(eop)
+      }
+    } catch (err) {
+      console.error("err:", err.message);
+      throw err
+    }
+  }
   const validateBeforeSave = ({ formData, }) => {
     // if (!formData.PreparerCode || !formData.LoaderCode) {
     //   handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen seçiniz", type: "error" });
@@ -125,7 +157,6 @@ const Transfer = () => {
 
       const preparer = formData?.PreparerCode || 0;
       const loadedBy = formData?.LoaderCode || 0;
-      debugger
       const itemList = {
         itemCode: item.ItemCode,
         quantity: item.OnHandQty,
@@ -144,12 +175,13 @@ const Transfer = () => {
       let result = await saveTransfer({ payload: itemList })
 
       // setFormData({ ...terminalDeliveryData })
+      handleNotify({ message: "Kayıt başarılı", type: "success" });
+      getLastInventoryTransferRecord()
+      getPreviousRecordEndOfProcess({ barcode: item.DistNumber })
       setFormData(prev => ({
         ...prev,
         Barcode: ""
       }))
-      handleNotify({ message: "Kayıt başarılı", type: "success" });
-      getLastInventoryTransferRecord()
     } catch (err) {
       console.error("Kaydetme hatası:", err);
       const parsed = extractJson({ str: err.response.data });
@@ -255,6 +287,10 @@ const Transfer = () => {
             editorType="dxTextBox"
             editorOptions={{
               showClearButton: true,
+              inputAttr: {
+                inputmode: "none",   
+                autocomplete: "off",
+              },
               onEnterKey: (e) => {
                 const value = e.component.option("value");
                 handleBarcodeEnter(value);
@@ -312,20 +348,54 @@ const Transfer = () => {
               showColonAfterLabel={true}
               minColWidth={200}
             >
-              <SimpleItem dataField="DocNum" editorType="dxTextBox" label={{ text: 'Belge No' }} />
-              <SimpleItem dataField="DistNumber" editorType="dxTextBox" label={{ text: 'Parti No' }} />
-              <SimpleItem dataField="ItemCode" editorType="dxTextBox" label={{ text: 'Kalem Kodu' }} />
-              <SimpleItem dataField="Dscription" editorType="dxTextBox" label={{ text: 'Kalem Adı' }} />
+              <SimpleItem dataField="DocNum" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Belge No' }} />
+              <SimpleItem dataField="DistNumber" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti No' }} />
+              <SimpleItem dataField="ItemCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Kodu' }} />
+              <SimpleItem dataField="Dscription" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Adı' }} />
               <SimpleItem dataField="OnHandQty" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Miktar' }} />
               <SimpleItem dataField="PalletQty" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Plt. Miktarı' }} />
-              <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" label={{ text: 'K. Depo' }} />
-              <SimpleItem dataField="FromBinCode" editorType="dxTextBox" label={{ text: 'K. Depo Yeri' }} />
-              <SimpleItem dataField="WhsCode" editorType="dxTextBox" label={{ text: 'H. Depo' }} />
-              <SimpleItem dataField="ToBinCode" editorType="dxTextBox" label={{ text: 'H. Depo Yeri' }} />
+              <SimpleItem dataField="FromWhsCod" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'K. Depo' }} />
+              <SimpleItem dataField="FromBinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'K. Depo Yeri' }} />
+              <SimpleItem dataField="WhsCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'H. Depo' }} />
+              <SimpleItem dataField="ToBinCode" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'H. Depo Yeri' }} />
 
               <GroupItem colSpan={2}>
                 <div className="btn-area">
                   <Button text="Göster" onClick={getLastInventoryTransferRecord} type="default" />
+                </div>
+              </GroupItem>
+            </Form>
+          </div>
+        </div>
+        <div className="prev-parti-card">
+          <div className="prev-parti-card-header">
+            <h2>Önceki Kayıt</h2>
+          </div>
+          <div className="prev-parti-card-body">
+            <Form
+              className="transfer-form"
+              formData={prevEopData}
+              colCount={2}
+              labelLocation="left"
+              showColonAfterLabel={true}
+              minColWidth={200}
+            >
+              <SimpleItem dataField="Kayıt_Sırası" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Katyıt Sırası' }} />
+              <SimpleItem dataField="Parti_No" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti No' }} />
+              <SimpleItem dataField="Stok_Kodu" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Kodu' }} />
+              <SimpleItem dataField="Kalem_Adı" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Kalem Adı' }} />
+              <SimpleItem dataField="Depo_Kodu" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Depo' }} />
+              <SimpleItem dataField="Depo_Yeri" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Depo Yeri' }} />
+              <SimpleItem dataField="Üretim_Tarihi" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Üretim Tarihi' }} />
+              <SimpleItem dataField="Parti_Tarih" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Parti Tarihi' }} />
+              <SimpleItem dataField="Hat_No" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Hat No' }} />
+              <SimpleItem dataField="Günlük_Lot_No" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Gün. Lot No' }} />
+              <SimpleItem dataField="Bekleme_Süresi" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Bek. Süresi' }} />
+              <SimpleItem dataField="Statü" editorType="dxTextBox" editorOptions={{ disabled: true }} label={{ text: 'Statü' }} />
+
+              <GroupItem colSpan={2}>
+                <div className="btn-area">
+                  <Button text="Önceki Kayıt" onClick={getPreviousRecordEndOfProcess} type="default" />
                 </div>
               </GroupItem>
             </Form>
@@ -346,7 +416,7 @@ const Transfer = () => {
           class: 'terminal-popup'
         }}
       >
-         <EmployeeList
+        <EmployeeList
           gridData={formData}
           onRowSelected={handleLoaderSelection}
         />

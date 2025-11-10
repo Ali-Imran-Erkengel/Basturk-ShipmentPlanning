@@ -25,7 +25,7 @@ const handleNotify = ({ message, type }) => {
             }
         },
         type,
-        1500
+        5000
     );
 }
 
@@ -41,6 +41,8 @@ const TransferFromRequest = () => {
     const [isBatchExists, setIsBatchExists] = useState('N');
     const employeeFilter = ["Department", "=", 10];
     const barcodeRef = useRef(null);
+    const [scannedCount, setScannedCount] = useState(0);
+
 
     useEffect(() => {
         fetchWaitForLoadDocs();
@@ -79,25 +81,25 @@ const TransferFromRequest = () => {
 
     useEffect(() => {
         console.log("formData:", formData);
-    
+
     }, [formData]);
     const handleLoaderSelection = (selectedRowData) => {
         setFormData(prev => ({
-           ...prev,
-           LoaderCode: selectedRowData.EmployeeID,
-           LoaderName: selectedRowData.EmployeeName
-       }));
-       setPopupVisibilityLoader(false);
-     };
-     const handlePreparerSelection = (selectedRowData) => {
-       setFormData(prev => ({
-           ...prev,
-           PreparerCode: selectedRowData.EmployeeID,
-           PreparerName: selectedRowData.EmployeeName
-       }));
-       setPopupVisibilityPreparer(false); 
+            ...prev,
+            LoaderCode: selectedRowData.EmployeeID,
+            LoaderName: selectedRowData.EmployeeName
+        }));
+        setPopupVisibilityLoader(false);
     };
-    
+    const handlePreparerSelection = (selectedRowData) => {
+        setFormData(prev => ({
+            ...prev,
+            PreparerCode: selectedRowData.EmployeeID,
+            PreparerName: selectedRowData.EmployeeName
+        }));
+        setPopupVisibilityPreparer(false);
+    };
+
     // const handleLoaderSelection = (selectedRowData) => {
     //     formData.LoaderCode = selectedRowData.EmployeeID;
     //     formData.LoaderName = `${selectedRowData.FirstName ?? ""} ${selectedRowData.MiddleName ?? ""} ${selectedRowData.LastName ?? ""}`.trim();
@@ -220,7 +222,7 @@ const TransferFromRequest = () => {
             setFormData(prev => ({
                 ...prev,
                 Barcode: ""
-              }))
+            }))
             setBatchGrid([]);
             setTabIndex(0);
             setSelectedDocEntry(0)
@@ -238,7 +240,7 @@ const TransferFromRequest = () => {
         return (
             <div style={{ display: 'flex', gap: '8px' }}>
                 <Button
-                className="nav-btn"
+                    className="nav-btn"
                     icon='send'
                     onClick={() => goForReadBarcodes({ docEntry: docEntry })}
                     type="default"
@@ -281,29 +283,31 @@ const TransferFromRequest = () => {
                     handleNotify({ message: "Okutulan barkod listede yok!", type: "error" });
                     return;
                 }
-                if (isBatchExists==='Y') {
+                if (isBatchExists === 'Y') {
                     setBatchGrid(prevItems => {
                         const newData = [...prevItems];
                         const idx = newData.findIndex(item => item.DistNumber === barcodeValue);
                         if (idx !== -1) {
-                          newData[idx] = {
-                            ...newData[idx],
-                            Readed:'N'
-                          };
+                            newData[idx] = {
+                                ...newData[idx],
+                                Readed: 'N'
+                            };
                         }
                         return newData;
-                      });
+                    });
                 } else {
-                    
+
                     setBatchGrid(prev => prev.filter(b => b.DistNumber !== barcodeValue));
                 }
                 formData.Barcode = "";
                 handleNotify({ message: "Okutma geri alındı.", type: "success" });
+                setScannedCount(prev => Math.max(prev - 1, 0));
+
                 return;
             }
             let warning = await batchStatusControl({ barcode });
 
-            if (warning!=="OK") return  handleNotify({message:warning,type:'error'})
+            if (warning !== "OK") return handleNotify({ message: warning, type: 'error' })
 
             if (isBatchExists === 'Y') {
 
@@ -334,6 +338,8 @@ const TransferFromRequest = () => {
 
                 if (newData[idx].Readed === 'N') {
                     newData[idx] = { ...newData[idx], Readed: 'Y' };
+                    setScannedCount(prev => prev + 1);
+                    console.log("scanned :",scannedCount)
                 } else {
                     handleNotify({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
                 }
@@ -375,6 +381,8 @@ const TransferFromRequest = () => {
                         return prev;
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
+                        setScannedCount(prev => prev + 1);
+                        console.log("scanned :",scannedCount)
                         return [...prev, newRow];
                     }
                 });
@@ -406,6 +414,9 @@ const TransferFromRequest = () => {
                         return prev;
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
+                        setScannedCount(prev => prev + 1);
+                        console.log("scanned :",scannedCount)
+
                         return [...prev, newRow];
                     }
                 });
@@ -413,43 +424,7 @@ const TransferFromRequest = () => {
 
 
             return
-            let apiResponse = await requestWithoutBatchControl({ documentNo: selectedDocEntry, barcode: barcode })
-            if (apiResponse.length === 0) {
-                return handleNotify({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
-            }
-            else if (apiResponse.length > 1) {
-                return handleNotify({ message: "Okutulan Barkod Birden Fazla Depo Yerinde Mevcut", type: "error" });
-            }
-            else {
-                const newRow = {
-                    ApplyEntry: apiResponse[0].DocEntry,
-                    ApplyLine: apiResponse[0].LineNum,
-                    BinAbsEntry: apiResponse[0].U_TargetBinEntry,
-                    BinCode: apiResponse[0].U_TargetBin,
-                    DistNumber: apiResponse[0].DistNumber,
-                    FromWhsCod: apiResponse[0].FromWhsCod,
-                    WhsCode: apiResponse[0].WhsCode,
-                    U_SourceBinEntry: apiResponse[0].U_SourceBinEntry,
-                    U_SourceBin: apiResponse[0].U_SourceBin,
-                    U_TargetBinEntry: apiResponse[0].U_TargetBinEntry,
-                    U_TargetBin: apiResponse[0].U_TargetBin,
-                    InnerQtyOfPallet: apiResponse[0].InnerQtyOfPallet,
-                    ItemCode: apiResponse[0].ItemCode,
-                    itemName: apiResponse[0].Dscription,
-                    Readed: 'Y'
-                };
 
-                setBatchGrid(prev => {
-                    const exists = prev?.some(item => item.DistNumber === newRow.DistNumber);
-                    if (exists) {
-                        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
-                        return prev;
-                    } else {
-                        handleNotify({ message: "Okutma Başarılı.", type: "success" });
-                        return [...prev, newRow];
-                    }
-                });
-            }
 
         } catch (error) {
             console.error("readWithBatch error:", error);
@@ -482,42 +457,42 @@ const TransferFromRequest = () => {
                 {/* TAB 1 - Belge Seç */}
                 <Item title="Belge Seç">
                     <div className="page-container">
-                    <Grid
-              container
-              spacing={1}
-              alignItems="center"
-              justifyContent="space-between"
-              paddingBottom={1}
-            >
-              <Grid item>
-                <Grid container spacing={1}>
-                  <Grid item>
-                    <Button
-                      className="nav-btn"
-                      icon="arrowleft"
-                      type="default"
-                      stylingMode="contained"
-                      onClick={() => navigate('/selectScreen')}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      className="nav-btn"
-                      icon="refresh"
-                      type="default"
-                      stylingMode="contained"
-                      onClick={fetchWaitForLoadDocs}
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs>
-                <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
-                  NAKİL TALEBİNDEN TRANSFER
-                </div>
-              </Grid>
-              <Grid item style={{ width: 100 }}></Grid>
-            </Grid>
+                        <Grid
+                            container
+                            spacing={1}
+                            alignItems="center"
+                            justifyContent="space-between"
+                            paddingBottom={1}
+                        >
+                            <Grid item>
+                                <Grid container spacing={1}>
+                                    <Grid item>
+                                        <Button
+                                            className="nav-btn"
+                                            icon="arrowleft"
+                                            type="default"
+                                            stylingMode="contained"
+                                            onClick={() => navigate('/selectScreen')}
+                                        />
+                                    </Grid>
+                                    <Grid item>
+                                        <Button
+                                            className="nav-btn"
+                                            icon="refresh"
+                                            type="default"
+                                            stylingMode="contained"
+                                            onClick={fetchWaitForLoadDocs}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid item xs>
+                                <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                                    NAKİL TALEBİNDEN TRANSFER
+                                </div>
+                            </Grid>
+                            <Grid item style={{ width: 100 }}></Grid>
+                        </Grid>
                         <div style={{ marginBottom: "20px" }}>
                         </div>
                         <DataGrid
@@ -560,6 +535,10 @@ const TransferFromRequest = () => {
                                 editorType="dxTextBox"
                                 editorOptions={{
                                     showClearButton: true,
+                                    inputAttr: {
+                                        inputmode: "none",
+                                        autocomplete: "off",
+                                    },
                                     onEnterKey: (e) => {
                                         const value = e.component.option("value");
                                         handleBarcodeEnter(value);
@@ -621,6 +600,9 @@ const TransferFromRequest = () => {
                         </Form>
                         <hr></hr>
                         <b className="mt-6 font-bold">Okutulan Partiler</b>
+                        <div style={{ marginTop: 10, marginBottom: 10, fontWeight: "bold", fontSize: "1.2rem" }}>
+                            Okutulan Miktar: {scannedCount}
+                        </div>
                         <DataGrid
                             dataSource={batchGrid}
                             showBorders={true}
@@ -645,13 +627,13 @@ const TransferFromRequest = () => {
                 showCloseButton={true}
                 title='Yükleyen Listesi'
                 wrapperAttr={{
-                    class:'terminal-popup'
+                    class: 'terminal-popup'
                 }}
             >
-                              <EmployeeList
-          gridData={formData}
-          onRowSelected={handleLoaderSelection}
-        />
+                <EmployeeList
+                    gridData={formData}
+                    onRowSelected={handleLoaderSelection}
+                />
                 {/* <ZoomLayoutTerminal onRowSelected={handleLoaderSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
             </Popup>
             <Popup
@@ -662,13 +644,13 @@ const TransferFromRequest = () => {
                 showCloseButton={true}
                 title='Hazırlayan Listesi'
                 wrapperAttr={{
-                    class:'terminal-popup'
+                    class: 'terminal-popup'
                 }}
             >
-                              <EmployeeList
-          gridData={formData}
-          onRowSelected={handlePreparerSelection}
-        />
+                <EmployeeList
+                    gridData={formData}
+                    onRowSelected={handlePreparerSelection}
+                />
                 {/* <ZoomLayoutTerminal onRowSelected={handlePreparerSelection} tableName={"EmployeesInfo"} tableKey={"EmployeeID"} customFilter={employeeFilter} filters={employeeFilter} columns={employeeColumns}></ZoomLayoutTerminal> */}
             </Popup>
         </div>
