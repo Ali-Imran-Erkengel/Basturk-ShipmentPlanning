@@ -7,7 +7,7 @@ import ZoomLayout from '../../components/myComponents/ZoomLayout';
 import { driverColumns, driverFilters, employeeColumns, employeeFilters, logisticsColumns, logisticsFilters, poColumns, poFilters, vehicleColumns, vehicleFilters } from '../../data/zoomLayoutData';
 import { useDispatch } from 'react-redux';
 import { addData, createODataSource, getItemById, updateData } from '../../store/appSlice';
-import { closeSerialPort, connectToSerialPort, documentTotal, driverVehicleInformation, getDocTotal, getLoadingRamps, getShipmentType, getTradeFileNo, isClosedOrder, isExistsPO, printWghReport, showLastValue } from '../../store/weighbridgeSlice';
+import { closeSerialPort, connectToSerialPort, documentTotal, driverVehicleInformation, getDocTotal, getLoadingRamps, getShipmentType, getTradeFileNo, isClosedOrder, isExistsPO, printWghReport, showLastValue, updateDeliveryNetWeight } from '../../store/weighbridgeSlice';
 import LogisticsList from './components/LogisticsList';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from 'devextreme-react/button';
@@ -358,11 +358,23 @@ function WeighbridgeUpdate({ id, onBack }) {
         // viewCrystal({logisticId:id});
     }
     const extraFunctions = async ({ result }) => {
+        if (result.meta.arg.updatedData.U_WghType === 1 && result.meta.arg.updatedData.U_LogisticsNo) {
+            const logisticsId = result.meta.arg.updatedData.U_LogisticsNo;
+            const netWeight = result.meta.arg.updatedData.U_NetWeight;
+            const data = {
+                logisticsId: parseInt(logisticsId),
+                netWeight: parseInt(netWeight)
+
+            }
+            // const res = await updateDeliveryNetWeight({ logisticNo:logisticsId,netWeight:netWeight })
+            const res = await updateDeliveryNetWeight({ payload: data })
+        }
         if (result.meta.arg.updatedData.U_WghType === 2 && result.meta.arg.updatedData.U_LogisticsNo) {
 
             const logisticsId = result.meta.arg.updatedData.U_LogisticsNo;
             const plateCode = result.meta.arg.updatedData.U_PlateCode;
             const docTotal = result.meta.arg.updatedData.U_DocTotal;
+
             const lgtData = {
                 "U_Status": 6
             }
@@ -382,6 +394,7 @@ function WeighbridgeUpdate({ id, onBack }) {
                     const domestic = res.data.value[0]["Items"].U_YurticiNakliye
                     const cardCode = res.data.value[0]["SML_LGT_HDR"].U_OcrdNo;
                     const shippingExpenseItem = customerCode.startsWith("MD") ? abroad : domestic;
+
                     await addPurchaseOrder({ amount: amount, cardCode: cardCode, shippingExpenseItem: shippingExpenseItem, logisticNo: logisticsId, plateCode: plateCode, docTotal: docTotal })
                 }
             }
@@ -395,9 +408,9 @@ function WeighbridgeUpdate({ id, onBack }) {
     }
 
     const addPurchaseOrder = async ({ amount, cardCode, shippingExpenseItem, logisticNo, plateCode, docTotal }) => {
-        debugger
+
         const isExists = await isExistsPO({ logisticNo: logisticNo });
-        debugger
+
         if (isExists.data.value.length === 0) {
             //debugger
             let purchaseOrder = {
@@ -414,7 +427,6 @@ function WeighbridgeUpdate({ id, onBack }) {
                     }
                 ]
             }
-            debugger
             dispatch(addData({ tableName: "PurchaseOrders", formData: purchaseOrder })).then((res) => {
 
                 if (res.meta.requestStatus === "fulfilled") {
@@ -425,7 +437,7 @@ function WeighbridgeUpdate({ id, onBack }) {
         }
     }
     const addPOGoodsReceipt = async ({ result }) => {
-        debugger
+
         if (result.meta.arg.updatedData.U_PODocNo && result.meta.arg.updatedData.U_WghType === 2) {
             const logisticsId = result.meta.arg.updatedData.U_LogisticsNo;
             //  const isClosed = await isClosedOrder({ orderNo:result.meta.arg.updatedData.U_PODocNo});
@@ -438,11 +450,13 @@ function WeighbridgeUpdate({ id, onBack }) {
             const documentTotal = result.meta.arg.updatedData.U_DocTotal;
             const deliveryNoteNo = result.meta.arg.updatedData.U_DeliveryNoteNo;
             const purchaseOrderNo = result.meta.arg.updatedData.U_PODocNo;
+            const netWeight = result.meta.arg.updatedData.U_NetWeight;
             let POGoodsReceipt = {
                 "CardCode": "",
                 "NumAtCard": deliveryNoteNo,
                 "U_WghNo": docEntry,
                 "U_DeclarationNo": tradeFileNo,
+                "U_NetWeight": netWeight,
                 "U_DeclarationType": 1,
                 "DocumentLines": []
             }
@@ -461,6 +475,7 @@ function WeighbridgeUpdate({ id, onBack }) {
                     "BaseLine": item.LineNum
                 });
             });
+            debugger
             dispatch(addData({ tableName: "PurchaseDeliveryNotes", formData: POGoodsReceipt })).then((res) => {
 
                 if (res.meta.requestStatus === "fulfilled") {

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { endpoint, hostName } from "../config/config";
+import { endpoint, hostName, querymanager } from "../config/config";
 import ODataStore from 'devextreme/data/odata/store';
 import DataSource from 'devextreme/data/data_source';
 import notify from 'devextreme/ui/notify';
@@ -16,7 +16,21 @@ export let initialState = {
 
 }
 
-
+const handleNotify = ({ message, type }) => {
+    notify(
+        {
+            message: message,
+            width: 300,
+            position: {
+                at: "bottom",
+                my: "bottom",
+                of: "#container"
+            }
+        },
+        type,
+        5000
+    );
+}
 export const driverVehicleInformation = createAsyncThunk(
     'odataQuery',
     async ({ id }) => {
@@ -65,7 +79,6 @@ export const getDocTotal = async ({ id }) => {
 export const getShipmentType = async ({ logisticNo }) => {
 
     const request = await axios.get(`${hostName}/$crossjoin(SML_SHP_HDR,SML_LGT_HDR,SML_LGT_HDR/SML_LGT_ITEMCollection,SML_WGHB_HDR,Items)?$expand=SML_SHP_HDR($select=DocEntry,U_ShipmentType),SML_LGT_HDR($select=U_OcrdNo,U_Amount),SML_LGT_HDR/SML_LGT_ITEMCollection($select=U_ItemCode,U_CardCode),Items($select=ItemCode,U_YurticiNakliye,U_YurtdisiNakliye)&$filter=SML_WGHB_HDR/U_LogisticsNo eq SML_LGT_HDR/DocEntry and SML_LGT_HDR/DocEntry eq SML_LGT_HDR/SML_LGT_ITEMCollection/DocEntry and SML_LGT_HDR/SML_LGT_ITEMCollection/U_ShipmentNo eq SML_SHP_HDR/DocEntry and SML_LGT_HDR/SML_LGT_ITEMCollection/U_ItemCode eq Items/ItemCode and SML_LGT_HDR/DocEntry eq ${logisticNo}`);
-    debugger
     return request;
 };
 export const getTradeFileNo = async ({ logisticNo }) => {
@@ -78,14 +91,11 @@ export const isClosedOrder = async ({ orderNo }) => {
     return request;
 };
 export const isExistsPO = async ({ logisticNo }) => {
-    debugger
     const request = await axios.get(`${hostName}/PurchaseOrders?$filter=U_LogisticNo eq ${logisticNo}`);
-    debugger
     return request;
 };
 export const getAllLogistics = async ({ filterValues }) => {
     const query = `/SML_LGT_HDR?$filter=U_Status eq 2 and U_Type eq ${filterValues.Type}`
-    debugger
     return await fetchAllData(query);
 }
 export const getAllWgh = async () => {
@@ -124,7 +134,6 @@ export const exportExcelWhgData = async ({ filterValues }) => {
         wghTypeFilter = `and U_WghType eq ${filterValues.U_WghType}`
     }
     const query = `/SML_WGHB_HDR?$filter= contains(U_Description, '${filterValues.U_Description}') ${dateFilter} ${logisticFilter} ${wghTypeFilter}`
-    debugger
     return await fetchAllData(query);
 }
 export const getLoadingRamps = async () => {
@@ -336,6 +345,42 @@ export const showLastValue = () => {
         console.log("Değer alınamadı");
     }
 }
+export const updateDeliveryNetWeight = async ({payload }) => {
+    let params = payload;
+let res=  sendPostRequest({ endpoint: "updatedeliverynetweight", params: params })
+
+  }
+  const sendPostRequest = async ({ endpoint, params }) => {
+    try {
+        debugger 
+      const response = await axios.post(`${querymanager}/${endpoint}`,
+        params,
+        {
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+          },
+          withCredentials: true,
+        }
+      );
+  
+      const jsonArray = response.data;
+      if (jsonArray.error) {
+        console.error("Durum kodu:", jsonArray.error);
+        handleNotify({message: jsonArray.error.response.data,type: "error"})
+  
+        throw new Error(jsonArray.error);
+      }
+      return jsonArray;
+    } catch (error) {
+      console.error("API isteğinde hata:", error.response || error.message);
+      if (error.response) {
+        console.error("Durum kodu:", error.response.status);
+        console.error("Yanıt içeriği:", error.response.data);
+        handleNotify({message: error.response.data,type: "error"})
+      }
+    //  throw error;
+    }
+  };
 const fetchAllData = async (query = '') => {
     let allData = [];
     let nextLink = null;

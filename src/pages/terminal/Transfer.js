@@ -109,6 +109,9 @@ const Transfer = () => {
       console.error("err:", err.message);
       throw err
     }
+    finally{
+      forceFocusBarcode() 
+    }
   }
   const getPreviousRecordEndOfProcess = async () => {
     try {
@@ -141,6 +144,9 @@ const Transfer = () => {
     } catch (err) {
       console.error("err:", err.message);
       throw err
+    }
+    finally{
+      forceFocusBarcode() 
     }
   }
   const validateBeforeSave = ({ formData, }) => {
@@ -177,7 +183,7 @@ const Transfer = () => {
       // setFormData({ ...terminalDeliveryData })
       handleNotify({ message: "Kayıt başarılı", type: "success" });
       getLastInventoryTransferRecord()
-      getPreviousRecordEndOfProcess({ barcode: item.DistNumber })
+      //getPreviousRecordEndOfProcess({ barcode: item.DistNumber })
       setFormData(prev => ({
         ...prev,
         Barcode: ""
@@ -187,6 +193,9 @@ const Transfer = () => {
       const parsed = extractJson({ str: err.response.data });
       handleNotify({ message: parsed["message"], type: "error" });
     }
+    finally{
+      forceFocusBarcode() 
+}
   };
   // #endregion
 
@@ -218,6 +227,11 @@ const Transfer = () => {
           return handleNotify({ message: `Okutulan Barkod ${binCode} Depo Yerinde!`, type: "error" });
         }
       }
+      if (barcodeRef.current) {
+        console.log(barcodeRef.current)
+        const input = barcodeRef.current.element().querySelector("input");
+        if (input) input.focus();
+      }
     } catch (error) {
       console.error("Okutma hatası:", error);
       handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
@@ -244,7 +258,19 @@ const Transfer = () => {
     const match = str.match(/{.*}/s);
     return match ? JSON.parse(match[0]) : null;
   }
-
+  function forceFocusBarcode() {
+    setTimeout(() => {
+        try {
+            if (barcodeRef.current) {
+                barcodeRef.current.focus();   
+                const input = barcodeRef.current.element().querySelector("input");
+                if (input) input.select();    
+            }
+        } catch (err) {
+            console.log("focus error:", err);
+        }
+    }, 120);  
+}
   return (
     <div className="p-4">
       <div className="page-container">

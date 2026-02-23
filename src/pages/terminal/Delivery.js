@@ -91,23 +91,23 @@ const Delivery = () => {
   useEffect(() => {
     console.log("formData:", formData);
 
-}, [formData]);
-const handleLoaderSelection = (selectedRowData) => {
+  }, [formData]);
+  const handleLoaderSelection = (selectedRowData) => {
     setFormData(prev => ({
-       ...prev,
-       LoaderCode: selectedRowData.EmployeeID,
-       LoaderName: selectedRowData.EmployeeName
-   }));
-   setPopupVisibilityLoader(false);
- };
- const handlePreparerSelection = (selectedRowData) => {
-   setFormData(prev => ({
-       ...prev,
-       PreparerCode: selectedRowData.EmployeeID,
-       PreparerName: selectedRowData.EmployeeName
-   }));
-   setPopupVisibilityPreparer(false); 
-};
+      ...prev,
+      LoaderCode: selectedRowData.EmployeeID,
+      LoaderName: selectedRowData.EmployeeName
+    }));
+    setPopupVisibilityLoader(false);
+  };
+  const handlePreparerSelection = (selectedRowData) => {
+    setFormData(prev => ({
+      ...prev,
+      PreparerCode: selectedRowData.EmployeeID,
+      PreparerName: selectedRowData.EmployeeName
+    }));
+    setPopupVisibilityPreparer(false);
+  };
 
   // #region requests
   const fetchWaitForLoadDocs = async () => {
@@ -194,11 +194,11 @@ const handleLoaderSelection = (selectedRowData) => {
     }
   };
   const validateBeforeSave = ({ formData, itemGrid }) => {
-    // if (!formData.PreparerCode || !formData.LoaderCode) {
-    //   handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
-    //   return false;
-    // }
-debugger
+    if (!formData.PreparerCode || !formData.LoaderCode) {
+      handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
+      return false;
+    }
+    debugger
     const notCompleted = itemGrid?.some(item => (item.ReadedQty ?? 0) !== item.U_Quantity);
     if (notCompleted) {
       handleNotify({ message: "Tüm kalemlerin okutulan miktarı, teslimat miktarına eşit olmalı!", type: "error" });
@@ -207,7 +207,7 @@ debugger
 
     return true;
   };
-  const insertToTempTable = async ({rowData,loader,preparer}) => {
+  const insertToTempTable = async ({ rowData, loader, preparer }) => {
     try {
       const payload = {
         ItemCode: rowData.ItemCode,
@@ -218,8 +218,8 @@ debugger
         DocumentNo: selectedItem?.DocEntry || 0,
         UserCode: sessionStorage.getItem('userName') || "Unknown",
         Module: "DLV",
-        LoadedBy:loader,
-        Preparer:preparer
+        LoadedBy: loader,
+        Preparer: preparer
       };
       let result = await createTempData({ tempData: payload })
     } catch (err) {
@@ -323,10 +323,10 @@ debugger
 
   const handleBarcodeEnter = async (barcode) => {
     try {
-      if (!formData.PreparerCode || !formData.LoaderCode) {
-        handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
-        return false;
-      }
+      // if (!formData.PreparerCode || !formData.LoaderCode) {
+      //   handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
+      //   return false;
+      // }
       if (!selectedItem) {
         handleNotify({ message: "Lütfen Satır Seçiniz", type: "error" })
         return;
@@ -412,7 +412,7 @@ debugger
           setItemGrid(prevItems => {
             debugger
             const newData = [...prevItems];
-            const idx = newData.findIndex(item => item.U_ItemCode === selectedItem.U_ItemCode& item.Index===selectedItem.Index);
+            const idx = newData.findIndex(item => item.U_ItemCode === selectedItem.U_ItemCode & item.Index === selectedItem.Index);
             if (idx !== -1) {
               newData[idx] = {
                 ...newData[idx],
@@ -429,7 +429,7 @@ debugger
           handleNotify({ message: "Okutma Başarılı.", type: "success" });
           const preparer = formData?.PreparerCode || 0;
           const loadedBy = formData?.LoaderCode || 0;
-          insertToTempTable({rowData: newRow,loader:loadedBy,preparer:preparer});
+          insertToTempTable({ rowData: newRow, loader: loadedBy, preparer: preparer });
           return [...prev, newRow];
         }
       });
@@ -554,7 +554,7 @@ debugger
                 editorOptions={{
                   showClearButton: true,
                   inputAttr: {
-                    inputmode: "none",   
+                    inputmode: "none",
                     autocomplete: "off",
                   },
                   onEnterKey: (e) => {
@@ -662,10 +662,10 @@ debugger
         showCloseButton={true}
         title='Yükleyen Listesi'
         wrapperAttr={{
-          class:'terminal-popup'
-      }}
+          class: 'terminal-popup'
+        }}
       >
-         <EmployeeList
+        <EmployeeList
           gridData={formData}
           onRowSelected={handleLoaderSelection}
         />
@@ -679,10 +679,10 @@ debugger
         showCloseButton={true}
         title='Hazırlayan Listesi'
         wrapperAttr={{
-          class:'terminal-popup'
-      }}
+          class: 'terminal-popup'
+        }}
       >
-         <EmployeeList
+        <EmployeeList
           gridData={formData}
           onRowSelected={handlePreparerSelection}
         />

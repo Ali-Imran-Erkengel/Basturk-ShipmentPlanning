@@ -372,6 +372,24 @@ export const batchControl = async ({ barcode, whsCode, binEntry }) => {
   };
   return sendGetRequest({ endpoint: "batchcontrol", params: params })
 }
+export const getConsumptions = async ({itemCode,batchNumber}) => {
+  let params = {
+    itemCode: itemCode,
+    batchNumber:batchNumber
+  };
+  return sendGetRequest({ endpoint: "getconsumptions", params: params })
+}
+export const getEndOfProcessList = async ({status}) => {
+  let params = {
+    status: status
+  };
+  return sendGetRequest({ endpoint: "getendofprocesslist", params: params })
+}
+export const createGoodsreceiptIssue = async ({ payload }) => {
+  console.log("payload", payload)
+  let params = payload;
+  return sendPostRequest({ endpoint: "createreceiptandissue", params: params })
+}
 const sendGetRequest = async ({ endpoint, params }) => {
   try {
     const response = await axios.get(`${querymanager}/${endpoint}`, {
@@ -384,7 +402,7 @@ const sendGetRequest = async ({ endpoint, params }) => {
     const jsonArray = JSON.parse(response.data);
     if (jsonArray.error) {
       console.error('Durum kodu:', jsonArray.error);
-      handleNotify(jsonArray.error.response.data, "error")
+      handleNotify({message: jsonArray.error.response.data,type: "error"})
       throw new Error(jsonArray.error);
     }
     return jsonArray;
@@ -393,10 +411,10 @@ const sendGetRequest = async ({ endpoint, params }) => {
     if (error.response) {
       console.error('Durum kodu:', error.response.status);
       console.error('Yanıt içeriği:', error.response.data);
-      handleNotify(error.response.data, "error")
+      handleNotify({message: error.response.data, type:"error"})
 
     }
-    throw error;
+    // throw error;
   }
 }
 const sendPostRequest = async ({ endpoint, params }) => {
@@ -414,7 +432,7 @@ const sendPostRequest = async ({ endpoint, params }) => {
     const jsonArray = response.data;
     if (jsonArray.error) {
       console.error("Durum kodu:", jsonArray.error);
-      handleNotify(jsonArray.error.response.data, "error")
+      handleNotify({message:jsonArray.error.response.data,type: "error"})
 
       throw new Error(jsonArray.error);
     }
@@ -424,9 +442,9 @@ const sendPostRequest = async ({ endpoint, params }) => {
     if (error.response) {
       console.error("Durum kodu:", error.response.status);
       console.error("Yanıt içeriği:", error.response.data);
-      handleNotify(error.response.data, "error")
+      handleNotify({message:error.response.data, type:"error"})
     }
-    throw error;
+    // throw error;
   }
 };
 export default terminalSlice.reducer;

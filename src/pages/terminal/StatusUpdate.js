@@ -1,0 +1,269 @@
+import React, { useEffect, useRef, useState } from "react";
+import TabPanel, { Item } from "devextreme-react/tab-panel";
+import { Form, GroupItem, SimpleItem } from 'devextreme-react/form'
+import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
+import { Button } from "devextreme-react/button";
+import { getConsumptions, getEndOfProcessList } from "../../store/terminalSlice";
+import { endOfProcessColumns, terminalDeliveryData } from "./data/data";
+import { Popup } from "devextreme-react/popup";
+import notify from 'devextreme/ui/notify';
+import { Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import EmployeeList from "./components/EmployeeList";
+import { Truck, ClipboardList, Layers, ArrowLeftRight, PackageOpen, RotateCcwIcon, WineOff, ScanBarcode, ArchiveRestore, HandMetal } from "lucide-react";
+import { useScreenSize } from '../../utils/media-query';
+import EopDescPopup from "./components/EopDescPopup";
+
+const handleNotify = ({ message, type }) => {
+  notify(
+    {
+      message: message,
+      width: 300,
+      position: {
+        at: "bottom",
+        my: "bottom",
+        of: "#container"
+      }
+    },
+    type,
+    5000
+  );
+}
+
+const StatusUpdate = () => {
+  const navigate = useNavigate();
+  const [deliveryGrid, setDeliveryGrid] = useState();
+  const [endOfProcessGrid, setEndOfProcessGrid] = useState();
+  const [tabIndex, setTabIndex] = useState(0);
+  const [isPopupVisible, setPopupVisibility] = useState(false);
+  const [selectedOperation, setSelectedOperation] = useState('0');
+  const [selectedItemCode, setSelectedItemCode] = useState();
+  const [selectedBatchNumber, setSelectedBatchNumber] = useState();
+  const [formData, setFormData] = useState({ ...terminalDeliveryData });
+  const [consumptionGrid, setConsumptionGrid] = useState();
+
+
+
+  useEffect(() => {
+  }, [selectedOperation]);
+
+
+
+  useEffect(() => {
+    console.log("formData:", formData);
+
+  }, [formData]);
+
+
+
+  // #region requests
+
+  const goForReadBarcodes = async ({ itemCode, batchNumber }) => {
+    debugger
+    let items = await getConsumptions({ itemCode: itemCode, batchNumber: batchNumber });
+    setDeliveryGrid(items);
+    setTabIndex(1);
+
+  };
+
+  const endOfProcessList = async ({ status }) => {
+    let list = await getEndOfProcessList({ status: status });
+    setEndOfProcessGrid(list);
+    setTabIndex(1);
+
+  };
+
+
+  // #endregion
+
+  const openDescPopup = (cellData) => {
+    const itemCode = cellData.data["MainItemCode"];
+    const batchNum = cellData.data["BatchNum"];
+  setSelectedItemCode(itemCode);
+  setSelectedBatchNumber(batchNum);
+
+    return (
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <Button
+          className="nav-btn"
+          icon='send'
+          onClick={() => {
+            getConsumptionList({ itemCode, batchNumber: batchNum });
+            togglePopup();
+          }}
+          type="default"
+        />
+      </div>
+    );
+  };
+  const togglePopup = () => {
+    debugger
+    setPopupVisibility(!isPopupVisible);
+  };
+  const getConsumptionList = async ({ itemCode,batchNumber }) => {
+    let list = await getConsumptions({  itemCode:itemCode,batchNumber:batchNumber});
+     setConsumptionGrid(list);
+
+  };
+  const { isXSmall } = useScreenSize();
+  const pages = [
+    { name: "Emr Ayr", icon: Layers, statusCode: "-8", color: "#20c997", code: "EMR" },
+    { name: "Kırık", icon: WineOff, statusCode: "-9", color: "#6f42c1", code: "BRK" },
+    { name: "Repack", icon: PackageOpen, statusCode: "-10", color: "#fd7e14", code: "REP" },
+  ];
+  const containerStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    justifyContent: "center",
+    flexDirection: isXSmall ? "column" : "row"
+  };
+  const cardStyle = {
+    flex: isXSmall ? "1 1 100%" : "1 1 200px",
+    minHeight: "120px",
+    cursor: "pointer",
+    borderRadius: "8px",
+    padding: "16px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease",
+  };
+  const iconStyle = { marginBottom: "8px" };
+  const titleStyle = { fontWeight: 600, textAlign: "center", fontSize: "24px" };
+  return (
+    <div className="p-4">
+      <TabPanel
+        selectedIndex={tabIndex}
+        onSelectionChanged={(e) => setTabIndex(e.component.option("selectedIndex"))}
+        swipeEnabled={false}
+      >
+        <Item title="Operasyon">
+          <div className="page-container">
+
+            <div style={containerStyle}>
+              {pages.map(page => {
+                const Icon = page.icon;
+                return (
+                  <div
+                    key={page.name}
+                    style={{
+                      ...cardStyle,
+                      backgroundColor: page.color + "33"
+                    }}
+                    onClick={() => {
+                      setTabIndex(1);
+                      setSelectedOperation(page.statusCode);
+                      endOfProcessList({ status: page.statusCode })
+                      console.log("status", selectedOperation)
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow = `0 4px 16px ${page.color}66`;
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+                    }}
+                  >
+                    <Icon size={32} style={{ ...iconStyle, color: page.color }} />
+                    <div style={titleStyle}>{page.name}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        </Item>
+        <Item title="Liste">
+          <div className="page-container">
+            <div style={{ marginBottom: "20px" }}>
+              <Grid
+                container
+                spacing={1}
+                alignItems="center"
+                justifyContent="space-between"
+                paddingBottom={1}
+              >
+                <Grid item>
+                  <Grid container spacing={1}>
+                    <Grid item>
+                      <Button
+                        className="nav-btn"
+                        icon="arrowleft"
+                        type="default"
+                        stylingMode="contained"
+                        onClick={() => setTabIndex(0)}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <Button
+                        className="nav-btn"
+                        icon="refresh"
+                        type="default"
+                        stylingMode="contained"
+                      //  onClick={fetchWaitForLoadDocs}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item xs>
+                  <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
+                    liste
+                  </div>
+                </Grid>
+                <Grid item style={{ width: 100 }}></Grid>
+              </Grid>
+            </div>
+            <DataGrid
+              dataSource={endOfProcessGrid}
+              className='datagridTerminalDelivery'
+              columnAutoWidth={true}
+              columnMinWidth={120}
+              allowColumnResizing={true}
+              width="auto"
+
+              rowAlternationEnabled={true}
+              showBorders={true}
+            >
+              <Column
+                width="auto"
+                alignment='left'
+                caption="İşlem"
+                cellRender={openDescPopup}
+              />
+              {endOfProcessColumns.map((col) => (
+                <Column key={col.dataField} {...col} />
+              ))}
+              <Paging defaultPageSize={10} />
+              <Pager showPageSizeSelector={true} />
+            </DataGrid>
+          </div>
+        </Item>
+      </TabPanel>
+      <Popup
+        visible={isPopupVisible}
+        onHiding={togglePopup}
+        hideOnOutsideClick={true}
+        fullScreen={true}
+        showCloseButton={true}
+        title='Açıklama'
+        wrapperAttr={{
+          class: 'terminal-popup'
+        }}
+      >
+        <EopDescPopup
+          gridData={formData}
+          consumptions={consumptionGrid}
+          itemCode={selectedItemCode}
+          batchNum={selectedBatchNumber}
+
+        //  onRowSelected={handleLoaderSelection}
+        />
+      </Popup>
+    </div>
+  );
+};
+export default StatusUpdate;
+//yükleme emri kalem bazlı kısmi teslimat 

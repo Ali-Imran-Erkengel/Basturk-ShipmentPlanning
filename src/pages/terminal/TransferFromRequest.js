@@ -140,7 +140,6 @@ const TransferFromRequest = () => {
                 return
             }
             setBatchGrid(items)
-            console.log("items", items)
         }
         else {
             setIsBatchExists('N')
@@ -148,6 +147,7 @@ const TransferFromRequest = () => {
         setSelectedDocEntry(docEntry);
         setFormData({ ...terminalReturnData })
         setTabIndex(1);
+        setScannedCount(0);
     };
 
 
@@ -227,6 +227,7 @@ const TransferFromRequest = () => {
             setTabIndex(0);
             setSelectedDocEntry(0)
             fetchWaitForLoadDocs();
+            setScannedCount(0);
             handleNotify({ message: "Kayıt başarılı", type: "success" });
         } catch (err) {
             console.error("Kaydetme hatası:", err);
@@ -316,13 +317,20 @@ const TransferFromRequest = () => {
             else {
                 readWithoutBatch({ barcode: barcodeValue })
             }
+            if (barcodeRef.current) {
+                console.log(barcodeRef.current)
+                const input = barcodeRef.current.element().querySelector("input");
+                debugger
+                if (input) input.focus();
+            }
         } catch (error) {
             console.error("Okutma hatası:", error);
             handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
         }
         finally {
             setFormData(prev => ({ ...prev, Barcode: "" }));
-            setTimeout(focusBarcodeInput, 50);
+            forceFocusBarcode();
+            // setTimeout(focusBarcodeInput, 50);
         }
     };
     function readWithBatch({ barcode }) {
@@ -339,7 +347,7 @@ const TransferFromRequest = () => {
                 if (newData[idx].Readed === 'N') {
                     newData[idx] = { ...newData[idx], Readed: 'Y' };
                     setScannedCount(prev => prev + 1);
-                    console.log("scanned :",scannedCount)
+                    console.log("scanned :", scannedCount)
                 } else {
                     handleNotify({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
                 }
@@ -348,6 +356,9 @@ const TransferFromRequest = () => {
             });
         } catch (error) {
             console.error("readWithBatch error:", error);
+        }
+        finally {
+            forceFocusBarcode()
         }
     }
     async function readWithoutBatch({ barcode }) {
@@ -382,7 +393,7 @@ const TransferFromRequest = () => {
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
                         setScannedCount(prev => prev + 1);
-                        console.log("scanned :",scannedCount)
+                        console.log("scanned :", scannedCount)
                         return [...prev, newRow];
                     }
                 });
@@ -415,7 +426,7 @@ const TransferFromRequest = () => {
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
                         setScannedCount(prev => prev + 1);
-                        console.log("scanned :",scannedCount)
+                        console.log("scanned :", scannedCount)
 
                         return [...prev, newRow];
                     }
@@ -428,6 +439,9 @@ const TransferFromRequest = () => {
 
         } catch (error) {
             console.error("readWithBatch error:", error);
+        }
+        finally {
+            forceFocusBarcode()
         }
     }
     const focusBarcodeInput = () => {
@@ -446,7 +460,19 @@ const TransferFromRequest = () => {
         const match = str.match(/{.*}/s);
         return match ? JSON.parse(match[0]) : null;
     }
-
+    function forceFocusBarcode() {
+        setTimeout(() => {
+            try {
+                if (barcodeRef.current) {
+                    barcodeRef.current.focus();
+                    const input = barcodeRef.current.element().querySelector("input");
+                    if (input) input.select();
+                }
+            } catch (err) {
+                console.log("focus error:", err);
+            }
+        }, 120);
+    }
     return (
         <div className="p-4">
             <TabPanel
@@ -542,12 +568,15 @@ const TransferFromRequest = () => {
                                     onEnterKey: (e) => {
                                         const value = e.component.option("value");
                                         handleBarcodeEnter(value);
-                                        const input = e.component.element().querySelector("input");
-                                        if (input) input.focus();
+                                        // const input = e.component.element().querySelector("input");
+                                        // if (input) input.focus();
                                     },
                                     onInitialized: (e) => {
                                         barcodeRef.current = e.component;
                                     },
+                                    onFocusOut: () => {
+                                        setTimeout(() => barcodeRef.current?.focus(), 50);
+                                    }
                                 }}
                                 cssClass="transparent-bg"
                                 label={{ text: 'Barkod', location: 'top' }}

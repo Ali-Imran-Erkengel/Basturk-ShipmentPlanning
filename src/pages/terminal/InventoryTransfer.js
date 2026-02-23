@@ -242,6 +242,9 @@ const InventoryTransfer = () => {
             console.error("err:", err.message);
             throw err
         }
+        finally{
+            forceFocusBarcode() 
+          }
     }
 
     const validateBeforeSave = ({ formData, }) => {
@@ -297,6 +300,9 @@ const InventoryTransfer = () => {
             const parsed = extractJson({ str: err.response.data });
             handleNotify({ message: parsed["message"], type: "error" });
         }
+        finally{
+            forceFocusBarcode() 
+          }
     };
     // #endregion
 
@@ -333,7 +339,7 @@ const InventoryTransfer = () => {
         }
         finally {
             setFormData(prev => ({ ...prev, Barcode: "" }));
-            setTimeout(focusBarcodeInput, 50);
+            forceFocusBarcode() 
         }
     };
 
@@ -349,6 +355,19 @@ const InventoryTransfer = () => {
             console.log("error", err)
         }
     };
+    function forceFocusBarcode() {
+        setTimeout(() => {
+            try {
+                if (barcodeRef.current) {
+                    barcodeRef.current.focus();   
+                    const input = barcodeRef.current.element().querySelector("input");
+                    if (input) input.select();    
+                }
+            } catch (err) {
+                console.log("focus error:", err);
+            }
+        }, 120);  
+    }
     function extractJson({ str }) {
         const match = str.match(/{.*}/s);
         return match ? JSON.parse(match[0]) : null;

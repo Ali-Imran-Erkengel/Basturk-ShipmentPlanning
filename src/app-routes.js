@@ -15,6 +15,7 @@ import TransferFromRequest from './pages/terminal/TransferFromRequest';
 import BatchDetails from './pages/terminal/BatchDetails';
 import SelectScreen from './pages/terminal/SelectScreen';
 import InventoryTransfer from './pages/terminal/InventoryTransfer';
+import StatusUpdate from './pages/terminal/StatusUpdate';
 
 
 const routes = [
@@ -117,6 +118,10 @@ const routes = [
     {
         path: '/transferFromRequest',
         element: TransferFromRequest
+    },
+    {
+        path: '/statusUpdate',
+        element: StatusUpdate
     },
     {
         path: '/batchDetails',

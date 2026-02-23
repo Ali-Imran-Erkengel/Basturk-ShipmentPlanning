@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { Truck, ClipboardList, Layers, ArrowLeftRight, PackageOpen, RotateCcwIcon, WineOff, ScanBarcode, ArchiveRestore } from "lucide-react";
+import { Truck, ClipboardList, Layers, ArrowLeftRight, PackageOpen, RotateCcwIcon, WineOff, ScanBarcode, ArchiveRestore, HandMetal } from "lucide-react";
 import { useScreenSize } from '../../utils/media-query';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,8 @@ function SelectScreen() {
         { name: "Repack", icon: PackageOpen, path: "/barcodedProcess", color: "#fd7e14", code: "REP" },
         { name: "Nakil Talebinden Transfer", icon: ClipboardList, path: "/transferFromRequest", color: "#17a2b8" },
         { name: "Parti Ayrıntıları", icon: ScanBarcode, path: "/batchDetails", color: "#c71893" },
-        { name: "Hattan Transfer", icon: ArchiveRestore, path: "/transfer", color: "#c79818" }
+        { name: "Hattan Transfer", icon: ArchiveRestore, path: "/transfer", color: "#c79818" },
+        { name: "Statü Güncelleme", icon: HandMetal , path: "/statusUpdate", color: "#525049" }
     ];
     const containerStyle = {
         display: "flex",

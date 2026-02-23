@@ -19,8 +19,8 @@ export const terminalTransferLastData = {
   "Dscription": "",
   "FromWhsCod": "",
   "WhsCode": "",
-  "OnHandQty":"",
-  "PalletQty":"",
+  "OnHandQty": "",
+  "PalletQty": "",
   "FromBinCode": "",
   "ToBinCode": "",
   "DocNum": ""
@@ -32,8 +32,8 @@ export const terminalPrevEopData = {
   "Kalem_Adı": "",
   "Depo_Kodu": "",
   "Depo_Yeri": "",
-  "Üretim_Tarihi":"",
-  "Parti_Tarih":"",
+  "Üretim_Tarihi": "",
+  "Parti_Tarih": "",
   "Hat_No": "",
   "Günlük_Lot_No": "",
   "Bekleme_Süresi(Saat)": "",
@@ -183,9 +183,9 @@ export const terminalTransferFromRequestColumns = [
   { dataField: "InnerQtyOfPallet", caption: "Miktar", alignment: "right" },
   { dataField: "ItemCode", caption: "Kalem Kodu", alignment: "left" },
   { dataField: "itemName", caption: "Kalem Adı", alignment: "left" },
-  { dataField: "U_SourceBinEntry", caption: "Kaynak Bin Entry", alignment: "left" , visible: false },
+  { dataField: "U_SourceBinEntry", caption: "Kaynak Bin Entry", alignment: "left", visible: false },
   { dataField: "U_SourceBin", caption: "Kaynak Depo Yeri", alignment: "left" },
-  { dataField: "U_TargetBinEntry", caption: "Hedef Bin Entry", alignment: "left" , visible: false },
+  { dataField: "U_TargetBinEntry", caption: "Hedef Bin Entry", alignment: "left", visible: false },
   { dataField: "U_TargetBin", caption: "Hedef Depo Yeri", alignment: "left" },
   { dataField: "Readed", caption: "Okutuldu", alignment: "left" },
 ];
@@ -196,3 +196,19 @@ export const transferRequestColumns = [
   { dataField: "Açıklama", caption: "Açıklama", alignment: "left" },
   { dataField: "Kalem Kodu", caption: "Kalem Kodu", alignment: "left" },
   { dataField: "Kalem Adı", caption: "Kalem Adı", alignment: "left" }];
+
+
+export const endOfProcessColumns = [
+  { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
+  { dataField: "MainItemCode", caption: "MainItemCode", alignment: "left" },
+  { dataField: "MainItemName", caption: "MainItemName", alignment: "left" },
+  { dataField: "BatchNum", caption: "BatchNum", alignment: "left" },
+  { dataField: "StatusCode", caption: "StatusCode", alignment: "left" }
+]
+export const consumptionColumns = [
+  { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
+  { dataField: "ItemCode", caption: "Kalem Kodu", alignment: "left" },
+  { dataField: "Dscription", caption: "Kalem Adı", alignment: "left" },
+  { dataField: "Quantity", caption: "Miktar", alignment: "right" },
+  { dataField: "WhsCode", caption: "Depo Kodu", alignment: "left" }
+]
