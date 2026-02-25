@@ -203,7 +203,7 @@ export const endOfProcessColumns = [
   { dataField: "MainItemCode", caption: "MainItemCode", alignment: "left" },
   { dataField: "MainItemName", caption: "MainItemName", alignment: "left" },
   { dataField: "BatchNum", caption: "BatchNum", alignment: "left" },
-  { dataField: "StatusCode", caption: "StatusCode", alignment: "left" }
+  { dataField: "U_Status", caption: "StatusCode", alignment: "left" }
 ]
 export const consumptionColumns = [
   { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
@@ -212,3 +212,7 @@ export const consumptionColumns = [
   { dataField: "Quantity", caption: "Miktar", alignment: "right" },
   { dataField: "WhsCode", caption: "Depo Kodu", alignment: "left" }
 ]
+export const endOfProcessData= {
+  "Description": "",
+  "MoldNo": ""
+}

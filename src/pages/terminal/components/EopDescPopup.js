@@ -4,10 +4,12 @@ import { Form, GroupItem, SimpleItem } from 'devextreme-react/form';
 import { Button } from 'devextreme-react/button';
 import { createGoodsreceiptIssue, getConsumptions } from '../../../store/terminalSlice';
 import { Column, DataGrid } from 'devextreme-react/data-grid';
-import { consumptionColumns } from '../data/data';
+import { consumptionColumns, endOfProcessData } from '../data/data';
 import notify from 'devextreme/ui/notify';
 
+
 function EopDescPopup({ onRowSelected, gridData, consumptions,itemCode,batchNum }) {
+  const [formData, setFormData] = useState({ ...endOfProcessData });
 
     const handleNotify = ({ message, type }) => {
         notify(
@@ -37,14 +39,18 @@ function EopDescPopup({ onRowSelected, gridData, consumptions,itemCode,batchNum 
                 quantity: item.Quantity,
                 sWhsCode: item.WhsCode,
                 mainItemCode:item.MainItemCode,
-                batchNumber:item.BatchNum
+                mainQuantity:item.MainItemQuantity,
+                mainWarehouse:item.MainWarehouse,
+                batchNumber:item.BatchNum,
+                errorDesc:formData.Description,
+                templateNum:formData.MoldNo
               }));
         
-            
+            debugger
               const payload = { itemList };
               let result = await createGoodsreceiptIssue({ payload: payload })
             
-              handleNotify({ message: "Kayıt başarılı", type: "success" });
+              // handleNotify({ message: "Kayıt başarılı", type: "success" });
             } catch (err) {
               console.error("Kaydetme hatası:", err);
               const parsed = extractJson({ str: err.response.data });
@@ -82,14 +88,14 @@ function EopDescPopup({ onRowSelected, gridData, consumptions,itemCode,batchNum 
                         <br></br>
                     <Form
                         className="transfer-form"
-                        // formData={batchData}
+                         formData={formData}
                         colCount={1}
                         labelLocation="left"
                         showColonAfterLabel={true}
                         minColWidth={200}
                     >
-                        <SimpleItem dataField="DistNumber" editorType="dxTextBox" label={{ text: 'Açıklama' }} />
-                        <SimpleItem dataField="ItemCode" editorType="dxTextBox" label={{ text: 'Kalıp No' }} />
+                        <SimpleItem dataField="Description" editorType="dxTextBox" label={{ text: 'Açıklama' }} />
+                        <SimpleItem dataField="MoldNo" editorType="dxTextBox" label={{ text: 'Kalıp No' }} />
                         <GroupItem colSpan={2}>
                             <div className="btn-area">
                                 <Button text="Başlat"
