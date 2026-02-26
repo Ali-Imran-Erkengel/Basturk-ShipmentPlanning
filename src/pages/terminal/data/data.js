@@ -199,11 +199,13 @@ export const transferRequestColumns = [
 
 
 export const endOfProcessColumns = [
-  { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },
-  { dataField: "MainItemCode", caption: "MainItemCode", alignment: "left" },
-  { dataField: "MainItemName", caption: "MainItemName", alignment: "left" },
-  { dataField: "BatchNum", caption: "BatchNum", alignment: "left" },
-  { dataField: "U_Status", caption: "StatusCode", alignment: "left" }
+  { dataField: "DocEntry", caption: "DocEntry", alignment: "left",visible:false },
+  { dataField: "U_beas_belnrid", caption: "İş Emri", alignment: "left" },
+  { dataField: "MainItemCode", caption: "Mamul Kodu", alignment: "left" },
+  { dataField: "MainItemName", caption: "Mamul Adı", alignment: "left" },
+  { dataField: "BatchNum", caption: "Parti No", alignment: "left" },
+  { dataField: "U_Status", caption: "Statü Kodu", alignment: "left" },
+  { dataField: "StatusName", caption: "Statü", alignment: "left" }
 ]
 export const consumptionColumns = [
   { dataField: "DocEntry", caption: "DocEntry", alignment: "left" },

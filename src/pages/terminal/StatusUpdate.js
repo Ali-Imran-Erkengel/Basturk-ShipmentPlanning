@@ -1,47 +1,30 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TabPanel, { Item } from "devextreme-react/tab-panel";
-import { Form, GroupItem, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
 import { getConsumptions, getEndOfProcessList } from "../../store/terminalSlice";
 import { endOfProcessColumns, terminalDeliveryData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import notify from 'devextreme/ui/notify';
 import { Grid } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import EmployeeList from "./components/EmployeeList";
-import { Truck, ClipboardList, Layers, ArrowLeftRight, PackageOpen, RotateCcwIcon, WineOff, ScanBarcode, ArchiveRestore, HandMetal } from "lucide-react";
+import { Layers, PackageOpen, WineOff, } from "lucide-react";
 import { useScreenSize } from '../../utils/media-query';
 import EopDescPopup from "./components/EopDescPopup";
+import { confirm } from "devextreme/ui/dialog";
 
-const handleNotify = ({ message, type }) => {
-  notify(
-    {
-      message: message,
-      width: 300,
-      position: {
-        at: "bottom",
-        my: "bottom",
-        of: "#container"
-      }
-    },
-    type,
-    5000
-  );
-}
 
 const StatusUpdate = () => {
-  const navigate = useNavigate();
-  const [deliveryGrid, setDeliveryGrid] = useState();
   const [endOfProcessGrid, setEndOfProcessGrid] = useState();
   const [tabIndex, setTabIndex] = useState(0);
   const [isPopupVisible, setPopupVisibility] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState('0');
+  const [selectedOperationName, setSelectedOperationName] = useState('');
+  const [statusCode1, setStatusCode1] = useState('0');
+  const [statusCode2, setStatusCode2] = useState('0');
   const [selectedItemCode, setSelectedItemCode] = useState();
   const [selectedBatchNumber, setSelectedBatchNumber] = useState();
   const [formData, setFormData] = useState({ ...terminalDeliveryData });
   const [consumptionGrid, setConsumptionGrid] = useState();
-
+  const [labelGiven, setLabelGiven] = useState(false);
 
 
   useEffect(() => {
@@ -58,36 +41,55 @@ const StatusUpdate = () => {
 
   // #region requests
 
-  const goForReadBarcodes = async ({ itemCode, batchNumber }) => {
-    debugger
-    let items = await getConsumptions({ itemCode: itemCode, batchNumber: batchNumber });
-    setDeliveryGrid(items);
-    setTabIndex(1);
 
-  };
-
-  const endOfProcessList = async ({ status }) => {
-    let list = await getEndOfProcessList({ status: status });
+  const endOfProcessList = async ({ status, status2 }) => {
+    let list = await getEndOfProcessList({ status: status, status2: status2 });
     setEndOfProcessGrid(list);
     setTabIndex(1);
 
   };
 
+  const getConsumptionList = async ({ itemCode, batchNumber }) => {
+    let list = await getConsumptions({ itemCode: itemCode, batchNumber: batchNumber });
+    setConsumptionGrid(list);
 
+  };
   // #endregion
 
   const openDescPopup = (cellData) => {
+
     const itemCode = cellData.data["MainItemCode"];
     const batchNum = cellData.data["BatchNum"];
-  setSelectedItemCode(itemCode);
-  setSelectedBatchNumber(batchNum);
+
 
     return (
       <div style={{ display: 'flex', gap: '8px' }}>
         <Button
           className="nav-btn"
           icon='send'
-          onClick={() => {
+          onClick={async () => {
+            setSelectedItemCode(itemCode);
+            setSelectedBatchNumber(batchNum);
+            let resultConfirm=false;
+            if (selectedOperation === '-9') {
+
+              resultConfirm = await confirm({
+                title: "Onay",
+                messageHtml: "<b>Etiket verildi mi?</b>",
+                buttons: [
+                  {
+                    text: "Evet",
+                    type: "default",
+                    onClick: () => false
+                  },
+                  {
+                    text: "Hayır",
+                    onClick: () => true
+                  }
+                ]
+              });
+            }
+            setLabelGiven(resultConfirm);
             getConsumptionList({ itemCode, batchNumber: batchNum });
             togglePopup();
           }}
@@ -97,19 +99,14 @@ const StatusUpdate = () => {
     );
   };
   const togglePopup = () => {
-    debugger
     setPopupVisibility(!isPopupVisible);
   };
-  const getConsumptionList = async ({ itemCode,batchNumber }) => {
-    let list = await getConsumptions({  itemCode:itemCode,batchNumber:batchNumber});
-     setConsumptionGrid(list);
 
-  };
   const { isXSmall } = useScreenSize();
   const pages = [
-    { name: "Emr Ayr", icon: Layers, statusCode: "-8", color: "#20c997", code: "EMR" },
-    { name: "Kırık", icon: WineOff, statusCode: "-9", color: "#6f42c1", code: "BRK" },
-    { name: "Repack", icon: PackageOpen, statusCode: "-10", color: "#fd7e14", code: "REP" },
+    { name: "Emr Ayr", icon: Layers, newStatusCode: "-8", statusCode: "-2", statusCode2: "-4", color: "#20c997", code: "EMR" },
+    { name: "Kırık", icon: WineOff, newStatusCode: "-10", statusCode: "-2", statusCode2: "-4", color: "#6f42c1", code: "BRK" },
+    { name: "Repack", icon: PackageOpen, newStatusCode: "-9", statusCode: "-3", statusCode2: "-5", color: "#fd7e14", code: "REP" }
   ];
   const containerStyle = {
     display: "flex",
@@ -154,9 +151,16 @@ const StatusUpdate = () => {
                     }}
                     onClick={() => {
                       setTabIndex(1);
-                      setSelectedOperation(page.statusCode);
-                      endOfProcessList({ status: page.statusCode })
-                      console.log("status", selectedOperation)
+                      const newStatus = page.newStatusCode;
+                      const newStatusName = page.name;
+                      const stt1 = page.statusCode;
+                      const stt2 = page.statusCode2;
+                      setSelectedOperation(newStatus);
+                      setSelectedOperationName(newStatusName);
+                      setStatusCode1(stt1);
+                      setStatusCode2(stt2);
+                      endOfProcessList({ status: stt1, status2: stt2 })
+                      console.log("status", newStatus);
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.transform = "translateY(-4px)";
@@ -203,14 +207,13 @@ const StatusUpdate = () => {
                         icon="refresh"
                         type="default"
                         stylingMode="contained"
-                      //  onClick={fetchWaitForLoadDocs}
-                      />
+                        onClick={() => endOfProcessList({ status: statusCode1, status2: statusCode2 })} />
                     </Grid>
                   </Grid>
                 </Grid>
                 <Grid item xs>
                   <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
-                    liste
+                     {selectedOperationName}
                   </div>
                 </Grid>
                 <Grid item style={{ width: 100 }}></Grid>
@@ -258,12 +261,13 @@ const StatusUpdate = () => {
           consumptions={consumptionGrid}
           itemCode={selectedItemCode}
           batchNum={selectedBatchNumber}
-
-        //  onRowSelected={handleLoaderSelection}
+          newStatus={selectedOperation}
+          onClose={togglePopup}
+          refresh={() => endOfProcessList({ status: statusCode1, status2: statusCode2 })}
+          labelGiven={labelGiven}
         />
       </Popup>
     </div>
   );
 };
 export default StatusUpdate;
-//yükleme emri kalem bazlı kısmi teslimat 

@@ -270,7 +270,6 @@ export const returnBatchControl = async ({ documentNo, barcode }) => {
 export const saveReturns = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
-  debugger
   return sendPostRequest({ endpoint: "returnsweb", params: params })
 }
 export const getTransferRequest = async ({ whsCode, status1, status2 }) => {
@@ -306,7 +305,6 @@ export const requestWithoutBatchControl = async ({ documentNo, barcode }) => {
 export const saveBarcodedProcess = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
-  debugger
   return sendPostRequest({ endpoint: "barcodedprocessweb", params: params })
 }
 export const transferFromReqStatusControl = async ({ barcode }) => {
@@ -338,7 +336,6 @@ export const transferFromReqControlBinDective = async ({ docEntry, barcode }) =>
 }
 export const saveTransferFromRequest = async ({ payload }) => {
   let params = payload;
-  debugger
   return sendPostRequest({ endpoint: "transferfromreqweb", params: params })
 }
 export const getBatchDetails = async ({ barcode }) => {
@@ -379,16 +376,18 @@ export const getConsumptions = async ({itemCode,batchNumber}) => {
   };
   return sendGetRequest({ endpoint: "getconsumptions", params: params })
 }
-export const getEndOfProcessList = async ({status}) => {
+export const getEndOfProcessList = async ({status,status2}) => {
   let params = {
-    status: status
+    status: status,
+    status2: status2
   };
   return sendGetRequest({ endpoint: "getendofprocesslist", params: params })
 }
 export const createGoodsreceiptIssue = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
-  return sendPostRequest({ endpoint: "createreceiptandissue", params: params })
+  let result= await sendPostRequest({ endpoint: "createreceiptandissue", params: params })
+  return result
 }
 const sendGetRequest = async ({ endpoint, params }) => {
   try {
@@ -428,7 +427,6 @@ const sendPostRequest = async ({ endpoint, params }) => {
         withCredentials: true,
       }
     );
-
     const jsonArray = response.data;
     if (jsonArray.error) {
       console.error("Durum kodu:", jsonArray.error);
