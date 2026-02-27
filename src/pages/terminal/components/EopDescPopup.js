@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Form, GroupItem, SimpleItem } from 'devextreme-react/form';
 import { Button } from 'devextreme-react/button';
 import { createGoodsreceiptIssue } from '../../../store/terminalSlice';
 import { Column, DataGrid, Editing } from 'devextreme-react/data-grid';
-import { consumptionColumns, endOfProcessData } from '../data/data';
+import { endOfProcessData } from '../data/data';
 import notify from 'devextreme/ui/notify';
 
-function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, refresh, labelGiven }) {
+function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, newStatusName,onClose, refresh, labelGiven, costingCodeList }) {
   const [formData, setFormData] = useState({ ...endOfProcessData });
 
   const handleNotify = ({ message, type }) => {
@@ -25,6 +25,8 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, re
       5000
     );
   }
+
+
   function extractJson({ str }) {
     const match = str.match(/{.*}/s);
     return match ? JSON.parse(match[0]) : null;
@@ -32,7 +34,22 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, re
   const handleSave = async () => {
     try {
 
-
+      if (!formData.Description || formData.Description.trim() === "") {
+        handleNotify({ message: "Açıklama alanı boş olamaz", type: "error" });
+        return;
+      }
+  
+      if (!formData.MoldNo || formData.MoldNo.trim() === "") {
+        handleNotify({ message: "Kalıp No alanı boş olamaz", type: "error" });
+        return;
+      }
+      if (!labelGiven && !consumptions?.some(x => x.IsSelected === 1)) {
+        handleNotify({
+          message: "En az bir satır seçmelisiniz",
+          type: "error"
+        });
+        return;
+      }
       let userName = sessionStorage.getItem('userName')
       const itemList = consumptions?.map(item => ({
         itemCode: item.ItemCode,
@@ -46,9 +63,13 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, re
         templateNum: formData.MoldNo,
         userName: userName,
         newStatus: newStatus,
-        lableGiven:labelGiven
+        newStatusName: newStatusName,
+        labelGiven: labelGiven,
+        isSelected: item.IsSelected,
+        costingCode: item.CostingCode,
+        costingCode2: item.CostingCode2
       }));
-
+      debugger
       const payload = { itemList };
       let result = await createGoodsreceiptIssue({ payload: payload })
       if (result === "OK") {
@@ -68,7 +89,7 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, re
     if (
       e.rowType === "data" &&
       e.column.dataField === "Quantity" &&
-      labelGiven
+      !labelGiven
     ) {
       e.cellElement.style.setProperty("background-color", "#f0f7ff", "important");
       e.cellElement.style.setProperty("font-weight", "500", "important");
@@ -96,7 +117,17 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, re
           >
             <Editing
               mode="cell"
-              allowUpdating={labelGiven}
+              allowUpdating={!labelGiven}
+            />
+            <Column
+              dataField="IsSelected"
+              caption="Seç"
+              dataType="boolean"
+              visible={!labelGiven}
+              calculateCellValue={(row) => row.IsSelected === 1}
+              setCellValue={(row, value) => {
+                row.IsSelected = value ? 1 : 0;
+              }}
             />
             <Column dataField="DocEntry" caption="İş Emri" alignment="left" allowEditing={false} />
             <Column dataField="ItemCode" caption="Kalem Kodu" alignment="left" allowEditing={false} />
@@ -105,12 +136,31 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, onClose, re
               dataField="Quantity"
               caption="Miktar"
               alignment="right"
-              allowEditing={labelGiven}
+              allowEditing={!labelGiven}
             />
             <Column dataField="WhsCode" caption="Depo Kodu" alignment="left" allowEditing={false} />
-            {/* {consumptionColumns.map((col) => (
-              <Column key={col.dataField} {...col} />
-            ))} */}
+
+            <Column
+              dataField="CostingCode"
+              caption="Departman"
+              visible={!labelGiven}
+              lookup={{
+                dataSource: costingCodeList.filter(x => x.DimCode === 1),
+                valueExpr: "OcrCode",
+                displayExpr: "OcrName"
+              }}
+            />
+
+            <Column
+              dataField="CostingCode2"
+              caption="Masraf Yeri"
+              visible={!labelGiven}
+              lookup={{
+                dataSource: costingCodeList.filter(x => x.DimCode === 2),
+                valueExpr: "OcrCode",
+                displayExpr: "OcrName"
+              }}
+            />
           </DataGrid>
           <br></br>
           <br></br>

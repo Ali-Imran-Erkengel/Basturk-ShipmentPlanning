@@ -191,9 +191,9 @@ export const getLastTransferRecord = async () => {
   let params = {};
   return sendGetRequest({ endpoint: "getlasttransferrecord", params: params })
 }
-export const getPreviousEndOfProcess = async ({barcode}) => {
+export const getPreviousEndOfProcess = async ({ barcode }) => {
   let params = {
-    barcode:barcode
+    barcode: barcode
   };
   return sendGetRequest({ endpoint: "terminaleopprevrecord", params: params })
 }
@@ -369,24 +369,29 @@ export const batchControl = async ({ barcode, whsCode, binEntry }) => {
   };
   return sendGetRequest({ endpoint: "batchcontrol", params: params })
 }
-export const getConsumptions = async ({itemCode,batchNumber}) => {
+export const getConsumptions = async ({ itemCode, batchNumber }) => {
   let params = {
     itemCode: itemCode,
-    batchNumber:batchNumber
+    batchNumber: batchNumber
   };
   return sendGetRequest({ endpoint: "getconsumptions", params: params })
 }
-export const getEndOfProcessList = async ({status,status2}) => {
+export const getEndOfProcessList = async ({ status, status2 }) => {
   let params = {
     status: status,
     status2: status2
   };
   return sendGetRequest({ endpoint: "getendofprocesslist", params: params })
 }
+
+export const getCostingCodes = async () => {
+  let params = {};
+  return sendGetRequest({ endpoint: "getcostingcode", params: params })
+}
 export const createGoodsreceiptIssue = async ({ payload }) => {
   console.log("payload", payload)
   let params = payload;
-  let result= await sendPostRequest({ endpoint: "createreceiptandissue", params: params })
+  let result = await sendPostRequest({ endpoint: "createreceiptandissue", params: params })
   return result
 }
 const sendGetRequest = async ({ endpoint, params }) => {
@@ -401,7 +406,7 @@ const sendGetRequest = async ({ endpoint, params }) => {
     const jsonArray = JSON.parse(response.data);
     if (jsonArray.error) {
       console.error('Durum kodu:', jsonArray.error);
-      handleNotify({message: jsonArray.error.response.data,type: "error"})
+      handleNotify({ message: jsonArray.error.response.data, type: "error" })
       throw new Error(jsonArray.error);
     }
     return jsonArray;
@@ -410,7 +415,7 @@ const sendGetRequest = async ({ endpoint, params }) => {
     if (error.response) {
       console.error('Durum kodu:', error.response.status);
       console.error('Yanıt içeriği:', error.response.data);
-      handleNotify({message: error.response.data, type:"error"})
+      handleNotify({ message: error.response.data, type: "error" })
 
     }
     // throw error;
@@ -430,7 +435,7 @@ const sendPostRequest = async ({ endpoint, params }) => {
     const jsonArray = response.data;
     if (jsonArray.error) {
       console.error("Durum kodu:", jsonArray.error);
-      handleNotify({message:jsonArray.error.response.data,type: "error"})
+      handleNotify({ message: jsonArray.error.response.data, type: "error" })
 
       throw new Error(jsonArray.error);
     }
@@ -440,7 +445,7 @@ const sendPostRequest = async ({ endpoint, params }) => {
     if (error.response) {
       console.error("Durum kodu:", error.response.status);
       console.error("Yanıt içeriği:", error.response.data);
-      handleNotify({message:error.response.data, type:"error"})
+      handleNotify({ message: error.response.data, type: "error" })
     }
     // throw error;
   }

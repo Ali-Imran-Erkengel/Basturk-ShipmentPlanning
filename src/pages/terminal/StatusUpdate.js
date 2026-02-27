@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import TabPanel, { Item } from "devextreme-react/tab-panel";
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getConsumptions, getEndOfProcessList } from "../../store/terminalSlice";
+import { getConsumptions, getCostCenter, getCostingCodes, getDimensions, getEndOfProcessList } from "../../store/terminalSlice";
 import { endOfProcessColumns, terminalDeliveryData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import { Grid } from "@mui/material";
@@ -25,7 +25,7 @@ const StatusUpdate = () => {
   const [formData, setFormData] = useState({ ...terminalDeliveryData });
   const [consumptionGrid, setConsumptionGrid] = useState();
   const [labelGiven, setLabelGiven] = useState(false);
-
+  const [costingCodeList, setCostingCodeList] = useState([]);
 
   useEffect(() => {
   }, [selectedOperation]);
@@ -37,7 +37,9 @@ const StatusUpdate = () => {
 
   }, [formData]);
 
-
+  useEffect(() => {
+    console.log("labelGiven:", labelGiven);
+  }, [labelGiven]);
 
   // #region requests
 
@@ -49,11 +51,7 @@ const StatusUpdate = () => {
 
   };
 
-  const getConsumptionList = async ({ itemCode, batchNumber }) => {
-    let list = await getConsumptions({ itemCode: itemCode, batchNumber: batchNumber });
-    setConsumptionGrid(list);
 
-  };
   // #endregion
 
   const openDescPopup = (cellData) => {
@@ -68,30 +66,35 @@ const StatusUpdate = () => {
           className="nav-btn"
           icon='send'
           onClick={async () => {
+
             setSelectedItemCode(itemCode);
             setSelectedBatchNumber(batchNum);
-            let resultConfirm=false;
+          
+            let resultConfirm = true;
+          
             if (selectedOperation === '-9') {
-
               resultConfirm = await confirm({
                 title: "Onay",
                 messageHtml: "<b>Etiket verildi mi?</b>",
                 buttons: [
-                  {
-                    text: "Evet",
-                    type: "default",
-                    onClick: () => false
-                  },
-                  {
-                    text: "Hayır",
-                    onClick: () => true
-                  }
+                  { text: "Evet", type: "default", onClick: () => true },
+                  { text: "Hayır", onClick: () => false }
                 ]
               });
             }
+          
             setLabelGiven(resultConfirm);
-            getConsumptionList({ itemCode, batchNumber: batchNum });
-            togglePopup();
+          
+            if (resultConfirm) {
+              const costCode = await getCostingCodes();
+              setCostingCodeList(costCode);
+            }
+          
+            // consumption list yüklenmeden popup açılmasın
+            const list = await getConsumptions({ itemCode, batchNumber: batchNum });
+            setConsumptionGrid(list);
+          
+            setPopupVisibility(true);
           }}
           type="default"
         />
@@ -99,7 +102,7 @@ const StatusUpdate = () => {
     );
   };
   const togglePopup = () => {
-    setPopupVisibility(!isPopupVisible);
+    setPopupVisibility(false);    
   };
 
   const { isXSmall } = useScreenSize();
@@ -262,9 +265,11 @@ const StatusUpdate = () => {
           itemCode={selectedItemCode}
           batchNum={selectedBatchNumber}
           newStatus={selectedOperation}
+          newStatusName={selectedOperationName}
           onClose={togglePopup}
           refresh={() => endOfProcessList({ status: statusCode1, status2: statusCode2 })}
           labelGiven={labelGiven}
+          costingCodeList={costingCodeList}
         />
       </Popup>
     </div>
