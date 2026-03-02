@@ -3,7 +3,7 @@ import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getBarcodedProcessBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqControlBinActive, transferFromReqControlBinDective, transferFromReqStatusControl } from "../../store/terminalSlice";
+import { getBarcodedProcessBatch, getBinUsingBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqControlBinActive, transferFromReqControlBinDective, transferFromReqStatusControl } from "../../store/terminalSlice";
 import { terminalBarcodedProcessData, terminalReturnData, terminalTransferFromRequestColumns, transferRequestColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
@@ -291,7 +291,9 @@ const TransferFromRequest = () => {
                         if (idx !== -1) {
                             newData[idx] = {
                                 ...newData[idx],
-                                Readed: 'N'
+                                Readed: 'N',
+                                U_SourceBinEntry: 0,
+                                U_SourceBin: ""
                             };
                         }
                         return newData;
@@ -306,21 +308,38 @@ const TransferFromRequest = () => {
 
                 return;
             }
+            debugger
+
             let warning = await batchStatusControl({ barcode });
 
             if (warning !== "OK") return handleNotify({ message: warning, type: 'error' })
 
+            let apiResponse = await getBinUsingBatch({ barcode: barcodeValue })
+            let binEntry = "";
+            let binCode = "";
+            if (apiResponse.length > 0) {
+                let warningMessage = apiResponse[0].WarningMessage;
+                binEntry = apiResponse[0].AbsEntry;
+                binCode = apiResponse[0].BinCode;
+
+                if (warningMessage) {
+                    return handleNotify({ message: apiResponse[0].WarningMessage, type: "error" });
+                }
+                else {
+
+                }
+            }
+            debugger
             if (isBatchExists === 'Y') {
 
-                readWithBatch({ barcode: barcodeValue })
+                readWithBatch({ barcode: barcodeValue, binEntry: binEntry, binCode: binCode })
             }
             else {
-                readWithoutBatch({ barcode: barcodeValue })
+                readWithoutBatch({ barcode: barcodeValue, binEntry: binEntry, binCode: binCode })
             }
             if (barcodeRef.current) {
                 console.log(barcodeRef.current)
                 const input = barcodeRef.current.element().querySelector("input");
-                debugger
                 if (input) input.focus();
             }
         } catch (error) {
@@ -333,7 +352,7 @@ const TransferFromRequest = () => {
             // setTimeout(focusBarcodeInput, 50);
         }
     };
-    function readWithBatch({ barcode }) {
+    function readWithBatch({ barcode, binEntry, binCode }) {
         try {
             setBatchGrid(prevItems => {
                 const newData = [...prevItems];
@@ -346,6 +365,8 @@ const TransferFromRequest = () => {
 
                 if (newData[idx].Readed === 'N') {
                     newData[idx] = { ...newData[idx], Readed: 'Y' };
+                    newData[idx] = { ...newData[idx], U_SourceBinEntry: binEntry };
+                    newData[idx] = { ...newData[idx], U_SourceBin: binCode };
                     setScannedCount(prev => prev + 1);
                     console.log("scanned :", scannedCount)
                 } else {
@@ -361,7 +382,7 @@ const TransferFromRequest = () => {
             forceFocusBarcode()
         }
     }
-    async function readWithoutBatch({ barcode }) {
+    async function readWithoutBatch({ barcode, binEntry, binCode }) {
         try {
             let isBinActive = await controlBinActive({ barcode: barcode });
             if (isBinActive === "ERROR") return handleNotify({ message: "Depo Yeri Aktifliği Kontrolünde Geçersiz Parti.", type: 'error' })
@@ -376,8 +397,8 @@ const TransferFromRequest = () => {
                     DistNumber: result[0].DistNumber,
                     FromWhsCod: result[0].FromWhsCod,
                     WhsCode: result[0].WhsCode,
-                    U_SourceBinEntry: result[0].U_SourceBinEntry,
-                    U_SourceBin: result[0].U_SourceBin,
+                    U_SourceBinEntry: binEntry,//result[0].U_SourceBinEntry,
+                    U_SourceBin: binCode,//result[0].U_SourceBin,
                     U_TargetBinEntry: result[0].U_TargetBinEntry,
                     U_TargetBin: result[0].U_TargetBin,
                     InnerQtyOfPallet: result[0].InnerQtyOfPallet,
@@ -409,8 +430,8 @@ const TransferFromRequest = () => {
                     DistNumber: result[0].DistNumber,
                     FromWhsCod: result[0].FromWhsCod,
                     WhsCode: result[0].WhsCode,
-                    U_SourceBinEntry: result[0].U_SourceBinEntry,
-                    U_SourceBin: result[0].U_SourceBin,
+                    U_SourceBinEntry: binEntry, //result[0].U_SourceBinEntry,
+                    U_SourceBin: binCode,// result[0].U_SourceBin,
                     U_TargetBinEntry: result[0].U_TargetBinEntry,
                     U_TargetBin: result[0].U_TargetBin,
                     InnerQtyOfPallet: result[0].InnerQtyOfPallet,
