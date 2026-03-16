@@ -149,7 +149,7 @@ function ShipmentAdd({ onBack }) {
                             <SimpleItem colSpan={2} dataField="U_Country" editorType="dxSelectBox" editorOptions={countryOptions} cssClass="transparent-bg" label={{ text: 'Ülke' }} />
                             <SimpleItem colSpan={2} dataField="U_ZipCode" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }} />
                             <SimpleItem colSpan={2} dataField="U_Description" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Açıklama' }} />
-                            <SimpleItem colSpan={2} dataField="U_PalletQuantity" editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Palet Miktarı' }} />
+                            <SimpleItem colSpan={2} dataField="U_PalletQuantity" editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Tam Palet Miktarı' }} />
                             <SimpleItem dataField="U_TruckQuantity" colSpan={2} editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Tır Miktarı' }} />
                             <SimpleItem dataField="U_ContainerQuantity" colSpan={2} editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Konteyner Miktarı' }} />
                         </Form>

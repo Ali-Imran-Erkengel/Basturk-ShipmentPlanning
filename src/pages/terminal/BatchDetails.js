@@ -7,7 +7,16 @@ import { terminalBatchDetailData, terminalDeliveryData } from "./data/data";
 import notify from 'devextreme/ui/notify';
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
+import { alert } from "devextreme/ui/dialog"; 
+const handleMessageBox = ({ message, type }) => { 
+    let title = "Bilgi";
+     if (type === "error")
+         title = "Uyarı"; 
+    if (type === "success") 
+        title = "Başarılı"; 
+    if (type === "warning") 
+        title = "Uyarı"; 
+    alert(message, title); };
 const handleNotify = ({ message, type }) => {
     notify(
         {
@@ -39,7 +48,7 @@ const BatchDetails = () => {
         try {
             let result = await getBatchDetails({ barcode: barcode });
             if (result.length === 0) {
-                handleNotify({ message: "Girlen Parametrelere Ait Parti Bulunamadı", type: "error" });
+                handleMessageBox({ message: "Girlen Parametrelere Ait Parti Bulunamadı", type: "error" });
                 setBatchData([]);
                 return
             }
@@ -90,7 +99,7 @@ const BatchDetails = () => {
             await fillBatchDetail({ barcode: barcodeValue })
         } catch (error) {
             console.error("Okutma hatası:", error);
-            handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
+            handleMessageBox({ message: "Hata: "+error, type: "error" });
         }
         finally {
             setFormData(prev => ({ ...prev, Barcode: "" }));

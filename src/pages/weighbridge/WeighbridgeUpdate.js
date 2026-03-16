@@ -7,7 +7,7 @@ import ZoomLayout from '../../components/myComponents/ZoomLayout';
 import { driverColumns, driverFilters, employeeColumns, employeeFilters, logisticsColumns, logisticsFilters, poColumns, poFilters, vehicleColumns, vehicleFilters } from '../../data/zoomLayoutData';
 import { useDispatch } from 'react-redux';
 import { addData, createODataSource, getItemById, updateData } from '../../store/appSlice';
-import { closeSerialPort, connectToSerialPort, documentTotal, driverVehicleInformation, getDocTotal, getLoadingRamps, getShipmentType, getTradeFileNo, isClosedOrder, isExistsPO, printWghReport, showLastValue, updateDeliveryNetWeight } from '../../store/weighbridgeSlice';
+import { closeSerialPort, connectToSerialPort, documentTotal, driverVehicleInformation, getDocTotal, getLoadingRamps, getShipmentType, getTradeFileNo, isClosedOrder, isExistsPO, printWghReport, showLastValue, updateDeliveryNetWeight ,updatePurchaseOrderNetWeight} from '../../store/weighbridgeSlice';
 import LogisticsList from './components/LogisticsList';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from 'devextreme-react/button';
@@ -366,8 +366,8 @@ function WeighbridgeUpdate({ id, onBack }) {
                 netWeight: parseInt(netWeight)
 
             }
-            // const res = await updateDeliveryNetWeight({ logisticNo:logisticsId,netWeight:netWeight })
             const res = await updateDeliveryNetWeight({ payload: data })
+            const res1 = await updatePurchaseOrderNetWeight({payload:data })
         }
         if (result.meta.arg.updatedData.U_WghType === 2 && result.meta.arg.updatedData.U_LogisticsNo) {
 
@@ -384,7 +384,6 @@ function WeighbridgeUpdate({ id, onBack }) {
                 }
             })
             const res = await getShipmentType({ logisticNo: logisticsId });
-            // debugger
             if (res) {
                 const shipmentType = res.data.value[0]["SML_SHP_HDR"].U_ShipmentType
                 if (shipmentType === 1) {
@@ -410,7 +409,7 @@ function WeighbridgeUpdate({ id, onBack }) {
     const addPurchaseOrder = async ({ amount, cardCode, shippingExpenseItem, logisticNo, plateCode, docTotal }) => {
 
         const isExists = await isExistsPO({ logisticNo: logisticNo });
-
+debugger
         if (isExists.data.value.length === 0) {
             //debugger
             let purchaseOrder = {
@@ -456,7 +455,7 @@ function WeighbridgeUpdate({ id, onBack }) {
                 "NumAtCard": deliveryNoteNo,
                 "U_WghNo": docEntry,
                 "U_DeclarationNo": tradeFileNo,
-                "U_NetWeight": netWeight,
+                "U_KantarMiktari": netWeight,
                 "U_DeclarationType": 1,
                 "DocumentLines": []
             }

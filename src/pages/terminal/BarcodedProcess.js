@@ -13,7 +13,16 @@ import { Grid } from "@mui/material";
 import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
 import EmployeeList from "./components/EmployeeList";
 import { ClockFading } from "lucide-react";
-
+import { alert } from "devextreme/ui/dialog"; 
+const handleMessageBox = ({ message, type }) => { 
+    let title = "Bilgi";
+     if (type === "error")
+         title = "Uyarı"; 
+    if (type === "success") 
+        title = "Başarılı"; 
+    if (type === "warning") 
+        title = "Uyarı"; 
+    alert(message, title); };
 const handleNotify = ({ message, type }) => {
     notify(
         {
@@ -156,7 +165,7 @@ const BarcodedProcess = () => {
         let result = await requestIsBatch({ docEntry: docEntry });
         setBatchGrid([])
 
-        if (result[0].item === 'N') return handleNotify({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
+        if (result[0].item === 'N') return handleMessageBox({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
         if (result[0].batch === 'Y') {
             setIsBatchExists('Y')
             let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: whsCode, status1: status1, status2: status2 });
@@ -172,7 +181,7 @@ const BarcodedProcess = () => {
                 .map(([key]) => key);
 
             if (conflicts.length > 0) {
-                handleNotify({ message: `Bu Belgede Bulunan Parti Birden Fazla Depo Yerinde Bulundu`, type: 'error' })
+                handleMessageBox({ message: `Bu Belgede Bulunan Parti Birden Fazla Depo Yerinde Bulundu`, type: 'error' })
                 return
             }
             setBatchGrid(items)
@@ -198,7 +207,7 @@ const BarcodedProcess = () => {
     };
     const validateBeforeSave = ({ formData }) => {
         if (!formData.PreparerCode) {
-            handleNotify({ message: "Lütfen Operatör Seçiniz", type: "error" });
+            handleMessageBox({ message: "Lütfen Operatör Seçiniz", type: "error" });
             return false;
         }
         return true;
@@ -266,7 +275,7 @@ const BarcodedProcess = () => {
         } catch (err) {
             console.error("Kaydetme hatası:", err);
             const parsed = extractJson({ str: err.response.data });
-            handleNotify({ message: parsed["message"], type: "error" });
+            handleMessageBox({ message: parsed["message"], type: "error" });
         }
     };
     // #endregion
@@ -298,7 +307,7 @@ const BarcodedProcess = () => {
                 debugger
                 const batchExists = batchGrid.some(b => b.DistNumber === barcodeValue);
                 if (!batchExists) {
-                    handleNotify({ message: "Okutulan barkod listede yok!", type: "error" });
+                    handleMessageBox({ message: "Okutulan barkod listede yok!", type: "error" });
                     return;
                 }
                 if (isBatchExists === 'Y') {
@@ -331,7 +340,7 @@ const BarcodedProcess = () => {
             }
         } catch (error) {
             console.error("Okutma hatası:", error);
-            handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
+            handleMessageBox({ message: "Hata: "+error, type: "error" });
         }
         finally {
             setFormData(prev => ({ ...prev, Barcode: "" }));
@@ -345,14 +354,14 @@ const BarcodedProcess = () => {
                 const idx = newData.findIndex(item => item.DistNumber === barcode);
 
                 if (idx === -1) {
-                    handleNotify({ message: `${barcode} Barkodu listede bulunamadı`, type: "error" });
+                    handleMessageBox({ message: `${barcode} Barkodu listede bulunamadı`, type: "error" });
                     return newData;
                 }
 
                 if (newData[idx].Readed === 'N') {
                     newData[idx] = { ...newData[idx], Readed: 'Y' };
                 } else {
-                    handleNotify({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
+                    handleMessageBox({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
                 }
 
                 return newData;
@@ -365,10 +374,10 @@ const BarcodedProcess = () => {
         try {
             let apiResponse = await requestWithoutBatchControl({ documentNo: selectedDocEntry, barcode: barcode })
             if (apiResponse.length === 0) {
-                return handleNotify({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
+                return handleMessageBox({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
             }
             else if (apiResponse.length > 1) {
-                return handleNotify({ message: "Okutulan Barkod Birden Fazla Depo Yerinde Mevcut", type: "error" });
+                return handleMessageBox({ message: "Okutulan Barkod Birden Fazla Depo Yerinde Mevcut", type: "error" });
             }
             else {
                 const newRow = {
@@ -387,7 +396,7 @@ const BarcodedProcess = () => {
                 setBatchGrid(prev => {
                     const exists = prev?.some(item => item.DistNumber === newRow.DistNumber);
                     if (exists) {
-                        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+                        handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
                         return prev;
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });

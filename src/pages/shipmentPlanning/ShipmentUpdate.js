@@ -124,7 +124,7 @@ function ShipmentUpdate({ id, onBack }) {
                             <SimpleItem colSpan={2} dataField="U_Country" editorType="dxSelectBox" editorOptions={countryOptions} cssClass="transparent-bg" label={{ text: 'Ülke' }} />
                             <SimpleItem colSpan={2} dataField="U_ZipCode" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }} />
                             <SimpleItem colSpan={2} dataField="U_Description" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Açıklama' }} />
-                            <SimpleItem colSpan={2} dataField="U_PalletQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Palet Miktarı' }} />
+                            <SimpleItem colSpan={2} dataField="U_PalletQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Tam Palet Miktarı' }} />
                             <SimpleItem colSpan={2} dataField="U_TruckQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Tır Miktarı' }} />
                             <SimpleItem colSpan={2} dataField="U_ContainerQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Konteyner Miktarı' }} />
                         </Form>

@@ -376,10 +376,23 @@ export const getConsumptions = async ({ itemCode, batchNumber }) => {
   };
   return sendGetRequest({ endpoint: "getconsumptions", params: params })
 }
-export const getEndOfProcessList = async ({ status, status2 }) => {
+export const getEndOfProcessList = async ({ status, status2,startDate,endDate }) => {
+  const bdate = new Date(startDate);
+  const byear = bdate.getFullYear();
+  const bmonth = String(bdate.getMonth() + 1).padStart(2, '0');
+  const bday = String(bdate.getDate()).padStart(2, '0');
+  const formattedbDate = `${byear}${bmonth}${bday}`
+  const edate = new Date(endDate);
+  const eyear = edate.getFullYear();
+  const emonth = String(edate.getMonth() + 1).padStart(2, '0');
+  const eday = String(edate.getDate()).padStart(2, '0');
+  const formattedeDate = `${eyear}${emonth}${eday}`
+
   let params = {
     status: status,
-    status2: status2
+    status2: status2,
+    beginDate:formattedbDate,
+    endDate:formattedeDate
   };
   return sendGetRequest({ endpoint: "getendofprocesslist", params: params })
 }

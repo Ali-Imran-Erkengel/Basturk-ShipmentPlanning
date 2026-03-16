@@ -354,14 +354,28 @@ function LogisticsAdd({ onBack }) {
                         const palletCost = price / gridData.U_PalletQuantity;
                         setPalletCost(palletCost.toFixed(2));
 
-                        const sum = gridData.SML_LGT_ITEMCollection.reduce((sum, item) => sum + parseFloat(item.U_Quantity || 0), 0);
+                        // const sum = gridData.SML_LGT_ITEMCollection.reduce((sum, item) => sum + parseFloat(item.U_Quantity || 0), 0);
 
+                        // const updatedGridData = {
+                        //     ...gridData,
+                        //     SML_LGT_ITEMCollection: gridData.SML_LGT_ITEMCollection.map(item => ({
+                        //         ...item,
+                        //         U_PalletCost: ((price / sum) * item.U_Quantity).toFixed(2)
+                        //     }))
+                        // };
+                        const sum = gridData.SML_LGT_ITEMCollection.reduce(
+                            (sum, item) => sum + (parseFloat(item.U_Quantity || 0) * (item.U_PalletType === 'Tam Palet' ? 1 : 0.5)),
+                            0
+                          );
                         const updatedGridData = {
                             ...gridData,
-                            SML_LGT_ITEMCollection: gridData.SML_LGT_ITEMCollection.map(item => ({
-                                ...item,
-                                U_PalletCost: ((price / sum) * item.U_Quantity).toFixed(2)
-                            }))
+                            SML_LGT_ITEMCollection: gridData.SML_LGT_ITEMCollection.map(item => {
+                                const palletFactor = item.U_PalletType === 'Tam Palet' ? 1 : 0.5;
+                                return {
+                                    ...item,
+                                    U_PalletCost: ((price / sum) * palletFactor * item.U_Quantity).toFixed(2)
+                                };
+                            })
                         };
                         setGridData(updatedGridData);
                         setChange(1)
@@ -455,8 +469,8 @@ function LogisticsAdd({ onBack }) {
                             <SimpleItem dataField="U_PaymentStatus" editorType="dxSelectBox" editorOptions={paymentStatusOptions} cssClass="transparent-bg" label={{ text: 'Ödeme Durumu' }} />
                             <SimpleItem dataField="U_DeliveryStatus" editorType="dxSelectBox" editorOptions={deliveryStatusOptions} cssClass="transparent-bg" label={{ text: 'Teslim Durumu' }} />
                             <SimpleItem editorOptions={{ ...enterPrice, inputAttr: { class: 'right-align-text' } }} dataField="U_Price" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Fiyat' }} />
-                            <SimpleItem dataField="U_PalletQuantity" editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Palet Miktarı' }} visible={palletFieldVisibility} />
-                            <SimpleItem dataField="U_PalletCost" editorOptions={{ value: palletCost, disabled: true, inputAttr: { class: 'right-align-text' } }} visible={palletFieldVisibility} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Palet Mailyeti' }} />
+                            <SimpleItem dataField="U_PalletQuantity" editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Tam Palet Miktarı' }} visible={palletFieldVisibility} />
+                            <SimpleItem dataField="U_PalletCost" editorOptions={{ value: palletCost, disabled: true, inputAttr: { class: 'right-align-text' } }} visible={palletFieldVisibility} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Tam Palet Mailyeti' }} />
                             <SimpleItem dataField="U_TotalWeight" editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Ağırlık' }} visible={!palletFieldVisibility} />
                             <SimpleItem dataField="U_Amount" editorOptions={{ value: amount, disabled: true, inputAttr: { class: 'right-align-text' } }} visible={!palletFieldVisibility} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Tutar' }} />
                             <SimpleItem dataField="U_DeliveryNoteNo" editorType="dxTextBox" cssClass="transparent-bg" visible={!palletFieldVisibility} label={{ text: 'İrsaliye No' }} />
@@ -513,7 +527,7 @@ function LogisticsAdd({ onBack }) {
                     <Column dataField="U_OrderLine" caption="Sipariş Sıra" allowEditing={false} alignment='left' />
                     <Column dataField="U_WhsCode" caption="Depo Kodu" allowEditing={false} />
                     <Column dataField="U_Quantity" caption="Miktar" allowEditing={false} alignment='right' />
-                    <Column dataField="U_PalletCost" caption={palletFieldVisibility ? "Palet Maliyeti" : "Tutar"} allowEditing={false} alignment='right' />
+                    <Column dataField="U_PalletCost" caption={palletFieldVisibility ? "Tam Palet Maliyeti" : "Tutar"} allowEditing={false} alignment='right' />
                     <Column dataField="U_PalletGrossWgh" visible={palletFieldVisibility} caption="Palet Brüt Ağırlık" allowEditing={false} alignment='right' />
                     <Column dataField="U_PalletNetWgh" visible={palletFieldVisibility} caption="Palet Net Ağırlık" allowEditing={false} alignment='right' />
                     <Column dataField="U_InnerQtyOfPallet" visible={palletFieldVisibility} caption="Palet İçi Adet" allowEditing={false} alignment='right' />

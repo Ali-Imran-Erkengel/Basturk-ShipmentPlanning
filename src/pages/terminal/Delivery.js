@@ -13,7 +13,16 @@ import { confirm } from "devextreme/ui/dialog";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EmployeeList from "./components/EmployeeList";
-
+import { alert } from "devextreme/ui/dialog"; 
+const handleMessageBox = ({ message, type }) => { 
+    let title = "Bilgi";
+     if (type === "error")
+         title = "Uyarı"; 
+    if (type === "success") 
+        title = "Başarılı"; 
+    if (type === "warning") 
+        title = "Uyarı"; 
+    alert(message, title); };
 const handleNotify = ({ message, type }) => {
   notify(
     {
@@ -195,13 +204,13 @@ const Delivery = () => {
   };
   const validateBeforeSave = ({ formData, itemGrid }) => {
     if (!formData.PreparerCode || !formData.LoaderCode) {
-      handleNotify({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
+      handleMessageBox({ message: "Lütfen Hazırlayan ve Yükleyen Seçiniz", type: "error" });
       return false;
     }
     debugger
     const notCompleted = itemGrid?.some(item => (item.ReadedQty ?? 0) !== item.U_Quantity);
     if (notCompleted) {
-      handleNotify({ message: "Tüm kalemlerin okutulan miktarı, teslimat miktarına eşit olmalı!", type: "error" });
+      handleMessageBox({ message: "Tüm kalemlerin okutulan miktarı, teslimat miktarına eşit olmalı!", type: "error" });
       return false;
     }
 
@@ -302,7 +311,7 @@ const Delivery = () => {
     } catch (err) {
       console.error("Kaydetme hatası:", err);
       const parsed = extractJson({ str: err.response.data });
-      handleNotify({ message: parsed["message"], type: "error" });
+      handleMessageBox({ message: parsed["message"], type: "error" });
     }
   };
   // #endregion
@@ -328,7 +337,7 @@ const Delivery = () => {
       //   return false;
       // }
       if (!selectedItem) {
-        handleNotify({ message: "Lütfen Satır Seçiniz", type: "error" })
+        handleMessageBox({ message: "Lütfen Satır Seçiniz", type: "error" })
         return;
       }
       let isGetBack = formData.GetBack;
@@ -346,10 +355,10 @@ const Delivery = () => {
       if (isGetBack) {
         const batchExists = batchGrid.some(b => b.Batch === barcodeValue);
         if (!batchExists) {
-          handleNotify({ message: "Bu barkod listede yok!", type: "error" });
+          handleMessageBox({ message: "Bu barkod listede yok!", type: "error" });
           return;
         }
-        if (readedQuantity <= 0) return handleNotify({ message: "Miktar 0' ın Altına Düşemez", type: "error" });
+        if (readedQuantity <= 0) return handleMessageBox({ message: "Miktar 0' ın Altına Düşemez", type: "error" });
         setBatchGrid(prev => prev.filter(b => b.Batch !== barcodeValue));
         setItemGrid(prevItems => {
           const newData = [...prevItems];
@@ -377,16 +386,16 @@ const Delivery = () => {
         return;
       }
       const warehouseMsg = await warehouseControl({ itemCode, barcode: barcodeValue });
-      if (warehouseMsg) return handleNotify({ message: warehouseMsg, type: "error" });
+      if (warehouseMsg) return handleMessageBox({ message: warehouseMsg, type: "error" });
       const statusMsg = await statusControl({ itemCode, barcode: barcodeValue });
-      if (statusMsg) return handleNotify({ message: statusMsg, type: "error" });
-      if (readedQuantity >= quantity) return handleNotify({ message: "Miktar Teslimat Miktarını Geçemez", type: "error" });
+      if (statusMsg) return handleMessageBox({ message: statusMsg, type: "error" });
+      if (readedQuantity >= quantity) return handleMessageBox({ message: "Miktar Teslimat Miktarını Geçemez", type: "error" });
       let apiResponse = await batchBinControl({ itemCode: itemCode, barcode: barcodeValue, whsCode: whsCode, stockQuantity: innerQtyOfPallet })
       switch (apiResponse[0].Result) {
         case "NONE":
-          return handleNotify({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
+          return handleMessageBox({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
         case "OWF":
-          return handleNotify({ message: "Yetersiz Miktar", type: "error" });
+          return handleMessageBox({ message: "Yetersiz Miktar", type: "error" });
         default:
           break;
       }
@@ -405,7 +414,7 @@ const Delivery = () => {
       setBatchGrid(prev => {
         const exists = prev?.some(item => item.Batch === newRow.Batch);
         if (exists) {
-          handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+          handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
           return prev;
         } else {
 
@@ -440,7 +449,7 @@ const Delivery = () => {
       }
     } catch (error) {
       console.error("Okutma hatası:", error);
-      handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
+      handleMessageBox({ message: "Hata: "+error, type: "error" });
     }
     finally {
       setFormData(prev => ({ ...prev, Barcode: "" }));

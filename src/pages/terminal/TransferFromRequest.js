@@ -12,7 +12,16 @@ import notify from 'devextreme/ui/notify';
 import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
 import EmployeeList from "./components/EmployeeList";
-
+import { alert } from "devextreme/ui/dialog"; 
+const handleMessageBox = ({ message, type }) => { 
+    let title = "Bilgi";
+     if (type === "error")
+         title = "Uyarı"; 
+    if (type === "success") 
+        title = "Başarılı"; 
+    if (type === "warning") 
+        title = "Uyarı"; 
+    alert(message, title); };
 const handleNotify = ({ message, type }) => {
     notify(
         {
@@ -120,7 +129,7 @@ const TransferFromRequest = () => {
     const goForReadBarcodes = async ({ docEntry }) => {
         let result = await requestIsBatch({ docEntry: docEntry });
         setBatchGrid([])
-        if (result[0].item === 'N') return handleNotify({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
+        if (result[0].item === 'N') return handleMessageBox({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
         if (result[0].batch === 'Y') {
             setIsBatchExists('Y')
             let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: '', status1: '', status2: '' });
@@ -136,7 +145,7 @@ const TransferFromRequest = () => {
                 .map(([key]) => key);
 
             if (conflicts.length > 0) {
-                handleNotify({ message: `Bu Belgede Bulunan Parti Birden Fazla Depo Yerinde Bulundu`, type: 'error' })
+                handleMessageBox({ message: `Bu Belgede Bulunan Parti Birden Fazla Depo Yerinde Bulundu`, type: 'error' })
                 return
             }
             setBatchGrid(items)
@@ -162,7 +171,7 @@ const TransferFromRequest = () => {
     };
     const validateBeforeSave = ({ formData }) => {
         if (!formData.PreparerCode) {
-            handleNotify({ message: "Lütfen Operatör Seçiniz", type: "error" });
+            handleMessageBox({ message: "Lütfen Operatör Seçiniz", type: "error" });
             return false;
         }
         return true;
@@ -232,7 +241,7 @@ const TransferFromRequest = () => {
         } catch (err) {
             console.error("Kaydetme hatası:", err);
             const parsed = extractJson({ str: err.response.data });
-            handleNotify({ message: parsed["message"], type: "error" });
+            handleMessageBox({ message: parsed["message"], type: "error" });
         }
     };
     // #endregion
@@ -281,7 +290,7 @@ const TransferFromRequest = () => {
                 debugger
                 const batchExists = batchGrid.some(b => b.DistNumber === barcodeValue);
                 if (!batchExists) {
-                    handleNotify({ message: "Okutulan barkod listede yok!", type: "error" });
+                    handleMessageBox({ message: "Okutulan barkod listede yok!", type: "error" });
                     return;
                 }
                 if (isBatchExists === 'Y') {
@@ -312,7 +321,7 @@ const TransferFromRequest = () => {
 
             let warning = await batchStatusControl({ barcode });
 
-            if (warning !== "OK") return handleNotify({ message: warning, type: 'error' })
+            if (warning !== "OK") return handleMessageBox({ message: warning, type: 'error' })
 
             let apiResponse = await getBinUsingBatch({ barcode: barcodeValue })
             let binEntry = "";
@@ -323,7 +332,7 @@ const TransferFromRequest = () => {
                 binCode = apiResponse[0].BinCode;
 
                 if (warningMessage) {
-                    return handleNotify({ message: apiResponse[0].WarningMessage, type: "error" });
+                    return handleMessageBox({ message: apiResponse[0].WarningMessage, type: "error" });
                 }
                 else {
 
@@ -344,7 +353,7 @@ const TransferFromRequest = () => {
             }
         } catch (error) {
             console.error("Okutma hatası:", error);
-            handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
+            handleMessageBox({ message: "Hata: "+error, type: "error" });
         }
         finally {
             setFormData(prev => ({ ...prev, Barcode: "" }));
@@ -359,7 +368,7 @@ const TransferFromRequest = () => {
                 const idx = newData.findIndex(item => item.DistNumber === barcode);
 
                 if (idx === -1) {
-                    handleNotify({ message: `${barcode} Barkodu listede bulunamadı`, type: "error" });
+                    handleMessageBox({ message: `${barcode} Barkodu listede bulunamadı`, type: "error" });
                     return newData;
                 }
 
@@ -370,7 +379,7 @@ const TransferFromRequest = () => {
                     setScannedCount(prev => prev + 1);
                     console.log("scanned :", scannedCount)
                 } else {
-                    handleNotify({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
+                    handleMessageBox({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
                 }
 
                 return newData;
@@ -385,10 +394,10 @@ const TransferFromRequest = () => {
     async function readWithoutBatch({ barcode, binEntry, binCode }) {
         try {
             let isBinActive = await controlBinActive({ barcode: barcode });
-            if (isBinActive === "ERROR") return handleNotify({ message: "Depo Yeri Aktifliği Kontrolünde Geçersiz Parti.", type: 'error' })
+            if (isBinActive === "ERROR") return handleMessageBox({ message: "Depo Yeri Aktifliği Kontrolünde Geçersiz Parti.", type: 'error' })
             if (isBinActive === 'Y') {
                 let result = await transferFromReqControlBinActive({ docEntry: selectedDocEntry, barcode: barcode })
-                if (result.length === 0) return handleNotify({ message: "Yetersiz Miktar.", type: 'error' })
+                if (result.length === 0) return handleMessageBox({ message: "Yetersiz Miktar.", type: 'error' })
                 const newRow = {
                     ApplyEntry: result[0].DocEntry,
                     ApplyLine: result[0].LineNum,
@@ -409,7 +418,7 @@ const TransferFromRequest = () => {
                 setBatchGrid(prev => {
                     const exists = prev?.some(item => item.DistNumber === newRow.DistNumber);
                     if (exists) {
-                        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+                        handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
                         return prev;
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
@@ -421,7 +430,7 @@ const TransferFromRequest = () => {
             }
             else {
                 let result = await transferFromReqControlBinDective({ docEntry: selectedDocEntry, barcode: barcode })
-                if (result.length === 0) return handleNotify({ message: "Yetersiz Miktar.", type: 'error' })
+                if (result.length === 0) return handleMessageBox({ message: "Yetersiz Miktar.", type: 'error' })
                 const newRow = {
                     ApplyEntry: result[0].DocEntry,
                     ApplyLine: result[0].LineNum,
@@ -442,7 +451,7 @@ const TransferFromRequest = () => {
                 setBatchGrid(prev => {
                     const exists = prev?.some(item => item.DistNumber === newRow.DistNumber);
                     if (exists) {
-                        handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+                        handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
                         return prev;
                     } else {
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });

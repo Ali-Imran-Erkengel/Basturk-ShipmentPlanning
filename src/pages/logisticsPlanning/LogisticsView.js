@@ -222,7 +222,7 @@ function LogisticsView({ id, onBack }) {
                     <Column dataField="U_TransportType" caption="Sevkiyat Şekli" allowEditing={false} width={0} />
                     <Column dataField="U_ShipmentNo" caption="Sevkiyat No" allowEditing={false} alignment='left' />
                     <Column dataField="U_ShipmentLine" caption="Sevkiyat Sıra" allowEditing={false} alignment='left' />
-                    <Column dataField="U_OrderNo" caption="Sipariş Enntry" allowEditing={false} alignment='left' />
+                    <Column dataField="U_OrderNo" caption="Sipariş Entry" allowEditing={false} alignment='left' />
                     <Column dataField="U_OrderNum" caption="Sipariş No" allowEditing={false} alignment='left' />
                     <Column dataField="U_OrderLine" caption="Sipariş Sıra" allowEditing={false} alignment='left' />
                     <Column dataField="U_WhsCode" caption="Depo Kodu" allowEditing={false} />

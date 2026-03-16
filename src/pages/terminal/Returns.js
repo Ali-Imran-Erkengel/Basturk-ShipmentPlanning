@@ -13,7 +13,16 @@ import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EmployeeList from "./components/EmployeeList";
 import BusinessPartnerList from "./components/BusinessPartnerList";
-
+import { alert } from "devextreme/ui/dialog"; 
+const handleMessageBox = ({ message, type }) => { 
+    let title = "Bilgi";
+     if (type === "error")
+         title = "Uyarı"; 
+    if (type === "success") 
+        title = "Başarılı"; 
+    if (type === "warning") 
+        title = "Uyarı"; 
+    alert(message, title); };
 const handleNotify = ({ message, type }) => {
   notify(
     {
@@ -149,7 +158,7 @@ const handleLoaderSelection = (selectedRowData) => {
   };
   const validateBeforeSave = ({ formData }) => {
     if (!formData.PreparerCode ) {
-      handleNotify({ message: "Lütfen Operatör Seçiniz", type: "error" });
+      handleMessageBox({ message: "Lütfen Operatör Seçiniz", type: "error" });
       return false;
     }
     return true;
@@ -206,7 +215,7 @@ const handleLoaderSelection = (selectedRowData) => {
     } catch (err) {
       console.error("Kaydetme hatası:", err);
       const parsed = extractJson({ str: err.response.data });
-      handleNotify({ message: parsed["message"], type: "error" });
+      handleMessageBox({ message: parsed["message"], type: "error" });
     }
   };
   // #endregion
@@ -237,7 +246,7 @@ const handleLoaderSelection = (selectedRowData) => {
       if (isGetBack) {
         const batchExists = batchGrid.some(b => b.Batch === barcodeValue);
         if (!batchExists) {
-          handleNotify({ message: "Bu barkod listede yok!", type: "error" });
+          handleMessageBox({ message: "Bu barkod listede yok!", type: "error" });
           return;
         }
         setBatchGrid(prev => prev.filter(b => b.Batch !== barcodeValue));
@@ -248,7 +257,7 @@ const handleLoaderSelection = (selectedRowData) => {
 
       debugger
       let apiResponse = await batchControl({ documentNo: selectedDocEntry, barcode: barcodeValue })
-      if (apiResponse.length === 0) return handleNotify({ message: "Girilen Barkod Seçilen Müşteri Faturasında Mevcut Değil", type: "error" });
+      if (apiResponse.length === 0) return handleMessageBox({ message: "Girilen Barkod Seçilen Müşteri Faturasında Mevcut Değil", type: "error" });
       const newRow = {
         ItemCode: apiResponse[0].ItemCode,
         ItemName: apiResponse[0].Dscription,
@@ -263,7 +272,7 @@ const handleLoaderSelection = (selectedRowData) => {
       setBatchGrid(prev => {
         const exists = prev?.some(item => item.Batch === newRow.Batch);
         if (exists) {
-          handleNotify({ message: "Bu parti zaten okutuldu!", type: "error" });
+          handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
           return prev;
         } else {
           handleNotify({ message: "Okutma Başarılı.", type: "success" });
@@ -278,7 +287,7 @@ const handleLoaderSelection = (selectedRowData) => {
       }
     } catch (error) {
       console.error("Okutma hatası:", error);
-      handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
+      handleMessageBox({ message: "Hata: "+error , type: "error" });
     }
     finally {
       setFormData(prev => ({ ...prev, Barcode: "" }));

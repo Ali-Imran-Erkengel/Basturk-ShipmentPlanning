@@ -4,12 +4,20 @@ import { Button } from "devextreme-react/button";
 import { getBinUsingBatch, getLastTransferRecord, getPreviousEndOfProcess, saveTransfer, } from "../../store/terminalSlice";
 import { terminalDeliveryData, terminalPrevEopData, terminalTransferLastData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
-import { employeeColumns, employeeFiltersTerm } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
+import { alert } from "devextreme/ui/dialog";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EmployeeList from "./components/EmployeeList";
+const handleMessageBox = ({ message, type }) => { 
+    let title = "Bilgi";
+     if (type === "error")
+         title = "Uyarı"; 
+    if (type === "success") 
+        title = "Başarılı"; 
+    if (type === "warning") 
+        title = "Uyarı"; 
+    alert(message, title); };
 
 const handleNotify = ({ message, type }) => {
   notify(
@@ -117,7 +125,7 @@ const Transfer = () => {
     try {
       let oldBarcode = formData.OldBarcode;
       let barcodeValue = formData.Barcode;
-      if (!barcodeValue) return handleNotify({ message: "Lütfen Önce Barkod Alanını Doldurunuz.", type: "error" }) ;
+      if (!barcodeValue) return handleMessageBox({ message: "Lütfen Önce Barkod Alanını Doldurunuz.", type: "error" }) ;
       if (!oldBarcode) {
         barcodeValue = formData.Barcode.substring(3)
       }
@@ -138,7 +146,7 @@ const Transfer = () => {
           Bekleme_Süresi: prevRecord[0]["Bekleme Süresi(Saat)"],
           Statü: prevRecord[0]["Statü"],
         }
-        handleNotify({ message: "Önceden Okutulmamış Palet Var", type: "error" })
+        handleMessageBox({ message: "Önceden Okutulmamış Palet Var", type: "error" })
         setPrevEopData(eop)
       }
     } catch (err) {
@@ -191,7 +199,7 @@ const Transfer = () => {
     } catch (err) {
       console.error("Kaydetme hatası:", err);
       const parsed = extractJson({ str: err.response.data });
-      handleNotify({ message: parsed["message"], type: "error" });
+      handleMessageBox({ message: parsed["message"], type: "error" });
     }
     finally{
       forceFocusBarcode() 
@@ -210,21 +218,21 @@ const Transfer = () => {
       }
       let apiResponse = await getBinUsingBatch({ barcode: barcodeValue })
       if (apiResponse.length === 0) {
-        return handleNotify({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
+        return handleMessageBox({ message: "Girlen Parametrelere Ait Depo Yerinde Veri Bulunamadı", type: "error" });
       }
       else if (apiResponse.length > 1) {
-        return handleNotify({ message: "Okutulan Barkod Birden Fazla Depo Yerinde Mevcut", type: "error" });
+        return handleMessageBox({ message: "Okutulan Barkod Birden Fazla Depo Yerinde Mevcut", type: "error" });
       }
       else {
         let binCode = apiResponse[0].BinCode;
         let quantity = apiResponse[0].OnHandQty;
         let innerQtyOfPallet = apiResponse[0].InnerQty;
         if (binCode.includes("SİSTEM")) {
-          if (quantity < innerQtyOfPallet) return handleNotify({ message: `Yetersiz Miktar.`, type: "error" });
+          if (quantity < innerQtyOfPallet) return handleMessageBox({ message: `Yetersiz Miktar.`, type: "error" });
           await handleSave({ item: apiResponse[0] })
         }
         else {
-          return handleNotify({ message: `Okutulan Barkod ${binCode} Depo Yerinde!`, type: "error" });
+          return handleMessageBox({ message: `Okutulan Barkod ${binCode} Depo Yerinde!`, type: "error" });
         }
       }
       if (barcodeRef.current) {
@@ -234,7 +242,7 @@ const Transfer = () => {
       }
     } catch (error) {
       console.error("Okutma hatası:", error);
-      handleNotify({ message: "Bilinmeyen bir hata oluştu.", type: "error" });
+      handleMessageBox({ message: "Hata: "+error, type: "error" });
     }
     finally {
       setFormData(prev => ({ ...prev, Barcode: "" }));

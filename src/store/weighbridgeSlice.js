@@ -350,6 +350,11 @@ export const updateDeliveryNetWeight = async ({payload }) => {
 let res=  sendPostRequest({ endpoint: "updatedeliverynetweight", params: params })
 
   }
+  export const updatePurchaseOrderNetWeight = async ({payload }) => {
+    let params = payload;
+let res=  sendPostRequest({ endpoint: "updatepurchaseordernetweight", params: params })
+
+  }
   const sendPostRequest = async ({ endpoint, params }) => {
     try {
         debugger 

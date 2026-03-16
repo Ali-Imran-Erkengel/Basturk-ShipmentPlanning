@@ -150,7 +150,7 @@ function ShipmentView({ id, onBack }) {
                             <SimpleItem dataField="U_Country" editorOptions={{...countryOptions, disabled: true }} editorType="dxSelectBox" cssClass="transparent-bg" label={{ text: 'Ülke' }} />
                             <SimpleItem dataField="U_ZipCode" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }} />
                             <SimpleItem dataField="U_Description" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Açıklama' }} />
-                            <SimpleItem dataField="U_PalletQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Palet Miktarı' }} />
+                            <SimpleItem dataField="U_PalletQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Tam Palet Miktarı' }} />
                             <SimpleItem dataField="U_TruckQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Tır Miktarı' }} />
                             <SimpleItem dataField="U_ContainerQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Konteyner Miktarı' }} />
                         </Form>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import TabPanel, { Item } from "devextreme-react/tab-panel";
-import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
+import DataGrid, { Column, Paging, Pager, LoadPanel } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
 import { getConsumptions, getCostCenter, getCostingCodes, getDimensions, getEndOfProcessList } from "../../store/terminalSlice";
 import { endOfProcessColumns, terminalDeliveryData } from "./data/data";
@@ -10,10 +10,15 @@ import { Layers, PackageOpen, WineOff, } from "lucide-react";
 import { useScreenSize } from '../../utils/media-query';
 import EopDescPopup from "./components/EopDescPopup";
 import { confirm } from "devextreme/ui/dialog";
+import { DateBox } from "devextreme-react/date-box";
+import notify from "devextreme/ui/notify";
+import { alert } from "devextreme/ui/dialog"; 
 
 
 const StatusUpdate = () => {
-  const [endOfProcessGrid, setEndOfProcessGrid] = useState();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [endOfProcessGrid, setEndOfProcessGrid] = useState([]);
   const [tabIndex, setTabIndex] = useState(0);
   const [isPopupVisible, setPopupVisibility] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState('0');
@@ -26,6 +31,33 @@ const StatusUpdate = () => {
   const [consumptionGrid, setConsumptionGrid] = useState();
   const [labelGiven, setLabelGiven] = useState(false);
   const [costingCodeList, setCostingCodeList] = useState([]);
+  const [endDate, setEndDate] = useState(today);
+  const [startDate, setStartDate] = useState(today);
+  const [isLoading, setIsLoading] = useState(false);
+  const handleMessageBox = ({ message, type }) => { 
+      let title = "Bilgi";
+       if (type === "error")
+           title = "Uyarı"; 
+      if (type === "success") 
+          title = "Başarılı"; 
+      if (type === "warning") 
+          title = "Uyarı"; 
+      alert(message, title); };
+  const handleNotify = ({ message, type }) => {
+    notify(
+      {
+        message: message,
+        width: 300,
+        position: {
+          at: "bottom",
+          my: "bottom",
+          of: "#container"
+        }
+      },
+      type,
+      5000
+    );
+  }
 
   useEffect(() => {
   }, [selectedOperation]);
@@ -45,9 +77,34 @@ const StatusUpdate = () => {
 
 
   const endOfProcessList = async ({ status, status2 }) => {
-    let list = await getEndOfProcessList({ status: status, status2: status2 });
-    setEndOfProcessGrid(list);
-    setTabIndex(1);
+    debugger
+    if (!startDate || !endDate) {
+      handleMessageBox({ message: "Başlangıç ve bitiş tarihi boş olamaz.", type: "warning" });
+      return;
+    }
+
+    if (isNaN(new Date(startDate).getTime()) || isNaN(new Date(endDate).getTime())) {
+      handleMessageBox({ message: "Geçersiz tarih formatı.", type: "warning" });
+      return;
+    }
+
+    if (new Date(endDate) < new Date(startDate)) {
+      handleMessageBox({ message: "Bitiş tarihi başlangıç tarihinden küçük olamaz.", type: "warning" });
+      return;
+    }
+    try {
+      setIsLoading(true); // Yükleme animasyonunu başlat
+      setEndOfProcessGrid([]); // ÖNCEKİ KAYITLARI TEMİZLE (Kafa karışıklığını önler)
+      let list = await getEndOfProcessList({ status: status, status2: status2, startDate: startDate, endDate: endDate });
+      setEndOfProcessGrid(list);
+      setTabIndex(1)
+    } catch (error) {
+      handleMessageBox({ message: "Liste yüklenirken bir hata oluştu. "+ error, type: "error" });
+    }
+    finally {
+      setIsLoading(false); // Yükleme animasyonunu bitir
+    }
+    ;
 
   };
 
@@ -69,9 +126,9 @@ const StatusUpdate = () => {
 
             setSelectedItemCode(itemCode);
             setSelectedBatchNumber(batchNum);
-          
+
             let resultConfirm = true;
-          
+
             if (selectedOperation === '-9') {
               resultConfirm = await confirm({
                 title: "Onay",
@@ -82,18 +139,18 @@ const StatusUpdate = () => {
                 ]
               });
             }
-          
+
             setLabelGiven(resultConfirm);
-          
+
             if (resultConfirm) {
               const costCode = await getCostingCodes();
               setCostingCodeList(costCode);
             }
-          
+
             // consumption list yüklenmeden popup açılmasın
             const list = await getConsumptions({ itemCode, batchNumber: batchNum });
             setConsumptionGrid(list);
-          
+
             setPopupVisibility(true);
           }}
           type="default"
@@ -102,7 +159,7 @@ const StatusUpdate = () => {
     );
   };
   const togglePopup = () => {
-    setPopupVisibility(false);    
+    setPopupVisibility(false);
   };
 
   const { isXSmall } = useScreenSize();
@@ -214,9 +271,45 @@ const StatusUpdate = () => {
                     </Grid>
                   </Grid>
                 </Grid>
+                <Grid item>
+                  <DateBox
+                    type="date"
+                    value={startDate}
+                    displayFormat="dd.MM.yyyy"
+                    width={150}
+                    showClearButton={false}
+                    useMaskBehavior={true}
+                    onValueChanged={(e) => {
+                      if (!e.value) {
+                        handleMessageBox({ message: "Geçersiz tarih girdiniz.", type: "error" });
+                        return;
+                      }
+                      setStartDate(e.value);
+                    }}
+                  />
+                </Grid>
+
+                <Grid item>
+                  <DateBox
+                    type="date"
+                    value={endDate}
+                    displayFormat="dd.MM.yyyy"
+                    width={150}
+                    showClearButton={false}
+                    min={startDate}
+                    useMaskBehavior={true}
+                    onValueChanged={(e) => {
+                      if (!e.value) {
+                        handleMessageBox({ message: "Geçersiz tarih girdiniz.", type: "error" });
+                        return;
+                      }
+                      setEndDate(e.value);
+                    }}
+                  />
+                </Grid>
                 <Grid item xs>
                   <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.53rem" }}>
-                     {selectedOperationName}
+                    {selectedOperationName}
                   </div>
                 </Grid>
                 <Grid item style={{ width: 100 }}></Grid>
@@ -233,6 +326,7 @@ const StatusUpdate = () => {
               rowAlternationEnabled={true}
               showBorders={true}
             >
+              <LoadPanel enabled={isLoading} />
               <Column
                 width="auto"
                 alignment='left'
