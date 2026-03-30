@@ -369,11 +369,11 @@ export const batchControl = async ({ barcode, whsCode, binEntry }) => {
   };
   return sendGetRequest({ endpoint: "batchcontrol", params: params })
 }
-export const getConsumptions = async ({ itemCode, batchNumber,labelGiven }) => {
+export const getConsumptions = async ({ itemCode, batchNumber, labelGiven }) => {
   let params = {
     itemCode: itemCode,
     batchNumber: batchNumber,
-    labelGiven:labelGiven
+    labelGiven: labelGiven
   };
   return sendGetRequest({ endpoint: "getconsumptions", params: params })
 }
@@ -397,6 +397,7 @@ export const getEndOfProcessList = async ({ status, status2,startDate,endDate })
   };
   return sendGetRequest({ endpoint: "getendofprocesslist", params: params })
 }
+
 
 export const getCostingCodes = async () => {
   let params = {};

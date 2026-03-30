@@ -12,7 +12,7 @@ import EopDescPopup from "./components/EopDescPopup";
 import { confirm } from "devextreme/ui/dialog";
 import { DateBox } from "devextreme-react/date-box";
 import notify from "devextreme/ui/notify";
-import { alert } from "devextreme/ui/dialog"; 
+import { alert } from "devextreme/ui/dialog";
 
 
 const StatusUpdate = () => {
@@ -20,7 +20,6 @@ const StatusUpdate = () => {
   today.setHours(0, 0, 0, 0);
   const [endOfProcessGrid, setEndOfProcessGrid] = useState([]);
   const [tabIndex, setTabIndex] = useState(0);
-  const [isPopupVisible, setPopupVisibility] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState('0');
   const [selectedOperationName, setSelectedOperationName] = useState('');
   const [statusCode1, setStatusCode1] = useState('0');
@@ -34,15 +33,20 @@ const StatusUpdate = () => {
   const [endDate, setEndDate] = useState(today);
   const [startDate, setStartDate] = useState(today);
   const [isLoading, setIsLoading] = useState(false);
-  const handleMessageBox = ({ message, type }) => { 
-      let title = "Bilgi";
-       if (type === "error")
-           title = "Uyarı"; 
-      if (type === "success") 
-          title = "Başarılı"; 
-      if (type === "warning") 
-          title = "Uyarı"; 
-      alert(message, title); };
+  const [isBarcodePopupVisible, setBarcodePopupVisible] = useState(false);
+  const [isDetailPopupVisible, setDetailPopupVisible] = useState(false);
+  const inputRef = React.useRef(null);
+  const [barcode, setBarcode] = useState("");
+  const handleMessageBox = ({ message, type }) => {
+    let title = "Bilgi";
+    if (type === "error")
+      title = "Uyarı";
+    if (type === "success")
+      title = "Başarılı";
+    if (type === "warning")
+      title = "Uyarı";
+    alert(message, title);
+  };
   const handleNotify = ({ message, type }) => {
     notify(
       {
@@ -73,9 +77,6 @@ const StatusUpdate = () => {
     console.log("labelGiven:", labelGiven);
   }, [labelGiven]);
 
-  // #region requests
-
-
   const endOfProcessList = async ({ status, status2 }) => {
     debugger
     if (!startDate || !endDate) {
@@ -99,7 +100,7 @@ const StatusUpdate = () => {
       setEndOfProcessGrid(list);
       setTabIndex(1)
     } catch (error) {
-      handleMessageBox({ message: "Liste yüklenirken bir hata oluştu. "+ error, type: "error" });
+      handleMessageBox({ message: "Liste yüklenirken bir hata oluştu. " + error, type: "error" });
     }
     finally {
       setIsLoading(false); // Yükleme animasyonunu bitir
@@ -111,56 +112,67 @@ const StatusUpdate = () => {
 
   // #endregion
 
-  const openDescPopup = (cellData) => {
+  const openDescPopup = async (itemCode, batchNum) => {
+    debugger
+    // const itemCode = cellData.data["MainItemCode"];
+    //const batchNum = cellData.data["BatchNum"];
 
-    const itemCode = cellData.data["MainItemCode"];
-    const batchNum = cellData.data["BatchNum"];
 
+    setSelectedItemCode(itemCode);
+    setSelectedBatchNumber(batchNum);
 
-    return (
-      <div style={{ display: 'flex', gap: '8px' }}>
-        <Button
-          className="nav-btn"
-          icon='send'
-          onClick={async () => {
+    let resultConfirm = true;
 
-            setSelectedItemCode(itemCode);
-            setSelectedBatchNumber(batchNum);
+    if (selectedOperation === '-9') {
+      resultConfirm = await confirm({
+        title: "Onay",
+        messageHtml: "<b>Etiket verildi mi?</b>",
+        buttons: [
+          { text: "Evet", type: "default", onClick: () => true },
+          { text: "Hayır", onClick: () => false }
+        ]
+      });
+    }
 
-            let resultConfirm = true;
+    setLabelGiven(resultConfirm);
 
-            if (selectedOperation === '-9') {
-              resultConfirm = await confirm({
-                title: "Onay",
-                messageHtml: "<b>Etiket verildi mi?</b>",
-                buttons: [
-                  { text: "Evet", type: "default", onClick: () => true },
-                  { text: "Hayır", onClick: () => false }
-                ]
-              });
-            }
+    if (resultConfirm) {
+      const costCode = await getCostingCodes();
+      setCostingCodeList(costCode);
+    }
 
-            setLabelGiven(resultConfirm);
+    const list = await getConsumptions({ itemCode: itemCode, batchNumber: batchNum, labelGiven: resultConfirm });
+    let len=list.length;
+    if(len===0){
+      return handleMessageBox({message:"Kayıt Bulunamadı",type:"error"})
+    }
+    setConsumptionGrid(list);
+    setBarcodePopupVisible(false);
+    setDetailPopupVisible(true);
 
-            if (resultConfirm) {
-              const costCode = await getCostingCodes();
-              setCostingCodeList(costCode);
-            }
-
-            const list = await getConsumptions({itemCode:itemCode, batchNumber: batchNum,labelGiven:resultConfirm });
-            setConsumptionGrid(list);
-
-            setPopupVisibility(true);
-          }}
-          type="default"
-        />
-      </div>
-    );
   };
   const togglePopup = () => {
-    setPopupVisibility(false);
+    setDetailPopupVisible(false);
   };
+  const handleBarcodeSearch = async () => {
+    if (!barcode) return;
 
+    const cleanBarcode = barcode.replace(/\r|\n/g, "").trim();
+    const [itemCod, batch = ""] = cleanBarcode.split("$");
+
+    try {
+      setIsLoading(true);
+
+      await openDescPopup(itemCod, batch);
+
+    } catch (err) {
+      handleMessageBox({ message: "Barkod arama hatası", type: "error" });
+    } finally {
+      setIsLoading(false);
+
+
+    }
+  };
   const { isXSmall } = useScreenSize();
   const pages = [
     { name: "Emr Ayr", icon: Layers, newStatusCode: "-8", statusCode: "-2", statusCode2: "-4", color: "#20c997", code: "EMR" },
@@ -208,18 +220,33 @@ const StatusUpdate = () => {
                       ...cardStyle,
                       backgroundColor: page.color + "33"
                     }}
+                    // onClick={() => {
+                    //   setTabIndex(1);
+                    //   const newStatus = page.newStatusCode;
+                    //   const newStatusName = page.name;
+                    //   const stt1 = page.statusCode;
+                    //   const stt2 = page.statusCode2;
+                    //   setSelectedOperation(newStatus);
+                    //   setSelectedOperationName(newStatusName);
+                    //   setStatusCode1(stt1);
+                    //   setStatusCode2(stt2);
+                    //   endOfProcessList({ status: stt1, status2: stt2 })
+                    //   console.log("status", newStatus);
+                    // }}
                     onClick={() => {
-                      setTabIndex(1);
                       const newStatus = page.newStatusCode;
                       const newStatusName = page.name;
                       const stt1 = page.statusCode;
                       const stt2 = page.statusCode2;
+
                       setSelectedOperation(newStatus);
                       setSelectedOperationName(newStatusName);
                       setStatusCode1(stt1);
                       setStatusCode2(stt2);
-                      endOfProcessList({ status: stt1, status2: stt2 })
-                      console.log("status", newStatus);
+
+                      setBarcodePopupVisible(true);
+
+
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.transform = "translateY(-4px)";
@@ -239,7 +266,7 @@ const StatusUpdate = () => {
           </div>
 
         </Item>
-        <Item title="Liste">
+        {/* <Item title="Liste">
           <div className="page-container">
             <div style={{ marginBottom: "20px" }}>
               <Grid
@@ -339,10 +366,10 @@ const StatusUpdate = () => {
               <Pager showPageSizeSelector={true} />
             </DataGrid>
           </div>
-        </Item>
+        </Item> */}
       </TabPanel>
       <Popup
-        visible={isPopupVisible}
+        visible={isDetailPopupVisible}
         onHiding={togglePopup}
         hideOnOutsideClick={true}
         fullScreen={true}
@@ -364,6 +391,60 @@ const StatusUpdate = () => {
           labelGiven={labelGiven}
           costingCodeList={costingCodeList}
         />
+      </Popup>
+      <Popup
+        visible={isBarcodePopupVisible}
+        onHiding={() => setBarcodePopupVisible(false)}
+        hideOnOutsideClick={true}
+        showCloseButton={true}
+        title="Barkod Okut"
+        dragEnabled={false}
+        closeOnOutsideClick={true}
+        onShown={() => {
+          setBarcode(""); 
+          inputRef.current?.focus();
+        }}
+        width={isXSmall ? "90%" : 450}  
+        height={isXSmall ? "auto" : 320} 
+        wrapperAttr={{ class: 'barcode-popup-wrapper' }}
+      >
+        <div style={{ padding: 25, display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ fontSize: 18, fontWeight: 600, textAlign: "center", color: "#555" }}>
+            Lütfen barkodu okutun veya girin
+          </div>
+
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Barkod okut..."
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleBarcodeSearch();
+            }}
+            style={{
+              width: "100%",
+              padding: 20,          
+              fontSize: 22,        
+              borderRadius: 10,
+              border: "1px solid #ccc",
+              textAlign: "center",
+              outline: "none",
+              boxShadow: "0 3px 8px rgba(0,0,0,0.15)"
+            }}
+          />
+
+          <Button
+            text="Ara"
+            type="default"
+            stylingMode="contained"
+            onClick={handleBarcodeSearch}
+            style={{
+              fontSize: 18,
+              padding: "12px 0",  
+            }}
+          />
+        </div>
       </Popup>
     </div>
   );
