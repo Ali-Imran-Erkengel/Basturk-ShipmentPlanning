@@ -147,8 +147,7 @@ const StatusUpdate = () => {
               setCostingCodeList(costCode);
             }
 
-            // consumption list yüklenmeden popup açılmasın
-            const list = await getConsumptions({ itemCode, batchNumber: batchNum });
+            const list = await getConsumptions({itemCode:itemCode, batchNumber: batchNum,labelGiven:resultConfirm });
             setConsumptionGrid(list);
 
             setPopupVisibility(true);
