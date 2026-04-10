@@ -24,12 +24,11 @@ const StatusUpdate = () => {
   const [selectedOperationName, setSelectedOperationName] = useState('');
   const [statusCode1, setStatusCode1] = useState('0');
   const [statusCode2, setStatusCode2] = useState('0');
-  const [selectedItemCode, setSelectedItemCode] = useState();
+  // const [selectedItemCode, setSelectedItemCode] = useState();
   const [selectedBatchNumber, setSelectedBatchNumber] = useState();
   const [formData, setFormData] = useState({ ...terminalDeliveryData });
   const [consumptionGrid, setConsumptionGrid] = useState();
   const [labelGiven, setLabelGiven] = useState(false);
-  const [costingCodeList, setCostingCodeList] = useState([]);
   const [endDate, setEndDate] = useState(today);
   const [startDate, setStartDate] = useState(today);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,6 +36,8 @@ const StatusUpdate = () => {
   const [isDetailPopupVisible, setDetailPopupVisible] = useState(false);
   const inputRef = React.useRef(null);
   const [barcode, setBarcode] = useState("");
+  const [useOldBarcode, setUseOldBarcode] = useState(false);
+
   const handleMessageBox = ({ message, type }) => {
     let title = "Bilgi";
     if (type === "error")
@@ -112,14 +113,14 @@ const StatusUpdate = () => {
 
   // #endregion
 
-  const openDescPopup = async (itemCode, batchNum) => {
+  const openDescPopup = async (barcodeValue) => {
     debugger
     // const itemCode = cellData.data["MainItemCode"];
     //const batchNum = cellData.data["BatchNum"];
 
 
-    setSelectedItemCode(itemCode);
-    setSelectedBatchNumber(batchNum);
+    // setSelectedItemCode(itemCode);
+    setSelectedBatchNumber(barcodeValue);
 
     let resultConfirm = true;
 
@@ -136,15 +137,12 @@ const StatusUpdate = () => {
 
     setLabelGiven(resultConfirm);
 
-    if (resultConfirm) {
-      const costCode = await getCostingCodes();
-      setCostingCodeList(costCode);
-    }
 
-    const list = await getConsumptions({ itemCode: itemCode, batchNumber: batchNum, labelGiven: resultConfirm });
-    let len=list.length;
-    if(len===0){
-      return handleMessageBox({message:"Kayıt Bulunamadı",type:"error"})
+
+    const list = await getConsumptions({ batchNumber: barcodeValue, labelGiven: resultConfirm });
+    let len = list.length;
+    if (len === 0) {
+      return handleMessageBox({ message: "Kayıt Bulunamadı", type: "error" })
     }
     setConsumptionGrid(list);
     setBarcodePopupVisible(false);
@@ -156,14 +154,16 @@ const StatusUpdate = () => {
   };
   const handleBarcodeSearch = async () => {
     if (!barcode) return;
-
-    const cleanBarcode = barcode.replace(/\r|\n/g, "").trim();
-    const [itemCod, batch = ""] = cleanBarcode.split("$");
+    let oldBarcode = useOldBarcode;
+    let barcodeValue = barcode;
+    if (!oldBarcode) {
+      barcodeValue = barcode.substring(3)
+    }
 
     try {
       setIsLoading(true);
 
-      await openDescPopup(itemCod, batch);
+      await openDescPopup(barcodeValue);
 
     } catch (err) {
       handleMessageBox({ message: "Barkod arama hatası", type: "error" });
@@ -382,14 +382,13 @@ const StatusUpdate = () => {
         <EopDescPopup
           gridData={formData}
           consumptions={consumptionGrid}
-          itemCode={selectedItemCode}
+          // itemCode={selectedItemCode}
           batchNum={selectedBatchNumber}
           newStatus={selectedOperation}
           newStatusName={selectedOperationName}
           onClose={togglePopup}
           refresh={() => endOfProcessList({ status: statusCode1, status2: statusCode2 })}
           labelGiven={labelGiven}
-          costingCodeList={costingCodeList}
         />
       </Popup>
       <Popup
@@ -399,13 +398,12 @@ const StatusUpdate = () => {
         showCloseButton={true}
         title="Barkod Okut"
         dragEnabled={false}
-        closeOnOutsideClick={true}
         onShown={() => {
-          setBarcode(""); 
+          setBarcode("");
           inputRef.current?.focus();
         }}
-        width={isXSmall ? "90%" : 450}  
-        height={isXSmall ? "auto" : 320} 
+        width={isXSmall ? "90%" : 450}
+        height={isXSmall ? "auto" : 320}
         wrapperAttr={{ class: 'barcode-popup-wrapper' }}
       >
         <div style={{ padding: 25, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -424,8 +422,8 @@ const StatusUpdate = () => {
             }}
             style={{
               width: "100%",
-              padding: 20,          
-              fontSize: 22,        
+              padding: 20,
+              fontSize: 22,
               borderRadius: 10,
               border: "1px solid #ccc",
               textAlign: "center",
@@ -433,7 +431,17 @@ const StatusUpdate = () => {
               boxShadow: "0 3px 8px rgba(0,0,0,0.15)"
             }}
           />
-
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="checkbox"
+              checked={useOldBarcode}
+              onChange={(e) => setUseOldBarcode(e.target.checked)}
+              id="oldBarcodeCheckbox"
+            />
+            <label htmlFor="oldBarcodeCheckbox" style={{ fontSize: 14 }}>
+              Eski barkodu kullan
+            </label>
+          </div>
           <Button
             text="Ara"
             type="default"
@@ -441,7 +449,7 @@ const StatusUpdate = () => {
             onClick={handleBarcodeSearch}
             style={{
               fontSize: 18,
-              padding: "12px 0",  
+              padding: "12px 0",
             }}
           />
         </div>

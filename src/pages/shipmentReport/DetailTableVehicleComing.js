@@ -1,28 +1,33 @@
-import React from 'react';
-import { DataGrid, Column } from 'devextreme-react/data-grid';
+import React, { forwardRef } from 'react';
+import { DataGrid, Column, StateStoring } from 'devextreme-react/data-grid';
 import ArrayStore from 'devextreme/data/array_store';
 import DataSource from 'devextreme/data/data_source';
 
-const DetailTableVehicleComing = (props) => {
-    const { detail } = props;
-    const getTasks = (key) =>
-        new DataSource({
-            store: new ArrayStore({
-                data: detail,
-                key: 'DocEntry',
-            }),
-            filter: ['DocEntry', '=', key],
-        });
-    const dataSource = getTasks(props.data.key);
+const DetailTableVehicleComing = forwardRef((props, ref) => {
+    const { detail, gridKey, loadGridState } = props;
+
+    const dataSource = new DataSource({
+        store: new ArrayStore({
+            data: detail,
+            key: 'DocEntry',
+        }),
+        filter: ['DocEntry', '=', props.data.key],
+    });
     return (
         <React.Fragment>
             <DataGrid
+                ref={ref}
                 dataSource={dataSource}
                 showBorders={true}
                 columnAutoWidth={true}
                 allowColumnResizing={true}
-
+                allowColumnReordering={true}
             >
+                <StateStoring
+                    enabled={true}
+                    type="custom"
+                    customLoad={() => loadGridState(gridKey)}
+                />
                 <Column
                     dataField="DocEntry"
                     caption='Belge No'
@@ -55,5 +60,5 @@ const DetailTableVehicleComing = (props) => {
             </DataGrid>
         </React.Fragment>
     );
-};
+});
 export default DetailTableVehicleComing;

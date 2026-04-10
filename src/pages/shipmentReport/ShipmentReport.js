@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import DataGrid, { Column, MasterDetail } from 'devextreme-react/data-grid';
+import React, { useEffect, useRef, useState } from 'react';
+import DataGrid, { Column, MasterDetail, StateStoring } from 'devextreme-react/data-grid';
 import { Button } from 'devextreme-react/button';
 import { useDispatch } from 'react-redux';
 import { Form, SimpleItem } from 'devextreme-react/form';
 import { printShipmentReport } from '../../store/logisticsSlice';
 import DetailTemplate from './DetailTemplate';
-import { getComingVehicleDetail, getFirstWghVehicle, getLoadedDetails, getLogisticHeader, getLogisticWaiting, getShipmentHeader, getShipmentItemNonPlanned, getShipmentWaiting, getVehicleWaiting, printShipmentDetail } from '../../store/detailRepotSlice';
+import { getComingVehicleDetail, getFirstWghVehicle, getGridSorting, getLoadedDetails, getLogisticHeader, getLogisticWaiting, getShipmentHeader, getShipmentItemNonPlanned, getShipmentWaiting, getVehicleWaiting, printShipmentDetail, setGridSorting } from '../../store/detailRepotSlice';
 import { updateData } from '../../store/appSlice';
 import DetailTableLoaded from './DetailTableLoaded';
 import DetailTableShipment from './DetailTableShipment';
@@ -14,7 +14,24 @@ import DetailTableVehicleComing from './DetailTableVehicleComing';
 import { Popup } from 'devextreme-react/popup';
 import ShipmentItems from './components/ShipmentItems';
 import { Grid } from '@mui/material';
+import notify from 'devextreme/ui/notify';
 function ShipmentReport() {
+
+  const handleNotify = ({ message, type }) => {
+    notify(
+      {
+        message: message,
+        width: 300,
+        position: {
+          at: "bottom",
+          my: "bottom",
+          of: "#container"
+        }
+      },
+      type,
+      5000
+    );
+  }
   const today = new Date();
   const navigate = useNavigate();
   const [reportilterValues, setReportFilterValues] = useState({
@@ -35,6 +52,91 @@ function ShipmentReport() {
   const [comingVehicleTable, setComingVehicleTable] = useState();
   const [vehicleOnLoadingTable, setVehicleOnLoadingTable] = useState();
   const [vehicleLoadedTable, setVehicleLoadedTable] = useState();
+  const [isPopupVisibleItems, setPopupVisibilityItems] = useState(false);
+  const [nonPlannedItems, setNonPlannedItems] = useState(null);
+  const gridRefShipment = useRef(null);
+  const gridRefLogistics = useRef(null);
+  const gridRefVehicleComing = useRef(null);
+  const gridRefVehicleLoading = useRef(null);
+  const gridRefVehicleLoaded = useRef(null);
+
+
+  const gridRefShipmentDetail = useRef(null);
+  const gridRefLogisticDetail = useRef(null);
+  const gridRefVehicleComingDetail = useRef(null);
+  const gridRefVehicleLoadedDetail = useRef(null);
+
+
+
+
+  const gridStateCache = useRef({});
+
+  const loadGridState = async (gridKey) => {
+    try {
+      if (gridStateCache.current[gridKey] !== undefined) {
+        return gridStateCache.current[gridKey];
+      }
+
+      const userCode = sessionStorage.getItem('userName');
+      const res = await getGridSorting({ gridKey: gridKey, userCode: userCode });
+      console.trace("KIM ÇAĞIRDI - KEY:", gridKey)
+      if (!res || (Array.isArray(res) && res.length === 0)) {
+        gridStateCache.current[gridKey] = null;
+        return null;
+      }
+
+      const data = Array.isArray(res) ? res[0] : res;
+      const stateData = data.State || data.state;
+
+      if (stateData) {
+        const parsed = typeof stateData === "string" ? JSON.parse(stateData) : stateData;
+        gridStateCache.current[gridKey] = parsed; // Cache'e kaydet
+        return parsed;
+      }
+
+      gridStateCache.current[gridKey] = null;
+      return null;
+    } catch (error) {
+      console.error("Grid ayarları yüklenirken hata oluştu:", error);
+      return null;
+    }
+  };
+
+  const saveGridState = async (gridKey, state) => {
+
+    const userCode = sessionStorage.getItem('userName');
+    await setGridSorting({ gridKey: gridKey, userCode, state })
+  };
+
+  const handleSaveAllGridStates = async () => {
+    const gridsToSave = [
+      { key: "shipmentGrid", ref: gridRefShipment },
+      { key: "logisticsGrid", ref: gridRefLogistics },
+      { key: "vehicleComingGrid", ref: gridRefVehicleComing },
+      { key: "vehicleLoadingGrid", ref: gridRefVehicleLoading },
+      { key: "vehicleLoadedGrid", ref: gridRefVehicleLoaded },
+
+      { key: "shipmentDetailGrid", ref: gridRefShipmentDetail },
+      { key: "logisticDetailGrid", ref: gridRefLogisticDetail },
+      { key: "vehicleComingDetailGrid", ref: gridRefVehicleComingDetail },
+      { key: "vehicleLoadedDetailGrid", ref: gridRefVehicleLoadedDetail },
+    ];
+
+    try {
+      const savePromises = gridsToSave.map(grid => {
+        if (grid.ref.current) {
+          const currentState = grid.ref.current.instance().state();
+          return saveGridState(grid.key, currentState);
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(savePromises);
+      handleNotify({ message: "Açık olan tüm grid ayarları kaydedildi!", type: "success" });
+    } catch (error) {
+      handleNotify({ message: "Hata oluştu.", type: "error" });
+    }
+  };
 
   useEffect(() => {
     fetchAllData();
@@ -117,8 +219,7 @@ function ShipmentReport() {
     comingVehicle();
     logistic();
   }
-  const [isPopupVisibleItems, setPopupVisibilityItems] = useState(false);
-  const [nonPlannedItems, setNonPlannedItems] = useState(null);
+
   useEffect(() => {
     if (nonPlannedItems !== null) {
       console.log("nonplanneditems", nonPlannedItems);
@@ -136,16 +237,7 @@ function ShipmentReport() {
     const nonPlannedItem = await getShipmentItemNonPlanned({ id: shipmentId, type: 1 })
     setNonPlannedItems(nonPlannedItem);
     console.log("nonplanned", nonPlannedItem)
-    //togglePopupItems();
-    // navigate("/logisticsPlanningAdd", {
-    //   state: {
-    //     type: 1,
-    //     itemData: nonPlannedItem,
-    //     vis: true,
-    //     onBackReport: "/shipmentReport"
-    //   }
-
-    // })
+ 
   }
   const renderButtonGoToLogistic = (cellData) => {
     return (
@@ -238,11 +330,33 @@ function ShipmentReport() {
       type: 1
     });
   }
+
   return (
     <>
       <div className='page-container'>
-        <div style={{ textAlign: "left", color: "#000000 " }}>
-          <h5 style={{ fontWeight: "bold" }}>Anlık Sevkiyat Satış Raporu</h5>
+      <div
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
+            background: "#F2F2F2",
+            padding: "10px 0",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <h5 style={{ fontWeight: "bold", margin: 0 }}>
+            Anlık Sevkiyat Satış Raporu
+          </h5>
+
+          <Button
+            text="Grid Ayarlarını Kaydet"
+            icon="save"
+            type="default"
+            stylingMode="contained"
+            onClick={handleSaveAllGridStates}
+          />
         </div>
         <div className="form-container">
           <Form formData={reportilterValues} colCount={5} labelLocation="top" >
@@ -267,6 +381,7 @@ function ShipmentReport() {
             <h5 style={{ fontWeight: "bold" }}>Araç Planlanacak</h5>
           </div>
           <DataGrid
+            ref={gridRefShipment}
             className='datagridShipment'
             id="grid-container"
             dataSource={shipmentMainTable}
@@ -276,7 +391,16 @@ function ShipmentReport() {
             columnMinWidth={100}
             allowColumnResizing={true}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("shipmentGrid")}
+              customSave={(state) => {
+                // gridRef.current = state; 
+              }}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -348,19 +472,25 @@ function ShipmentReport() {
               caption="Gerken Konteyner Miktarı"
             />
             <Column
+
               dataField="U_TruckQuantity"
               caption="Gerken Tır Miktarı"
             />
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableShipment {...props} detail={shipmentDetailTable} />}
+              component={(props) => <DetailTableShipment {...props} detail={shipmentDetailTable}
+                ref={gridRefShipmentDetail}
+                gridKey="shipmentDetailGrid"
+                loadGridState={loadGridState}
+              />}
             />
           </DataGrid>
           <div style={{ textAlign: "center", color: "#fcac6b" }}>
             <h5 style={{ fontWeight: "bold" }}>Araç Planlandı</h5>
           </div>
           <DataGrid
+            ref={gridRefLogistics}
             className='datagridLogistics'
             id="grid-container"
             dataSource={logisticsMainTable}
@@ -369,7 +499,14 @@ function ShipmentReport() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
+
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("logisticsGrid")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -446,7 +583,10 @@ function ShipmentReport() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTemplate {...props} detail={logisticsDetailTable} />}
+              component={(props) => <DetailTemplate {...props} detail={logisticsDetailTable} 
+              ref={gridRefLogisticDetail}
+              gridKey="logisticDetailGrid"
+              loadGridState={loadGridState}/>}
             />
 
           </DataGrid>
@@ -455,6 +595,7 @@ function ShipmentReport() {
             <h5 style={{ fontWeight: "bold" }}>Araç Geldi</h5>
           </div>
           <DataGrid
+            ref={gridRefVehicleComing}
             className='datagridVehicleComing'
             id="grid-container"
             dataSource={comingVehicleTable}
@@ -463,7 +604,13 @@ function ShipmentReport() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("vehicleComingGrid")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -560,22 +707,32 @@ function ShipmentReport() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableVehicleComing {...props} detail={vehicleComingDetailTable} />}
+              component={(props) => <DetailTableVehicleComing {...props} detail={vehicleComingDetailTable} 
+              ref={gridRefVehicleComingDetail}
+              gridKey="vehicleComingDetailGrid"
+              loadGridState={loadGridState}
+              />}
             />
           </DataGrid>
           <div style={{ textAlign: "center", color: "#f3d676" }}>
             <h5 style={{ fontWeight: "bold" }}>Araç İçerde</h5>
           </div>
           <DataGrid
+            ref={gridRefVehicleLoading}
             className='datagridVehicleLoading'
             id="grid-container"
-
             dataSource={vehicleOnLoadingTable}
             showBorders={true}
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("vehicleLoadingGrid")}
+            />
             <Column
               dataField="wDocEntry"
               caption="Kantar Belge No"
@@ -646,6 +803,7 @@ function ShipmentReport() {
             <h5 style={{ fontWeight: "bold" }}>Araç Yüklendi</h5>
           </div>
           <DataGrid
+            ref={gridRefVehicleLoaded}
             className='datagridVehicleLoaded'
             id="grid-container"
             dataSource={vehicleLoadedTable}
@@ -654,7 +812,14 @@ function ShipmentReport() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
+
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("vehicleLoadedGrid")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -742,7 +907,11 @@ function ShipmentReport() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableLoaded {...props} detail={detailTableLoaded} />}
+              component={(props) => <DetailTableLoaded {...props} detail={detailTableLoaded} 
+              ref={gridRefVehicleLoadedDetail}
+              gridKey="vehicleLoadedDetailGrid"
+              loadGridState={loadGridState}
+              />}
             />
           </DataGrid>
 

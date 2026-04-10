@@ -7,7 +7,7 @@ import { Column, DataGrid, Editing } from 'devextreme-react/data-grid';
 import { endOfProcessData } from '../data/data';
 import notify from 'devextreme/ui/notify';
 
-function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, newStatusName,onClose, refresh, labelGiven, costingCodeList }) {
+function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClose, refresh, labelGiven }) {
   const [formData, setFormData] = useState({ ...endOfProcessData });
 
   const handleNotify = ({ message, type }) => {
@@ -34,15 +34,15 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, newStatusNa
   const handleSave = async () => {
     try {
 
-      if (!formData.Description || formData.Description.trim() === "") {
-        handleNotify({ message: "Açıklama alanı boş olamaz", type: "error" });
-        return;
-      }
+      // if (!formData.Description || formData.Description.trim() === "") {
+      //   handleNotify({ message: "Açıklama alanı boş olamaz", type: "error" });
+      //   return;
+      // }
   
-      if (!formData.MoldNo || formData.MoldNo.trim() === "") {
-        handleNotify({ message: "Kalıp No alanı boş olamaz", type: "error" });
-        return;
-      }
+      // if (!formData.MoldNo || formData.MoldNo.trim() === "") {
+      //   handleNotify({ message: "Kalıp No alanı boş olamaz", type: "error" });
+      //   return;
+      // }
       if (!labelGiven && !consumptions?.some(x => x.IsSelected === 1)) {
         handleNotify({
           message: "En az bir satır seçmelisiniz",
@@ -101,7 +101,7 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, newStatusNa
 
       <div className="parti-card">
         <div className="parti-card-header">
-          <h2>{itemCode}-{batchNum}</h2>
+          <h2>{batchNum}</h2>
         </div>
         <div className="parti-card-body">
           <DataGrid
@@ -140,7 +140,7 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, newStatusNa
             />
             <Column dataField="WhsCode" caption="Depo Kodu" alignment="left" allowEditing={false} />
 
-            <Column
+            {/* <Column
               dataField="CostingCode"
               caption="Departman"
               visible={!labelGiven}
@@ -160,7 +160,7 @@ function EopDescPopup({ consumptions, itemCode, batchNum, newStatus, newStatusNa
                 valueExpr: "OcrCode",
                 displayExpr: "OcrName"
               }}
-            />
+            /> */}
           </DataGrid>
           <br></br>
           <br></br>

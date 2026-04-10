@@ -14,7 +14,6 @@ export let initialState = {
 }
 export const printShipmentDetail = async ({ beginDate, endDate, cardName, customDocNum, plateCode, type }) => {
     try {
-        debugger
         const response = await axios.get('http://10.10.1.2:4909/viewcrystalshipmentdetail', {
             params: {
                 beginDate: beginDate,
@@ -46,7 +45,6 @@ export const printShipmentDetail = async ({ beginDate, endDate, cardName, custom
 
 export const printShippingArchive = async ({ beginDate, endDate, cardCode, cardName, customDocNum, deliveryStatus, invoiceStatus, paymentStatus, plateCode, driverName }) => {
     try {
-        debugger
         const response = await axios.get('http://10.10.1.2:4909/ViewCrystalShipArchive', {
             params: {
                 beginDate: beginDate,
@@ -368,7 +366,6 @@ export const exportExcelShippingArchiveData = async ({ filterValues }) => {
         wghTypeFilter = `and U_WghType eq ${filterValues.U_WghType}`
     }
     const query = `/SML_WGHB_HDR?$filter= contains(U_Description, '${filterValues.U_Description}') ${dateFilter} ${logisticFilter} ${wghTypeFilter}`
-    debugger
     return await fetchAllData(query);
 }
 export const getShipmentDetails = async ({ filterValues }) => {
@@ -554,7 +551,7 @@ export const downloadFile = async ({ fileId, fileName }) => {
                 logisticId: fileId,
             },
         });
-        debugger
+        
         if (response.status !== 200) {
             handleNotify({ message: "Doküman İndirme Başarısız Oldu", type: "error" })
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -581,7 +578,7 @@ export const downloadFile = async ({ fileId, fileName }) => {
     }
 };
 export const uploadDocument = async (rowData, file) => {
-    debugger
+    
     const logisticsId = rowData.DocEntry;
     const formData = new FormData();
     formData.append('logisticId', logisticsId);
@@ -624,6 +621,77 @@ export const openDocument = async ({ logisticId }) => {
             console.error('Durum kodu:', error.response.status);
             console.error('Yanıt içeriği:', error.response.data);
         }
+    }
+};
+export const setGridSorting = async ({ userCode, gridKey, state }) => {
+    let params = {
+        userCode: userCode,
+        gridKey: gridKey,
+        state: state
+    };
+    return sendPostRequest({ endpoint: "setsorting", params: params })
+}
+export const getGridSorting = async ({ userCode, gridKey }) => {
+    let params = {
+        userCode: userCode,
+        gridKey: gridKey
+    };
+    return sendGetRequest({ endpoint: "getsorting", params: params })
+}
+const sendGetRequest = async ({ endpoint, params }) => {
+    try {
+        const response = await axios.get(`${querymanager}/${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+            },
+            withCredentials: true,
+            params: params
+        });
+        const jsonArray = JSON.parse(response.data);
+        if (jsonArray.error) {
+            console.error('Durum kodu:', jsonArray.error);
+            handleNotify({ message: jsonArray.error.response.data, type: "error" })
+            throw new Error(jsonArray.error);
+        }
+        return jsonArray;
+    } catch (error) {
+        console.error('API isteğinde hata:', error.response || error.message);
+        if (error.response) {
+            console.error('Durum kodu:', error.response.status);
+            console.error('Yanıt içeriği:', error.response.data);
+            handleNotify({ message: error.response.data, type: "error" })
+
+        }
+        // throw error;
+    }
+}
+const sendPostRequest = async ({ endpoint, params }) => {
+    try {
+        const response = await axios.post(`${querymanager}/${endpoint}`,
+            params,
+            {
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                },
+                withCredentials: true,
+            }
+        );
+        const jsonArray = response.data;
+        if (jsonArray.error) {
+            console.error("Durum kodu:", jsonArray.error);
+            handleNotify({ message: jsonArray.error.response.data, type: "error" })
+
+            throw new Error(jsonArray.error);
+        }
+        return jsonArray;
+    } catch (error) {
+        console.error("API isteğinde hata:", error.response || error.message);
+        if (error.response) {
+            console.error("Durum kodu:", error.response.status);
+            console.error("Yanıt içeriği:", error.response.data);
+            handleNotify({ message: error.response.data, type: "error" })
+        }
+        // throw error;
     }
 };
 const detailReportSlice = createSlice({

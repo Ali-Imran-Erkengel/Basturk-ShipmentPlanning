@@ -43,6 +43,11 @@ export const tableCategories = [
       type: 4,
       navigate:'aplatzBinLocation'
     },
+    {
+      text: 'Tablo Konfigürasyonu',
+      type: 2,
+      navigate:'tableConfiguration'
+    },
 
   ];
   

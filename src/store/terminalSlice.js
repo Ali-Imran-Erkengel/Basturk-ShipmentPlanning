@@ -369,9 +369,8 @@ export const batchControl = async ({ barcode, whsCode, binEntry }) => {
   };
   return sendGetRequest({ endpoint: "batchcontrol", params: params })
 }
-export const getConsumptions = async ({ itemCode, batchNumber, labelGiven }) => {
+export const getConsumptions = async ({  batchNumber, labelGiven }) => {
   let params = {
-    itemCode: itemCode,
     batchNumber: batchNumber,
     labelGiven: labelGiven
   };

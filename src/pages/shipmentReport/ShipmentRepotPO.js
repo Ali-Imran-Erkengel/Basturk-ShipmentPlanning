@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import DataGrid, { Column, MasterDetail } from 'devextreme-react/data-grid';
+import React, { useEffect, useRef, useState } from 'react';
+import DataGrid, { Column, MasterDetail, StateStoring } from 'devextreme-react/data-grid';
 import { Button } from 'devextreme-react/button';
 import { useDispatch } from 'react-redux';
 import DetailTemplate from './DetailTemplate';
-import { getFirstWghVehicle, getLoadedDetails, getLogisticHeader, getLogisticWaiting, getShipmentHeader, getShipmentItemNonPlanned, getShipmentWaiting, getVehicleWaiting, printShipmentDetail } from '../../store/detailRepotSlice';
+import { getFirstWghVehicle, getGridSorting, getLoadedDetails, getLogisticHeader, getLogisticWaiting, getShipmentHeader, getShipmentItemNonPlanned, getShipmentWaiting, getVehicleWaiting, printShipmentDetail, setGridSorting } from '../../store/detailRepotSlice';
 import { updateData } from '../../store/appSlice';
 import DetailTableLoaded from './DetailTableLoaded';
 import DetailTableShipment from './DetailTableShipment';
@@ -12,7 +12,23 @@ import { Form, SimpleItem } from 'devextreme-react/form';
 import { Popup } from 'devextreme-react';
 import ShipmentItemsPO from './components/ShipmentItemsPO';
 import { Grid } from '@mui/material';
+import notify from 'devextreme/ui/notify';
 function ShipmentReportPO() {
+  const handleNotify = ({ message, type }) => {
+    notify(
+      {
+        message: message,
+        width: 300,
+        position: {
+          at: "bottom",
+          my: "bottom",
+          of: "#container"
+        }
+      },
+      type,
+      5000
+    );
+  }
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const today = new Date();
@@ -33,6 +49,89 @@ function ShipmentReportPO() {
     CardName: "",
     PlateCode: ""
   });
+  const gridRefShipment = useRef(null);
+  const gridRefLogistics = useRef(null);
+  const gridRefVehicleComing = useRef(null);
+  const gridRefVehicleLoading = useRef(null);
+  const gridRefVehicleLoaded = useRef(null);
+
+
+  const gridRefShipmentDetail = useRef(null);
+  const gridRefLogisticDetail = useRef(null);
+  const gridRefVehicleComingDetail = useRef(null);
+  const gridRefVehicleLoadedDetail = useRef(null);
+
+
+
+
+  const gridStateCache = useRef({});
+
+  const loadGridState = async (gridKey) => {
+    try {
+      if (gridStateCache.current[gridKey] !== undefined) {
+        return gridStateCache.current[gridKey];
+      }
+
+      const userCode = sessionStorage.getItem('userName');
+      const res = await getGridSorting({ gridKey: gridKey, userCode: userCode });
+      console.trace("KIM ÇAĞIRDI - KEY:", gridKey)
+      if (!res || (Array.isArray(res) && res.length === 0)) {
+        gridStateCache.current[gridKey] = null;
+        return null;
+      }
+
+      const data = Array.isArray(res) ? res[0] : res;
+      const stateData = data.State || data.state;
+
+      if (stateData) {
+        const parsed = typeof stateData === "string" ? JSON.parse(stateData) : stateData;
+        gridStateCache.current[gridKey] = parsed; // Cache'e kaydet
+        return parsed;
+      }
+
+      gridStateCache.current[gridKey] = null;
+      return null;
+    } catch (error) {
+      console.error("Grid ayarları yüklenirken hata oluştu:", error);
+      return null;
+    }
+  };
+
+  const saveGridState = async (gridKey, state) => {
+
+    const userCode = sessionStorage.getItem('userName');
+    await setGridSorting({ gridKey: gridKey, userCode, state })
+  };
+
+  const handleSaveAllGridStates = async () => {
+    const gridsToSave = [
+      { key: "shipmentGridPO", ref: gridRefShipment },
+      { key: "logisticsGridPO", ref: gridRefLogistics },
+      { key: "vehicleComingGridPO", ref: gridRefVehicleComing },
+      { key: "vehicleLoadingGridPO", ref: gridRefVehicleLoading },
+      { key: "vehicleLoadedGridPO", ref: gridRefVehicleLoaded },
+
+      { key: "shipmentDetailGridPO", ref: gridRefShipmentDetail },
+      { key: "logisticDetailGridPO", ref: gridRefLogisticDetail },
+      { key: "vehicleComingDetailGridPO", ref: gridRefVehicleComingDetail },
+      { key: "vehicleLoadedDetailGridPO", ref: gridRefVehicleLoadedDetail },
+    ];
+
+    try {
+      const savePromises = gridsToSave.map(grid => {
+        if (grid.ref.current) {
+          const currentState = grid.ref.current.instance().state();
+          return saveGridState(grid.key, currentState);
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(savePromises);
+      handleNotify({ message: "Açık olan tüm grid ayarları kaydedildi!", type: "success" });
+    } catch (error) {
+      handleNotify({ message: "Hata oluştu.", type: "error" });
+    }
+  };
   useEffect(() => {
     fetchAllData();
   }, [])
@@ -214,8 +313,29 @@ function ShipmentReportPO() {
   return (
     <>
       <div className='page-container'>
-        <div style={{ textAlign: "left", color: "#000000 " }}>
-          <h5 style={{ fontWeight: "bold" }}>Anlık Sevkiyat Satınalma Raporu</h5>
+        <div
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
+            background: "#F2F2F2",
+            padding: "10px 0",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <h5 style={{ fontWeight: "bold", margin: 0 }}>
+            Anlık Sevkiyat Satınalma Raporu
+          </h5>
+
+          <Button
+            text="Grid Ayarlarını Kaydet"
+            icon="save"
+            type="default"
+            stylingMode="contained"
+            onClick={handleSaveAllGridStates}
+          />
         </div>
         <div className="form-container">
           <Form formData={reportilterValues} colCount={5} labelLocation="top" >
@@ -227,7 +347,7 @@ function ShipmentReportPO() {
           </Form>
           <Grid container spacing={1} paddingBottom={2}>
             <Grid item>
-          <Button icon='search' variant="contained" type="success" onClick={fetchAllData} />
+              <Button icon='search' variant="contained" type="success" onClick={fetchAllData} />
             </Grid>
             <Grid item>
               <Button icon='print' variant="contained" type="success" onClick={() => printCrystal()} />
@@ -239,6 +359,7 @@ function ShipmentReportPO() {
             <h5 style={{ fontWeight: "bold" }}>Araç Planlanacak</h5>
           </div>
           <DataGrid
+            ref={gridRefShipment}
             className='datagridShipment'
             id="grid-container"
             dataSource={shipmentMainTable}
@@ -248,7 +369,13 @@ function ShipmentReportPO() {
             columnMinWidth={100}
             allowColumnResizing={true}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("shipmentGridPO")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -306,13 +433,17 @@ function ShipmentReportPO() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableShipment {...props} detail={shipmentDetailTable} />}
+              component={(props) => <DetailTableShipment {...props} detail={shipmentDetailTable}
+                ref={gridRefShipmentDetail}
+                gridKey="shipmentDetailGridPO"
+                loadGridState={loadGridState} />}
             />
           </DataGrid>
           <div style={{ textAlign: "center", color: "#fcac6b" }}>
             <h5 style={{ fontWeight: "bold" }}>Araç Planlandı</h5>
           </div>
           <DataGrid
+            ref={gridRefLogistics}
             className='datagridLogistics'
             id="grid-container"
             dataSource={logisticsMainTable}
@@ -321,7 +452,13 @@ function ShipmentReportPO() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("logisticsGridPO")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -395,7 +532,10 @@ function ShipmentReportPO() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTemplate {...props} detail={logisticsDetailTable} />}
+              component={(props) => <DetailTemplate {...props} detail={logisticsDetailTable}
+                ref={gridRefLogisticDetail}
+                gridKey="logisticDetailGridPO"
+                loadGridState={loadGridState} />}
             />
 
           </DataGrid>
@@ -404,6 +544,7 @@ function ShipmentReportPO() {
             <h5 style={{ fontWeight: "bold" }}>Araç Geldi</h5>
           </div>
           <DataGrid
+            ref={gridRefVehicleComing}
             className='datagridVehicleComing'
             id="grid-container"
             dataSource={comingVehicleTable}
@@ -411,7 +552,13 @@ function ShipmentReportPO() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("vehicleComingGridPO")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -516,6 +663,7 @@ function ShipmentReportPO() {
             <h5 style={{ fontWeight: "bold" }}>Araç İçerde</h5>
           </div>
           <DataGrid
+            ref={gridRefVehicleLoading}
             className='datagridVehicleLoading'
             id="grid-container"
             dataSource={vehicleOnLoadingTable}
@@ -523,7 +671,13 @@ function ShipmentReportPO() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("vehicleLoadingGridPO")}
+            />
             <Column
               alignment='left'
               caption="İşlem"
@@ -602,6 +756,7 @@ function ShipmentReportPO() {
             <h5 style={{ fontWeight: "bold" }}>Araç İndirildi</h5>
           </div>
           <DataGrid
+            ref={gridRefVehicleLoaded}
             className='datagridVehicleLoaded'
             id="grid-container"
             dataSource={vehicleLoadedTable}
@@ -610,7 +765,14 @@ function ShipmentReportPO() {
             columnAutoWidth={true}
             columnMinWidth={100}
             width="100%"
+            allowColumnReordering={true}
+
           >
+            <StateStoring
+              enabled={true}
+              type="custom"
+              customLoad={() => loadGridState("vehicleLoadedGridPO")}
+            />
             <Column
               dataField="wDocEntry"
               caption="Kantar Belge No"
@@ -685,7 +847,10 @@ function ShipmentReportPO() {
             />
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableLoaded {...props} detail={detailTableLoaded} />}
+              component={(props) => <DetailTableLoaded {...props} detail={detailTableLoaded}
+                ref={gridRefVehicleLoadedDetail}
+                gridKey="vehicleLoadedDetailGridPO"
+                loadGridState={loadGridState} />}
             />
           </DataGrid>
           <Popup

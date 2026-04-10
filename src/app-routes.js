@@ -16,6 +16,7 @@ import BatchDetails from './pages/terminal/BatchDetails';
 import SelectScreen from './pages/terminal/SelectScreen';
 import InventoryTransfer from './pages/terminal/InventoryTransfer';
 import StatusUpdate from './pages/terminal/StatusUpdate';
+import TableConfigurationAddHome from './pages/supportTables/TableConfiguration/TableConfigurationHome';
 
 
 const routes = [
@@ -58,6 +59,10 @@ const routes = [
     {
         path: '/loadingRampHome',
         element: LoadingRampHome
+    },
+    {
+        path: '/tableConfiguration',
+        element: TableConfigurationAddHome
     },
     {
         path: '/createTable',

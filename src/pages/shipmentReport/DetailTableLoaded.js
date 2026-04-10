@@ -1,27 +1,33 @@
-import React from 'react';
-import { DataGrid, Column } from 'devextreme-react/data-grid';
+import React, { forwardRef } from 'react';
+import { DataGrid, Column, StateStoring } from 'devextreme-react/data-grid';
 import ArrayStore from 'devextreme/data/array_store';
 import DataSource from 'devextreme/data/data_source';
 
-const DetailTableLoaded = (props) => {
-  const { detail } = props;
-  const getTasks = (key) =>
-    new DataSource({
-      store: new ArrayStore({
-        data: detail,
-        key: 'lDocEntry',
-      }),
-      filter: ['lDocEntry', '=', key],
-    });
-  const dataSource = getTasks(props.data.key);
+const DetailTableLoaded = forwardRef((props, ref) => {
+  const { detail, gridKey, loadGridState } = props;
+
+  const dataSource = new DataSource({
+    store: new ArrayStore({
+      data: detail,
+      key: 'DocEntry',
+    }),
+    filter: ['DocEntry', '=', props.data.key],
+  });
   return (
     <React.Fragment>
       <DataGrid
+        ref={ref}
+        allowColumnReordering={true}
         dataSource={dataSource}
         showBorders={true}
-        columnAutoWidth={true} 
-        allowColumnResizing={true} 
+        columnAutoWidth={true}
+        allowColumnResizing={true}
       >
+        <StateStoring
+          enabled={true}
+          type="custom"
+          customLoad={() => loadGridState(gridKey)}
+        />
         <Column
           dataField="lDocEntry"
           caption='Belge No'
@@ -32,10 +38,10 @@ const DetailTableLoaded = (props) => {
           alignment='left' />
         <Column
           dataField="U_CardName"
-          caption='Muhatap'/>
+          caption='Muhatap' />
         <Column
           dataField="U_ItemCode"
-          caption='Ürün Kodu'/>
+          caption='Ürün Kodu' />
         <Column
           dataField="U_ItemName"
           caption='Ürün Adı'
@@ -48,5 +54,5 @@ const DetailTableLoaded = (props) => {
       </DataGrid>
     </React.Fragment>
   );
-};
+});
 export default DetailTableLoaded;
