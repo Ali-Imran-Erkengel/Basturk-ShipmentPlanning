@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import TabPanel, { Item } from "devextreme-react/tab-panel";
 import DataGrid, { Column, Paging, Pager, LoadPanel } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getConsumptions, getCostCenter, getCostingCodes, getDimensions, getEndOfProcessList } from "../../store/terminalSlice";
+import { eopStatusControl, getConsumptions, getCostCenter, getCostingCodes, getDimensions, getEndOfProcessList } from "../../store/terminalSlice";
 import { endOfProcessColumns, terminalDeliveryData } from "./data/data";
 import { Popup } from "devextreme-react/popup";
 import { Grid } from "@mui/material";
@@ -79,7 +79,7 @@ const StatusUpdate = () => {
   }, [labelGiven]);
 
   const endOfProcessList = async ({ status, status2 }) => {
-    debugger
+
     if (!startDate || !endDate) {
       handleMessageBox({ message: "Başlangıç ve bitiş tarihi boş olamaz.", type: "warning" });
       return;
@@ -95,8 +95,8 @@ const StatusUpdate = () => {
       return;
     }
     try {
-      setIsLoading(true); // Yükleme animasyonunu başlat
-      setEndOfProcessGrid([]); // ÖNCEKİ KAYITLARI TEMİZLE (Kafa karışıklığını önler)
+      setIsLoading(true);
+      setEndOfProcessGrid([]);
       let list = await getEndOfProcessList({ status: status, status2: status2, startDate: startDate, endDate: endDate });
       setEndOfProcessGrid(list);
       setTabIndex(1)
@@ -104,7 +104,7 @@ const StatusUpdate = () => {
       handleMessageBox({ message: "Liste yüklenirken bir hata oluştu. " + error, type: "error" });
     }
     finally {
-      setIsLoading(false); // Yükleme animasyonunu bitir
+      setIsLoading(false);
     }
     ;
 
@@ -114,14 +114,31 @@ const StatusUpdate = () => {
   // #endregion
 
   const openDescPopup = async (barcodeValue) => {
-    debugger
+
     // const itemCode = cellData.data["MainItemCode"];
     //const batchNum = cellData.data["BatchNum"];
 
 
     // setSelectedItemCode(itemCode);
     setSelectedBatchNumber(barcodeValue);
+    //-8 emrayr
+    //-10 kırık
+    //-9 repack
+    const statusControl = await eopStatusControl({ batchNumber: barcodeValue, operationCode: selectedOperation });
+    debugger
+    if (statusControl) {
+      if(statusControl.length===0)
+        return handleMessageBox({ message: "Kayıt Bulunamadı", type: "error" });
+      let validationRes = statusControl[0].ValidationResult;
+      if (validationRes === "FAIL") {
+        let validationMessage = statusControl[0].ValidationMessage;
+        return handleMessageBox({ message: validationMessage, type: "error" });
+      }
+    }
+    else {
+      return handleMessageBox({ message: "Kayıt Bulunamadı", type: "error" });
 
+    }
     let resultConfirm = true;
 
     if (selectedOperation === '-9') {
@@ -136,7 +153,6 @@ const StatusUpdate = () => {
     }
 
     setLabelGiven(resultConfirm);
-
 
 
     const list = await getConsumptions({ batchNumber: barcodeValue, labelGiven: resultConfirm });
@@ -162,7 +178,6 @@ const StatusUpdate = () => {
 
     try {
       setIsLoading(true);
-
       await openDescPopup(barcodeValue);
 
     } catch (err) {
@@ -380,14 +395,14 @@ const StatusUpdate = () => {
         }}
       >
         <EopDescPopup
-          gridData={formData}
+          // gridData={formData}
           consumptions={consumptionGrid}
           // itemCode={selectedItemCode}
           batchNum={selectedBatchNumber}
           newStatus={selectedOperation}
           newStatusName={selectedOperationName}
           onClose={togglePopup}
-          refresh={() => endOfProcessList({ status: statusCode1, status2: statusCode2 })}
+          // refresh={() => endOfProcessList({ status: statusCode1, status2: statusCode2 })}
           labelGiven={labelGiven}
         />
       </Popup>

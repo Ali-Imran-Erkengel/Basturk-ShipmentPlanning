@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { hostName, querymanager } from "../config/config";
 import notify from "devextreme/ui/notify";
+import { alert } from "devextreme/ui/dialog"; 
+
 axios.defaults.withCredentials = true;
 export let initialState = {
   data: [],
@@ -11,6 +13,15 @@ export let initialState = {
   tableKey: ''
 
 }
+const handleMessageBox = ({ message, type }) => { 
+  let title = "Bilgi";
+   if (type === "error")
+       title = "Uyarı"; 
+  if (type === "success") 
+      title = "Başarılı"; 
+  if (type === "warning") 
+      title = "Uyarı"; 
+  alert(message, title); };
 const handleNotify = ({ message, type }) => {
   notify(
     {
@@ -376,6 +387,13 @@ export const getConsumptions = async ({  batchNumber, labelGiven }) => {
   };
   return sendGetRequest({ endpoint: "getconsumptions", params: params })
 }
+export const eopStatusControl = async ({  batchNumber,operationCode }) => {
+  let params = {
+    batchNumber: batchNumber,
+    operationCode:operationCode,
+  };
+  return sendGetRequest({ endpoint: "eopstatuscontrol", params: params })
+}
 export const getEndOfProcessList = async ({ status, status2,startDate,endDate }) => {
   const bdate = new Date(startDate);
   const byear = bdate.getFullYear();
@@ -403,7 +421,6 @@ export const getCostingCodes = async () => {
   return sendGetRequest({ endpoint: "getcostingcode", params: params })
 }
 export const createGoodsreceiptIssue = async ({ payload }) => {
-  console.log("payload", payload)
   let params = payload;
   let result = await sendPostRequest({ endpoint: "createreceiptandissue", params: params })
   return result
@@ -449,7 +466,7 @@ const sendPostRequest = async ({ endpoint, params }) => {
     const jsonArray = response.data;
     if (jsonArray.error) {
       console.error("Durum kodu:", jsonArray.error);
-      handleNotify({ message: jsonArray.error.response.data, type: "error" })
+      handleMessageBox({ message: jsonArray.error.response.data, type: "error" })
 
       throw new Error(jsonArray.error);
     }
@@ -459,7 +476,7 @@ const sendPostRequest = async ({ endpoint, params }) => {
     if (error.response) {
       console.error("Durum kodu:", error.response.status);
       console.error("Yanıt içeriği:", error.response.data);
-      handleNotify({ message: error.response.data, type: "error" })
+      handleMessageBox({ message: error.response.data, type: "error" })
     }
     // throw error;
   }

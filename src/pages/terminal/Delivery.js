@@ -301,13 +301,24 @@ const Delivery = () => {
       }));
       const payload = { headerList, itemList };
       let result = await saveDelivery({ payload: payload })
-      setItemGrid([])
-      setFormData({ ...terminalDeliveryData })
-      setBatchGrid([]);
-      setTabIndex(0);
-      setSelectedLogisticNo(0)
-      await deleteToTempTable()
-      handleNotify({ message: "Kayıt başarılı", type: "success" });
+      if(result){
+        if(result.includes("OK")){
+          setItemGrid([])
+          setFormData({ ...terminalDeliveryData })
+          setBatchGrid([]);
+          setTabIndex(0);
+          setSelectedLogisticNo(0)
+          await deleteToTempTable()
+          handleNotify({ message: "Kayıt başarılı", type: "success" });
+        }
+        else{
+          handleMessageBox({ message: result, type: "error" });
+        }
+      }
+      else  {
+        handleMessageBox({ message: "Kayıt Başarısız.", type: "error" });
+
+      }
     } catch (err) {
       console.error("Kaydetme hatası:", err);
       const parsed = extractJson({ str: err.response.data });

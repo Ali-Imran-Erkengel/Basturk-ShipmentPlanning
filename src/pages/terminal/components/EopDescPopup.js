@@ -7,7 +7,7 @@ import { Column, DataGrid, Editing } from 'devextreme-react/data-grid';
 import { endOfProcessData } from '../data/data';
 import notify from 'devextreme/ui/notify';
 
-function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClose, refresh, labelGiven }) {
+function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClose,  labelGiven }) {
   const [formData, setFormData] = useState({ ...endOfProcessData });
 
   const handleNotify = ({ message, type }) => {
@@ -53,7 +53,7 @@ function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClos
       let userName = sessionStorage.getItem('userName')
       const itemList = consumptions?.map(item => ({
         itemCode: item.ItemCode,
-        quantity: item.Quantity,
+        eopQty: item.Quantity,
         sWhsCode: item.WhsCode,
         mainItemCode: item.MainItemCode,
         mainQuantity: item.MainItemQuantity,
@@ -74,12 +74,11 @@ function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClos
       let result = await createGoodsreceiptIssue({ payload: payload })
       if (result === "OK") {
         handleNotify({ message: "Kayıt başarılı", type: "success" });
-        refresh();
         setFormData({ ...endOfProcessData });
         onClose();
       }
     } catch (err) {
-      console.error("Kaydetme hatası:", err);
+      console.error("Hata:", err);
       const parsed = extractJson({ str: err.response.data });
       handleNotify({ message: parsed["message"], type: "error" });
     }
