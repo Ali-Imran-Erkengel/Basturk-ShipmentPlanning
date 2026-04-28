@@ -6,8 +6,6 @@ import { Button } from "devextreme-react/button";
 import { createTempData, deleteAllTempData, deleteTempData, getTermDeliveryDoc, getTermDeliveryDocs, saveDelivery, terminalBinControl, terminalControlTempItems, terminalGetTempItems, terminalStatusControl, terminalWarehouseControl } from "../../store/terminalSlice";
 import { deliveryColumns, terminalBatchColumns, terminalDeliveryData, terminalItemColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
-import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { confirm } from "devextreme/ui/dialog";
 import { Grid } from "@mui/material";

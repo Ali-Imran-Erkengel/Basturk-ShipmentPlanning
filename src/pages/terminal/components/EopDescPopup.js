@@ -7,7 +7,7 @@ import { Column, DataGrid, Editing } from 'devextreme-react/data-grid';
 import { endOfProcessData } from '../data/data';
 import notify from 'devextreme/ui/notify';
 
-function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClose,  labelGiven }) {
+function EopDescPopup({ consumptions, batchNum, newStatus, newStatusName, onClose, labelGiven }) {
   const [formData, setFormData] = useState({ ...endOfProcessData });
 
   const handleNotify = ({ message, type }) => {
@@ -38,7 +38,7 @@ function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClos
       //   handleNotify({ message: "Açıklama alanı boş olamaz", type: "error" });
       //   return;
       // }
-  
+
       // if (!formData.MoldNo || formData.MoldNo.trim() === "") {
       //   handleNotify({ message: "Kalıp No alanı boş olamaz", type: "error" });
       //   return;
@@ -128,7 +128,7 @@ function EopDescPopup({ consumptions,  batchNum, newStatus, newStatusName,onClos
                 row.IsSelected = value ? 1 : 0;
               }}
             />
-            <Column dataField="DocEntry" caption="İş Emri" alignment="left" allowEditing={false} />
+            <Column dataField="DocEntry" caption="İş Emri" alignment="left" allowEditing={false} width={0} />
             <Column dataField="ItemCode" caption="Kalem Kodu" alignment="left" allowEditing={false} />
             <Column dataField="Dscription" caption="Kalem Adı" alignment="left" allowEditing={false} />
             <Column

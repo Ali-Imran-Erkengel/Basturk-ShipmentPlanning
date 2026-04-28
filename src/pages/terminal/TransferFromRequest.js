@@ -3,25 +3,26 @@ import TabPanel, { Item } from "devextreme-react/tab-panel";
 import { Form, SimpleItem } from 'devextreme-react/form'
 import DataGrid, { Column, Paging, Pager } from "devextreme-react/data-grid";
 import { Button } from "devextreme-react/button";
-import { getBarcodedProcessBatch, getBinUsingBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, transferFromReqControlBinActive, transferFromReqControlBinDective, transferFromReqStatusControl } from "../../store/terminalSlice";
+import { createTempData, deleteAllTempData, deleteTempData, getBarcodedProcessBatch, getBinUsingBatch, getTransferRequest, isBinActiveTransferFromReq, requestIsBatch, requestWithoutBatchControl, returnBatchControl, saveTransferFromRequest, terminalControlTempItems, terminalGetTempItems, terminalGetTempTransItems, transferFromReqControlBinActive, transferFromReqControlBinDective, transferFromReqStatusControl } from "../../store/terminalSlice";
 import { terminalBarcodedProcessData, terminalReturnData, terminalTransferFromRequestColumns, transferRequestColumns } from "./data/data";
 import { Popup } from "devextreme-react/popup";
-import ZoomLayoutTerminal from "../../components/myComponents/ZoomLayoutTerminal";
-import { employeeColumns } from "../../data/zoomLayoutData";
 import notify from 'devextreme/ui/notify';
 import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
 import EmployeeList from "./components/EmployeeList";
-import { alert } from "devextreme/ui/dialog"; 
-const handleMessageBox = ({ message, type }) => { 
+import { alert } from "devextreme/ui/dialog";
+import { confirm } from "devextreme/ui/dialog";
+
+const handleMessageBox = ({ message, type }) => {
     let title = "Bilgi";
-     if (type === "error")
-         title = "Uyarı"; 
-    if (type === "success") 
-        title = "Başarılı"; 
-    if (type === "warning") 
-        title = "Uyarı"; 
-    alert(message, title); };
+    if (type === "error")
+        title = "Uyarı";
+    if (type === "success")
+        title = "Başarılı";
+    if (type === "warning")
+        title = "Uyarı";
+    alert(message, title);
+};
 const handleNotify = ({ message, type }) => {
     notify(
         {
@@ -127,12 +128,19 @@ const TransferFromRequest = () => {
         setInvoiceGrid(docs);
     };
     const goForReadBarcodes = async ({ docEntry }) => {
+        debugger
         let result = await requestIsBatch({ docEntry: docEntry });
         setBatchGrid([])
         if (result[0].item === 'N') return handleMessageBox({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
         if (result[0].batch === 'Y') {
             setIsBatchExists('Y')
             let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: '', status1: '', status2: '' });
+            const itemsWithIndex = items.map((item, idx) => ({
+                ...item,
+                Index: idx + 1
+            }));
+            await controlTempItems({ docEntry: docEntry, itemsWithIndex: itemsWithIndex })
+
             const duplicates = items.reduce((acc, cur) => {
                 const key = `${cur.ItemCode}-${cur.DistNumber}`;
                 if (!acc[key]) acc[key] = new Set();
@@ -149,14 +157,18 @@ const TransferFromRequest = () => {
                 return
             }
             setBatchGrid(items)
+
         }
         else {
             setIsBatchExists('N')
+            await controlTempItems({ docEntry: docEntry, itemsWithIndex: null })
+
         }
         setSelectedDocEntry(docEntry);
         setFormData({ ...terminalReturnData })
         setTabIndex(1);
         setScannedCount(0);
+
     };
 
 
@@ -227,21 +239,45 @@ const TransferFromRequest = () => {
             };
             debugger
             let result = await saveTransferFromRequest({ payload: payload })
-            // setFormData({ ...terminalBarcodedProcessData })
-            setFormData(prev => ({
-                ...prev,
-                Barcode: ""
-            }))
-            setBatchGrid([]);
-            setTabIndex(0);
-            setSelectedDocEntry(0)
-            fetchWaitForLoadDocs();
-            setScannedCount(0);
-            handleNotify({ message: "Kayıt başarılı", type: "success" });
+            if (result) {
+                if (result.includes("OK")) {
+                    setFormData(prev => ({
+                        ...prev,
+                        Barcode: ""
+                    }))
+
+                    setBatchGrid([]);
+                    setTabIndex(0);
+                    setSelectedDocEntry(0)
+                    fetchWaitForLoadDocs();
+                    setScannedCount(0);
+                    await deleteToTempTable();
+                    handleNotify({ message: "Kayıt başarılı", type: "success" });
+                }
+                else {
+                    handleMessageBox({ message: result, type: "error" });
+                }
+            }
+            else {
+                handleMessageBox({ message: "Kayıt Başarısız.", type: "error" });
+
+            }
+
         } catch (err) {
             console.error("Kaydetme hatası:", err);
             const parsed = extractJson({ str: err.response.data });
             handleMessageBox({ message: parsed["message"], type: "error" });
+        }
+    };
+    const deleteToTempTable = async () => {
+        try {
+            const payload = {
+                DocumentNo: selectedDocEntry,
+                Module: "ITR"
+            };
+            let result = await deleteAllTempData({ tempData: payload })
+        } catch (err) {
+            console.error("Temp tablodan silme hatası:", err);
         }
     };
     // #endregion
@@ -311,6 +347,11 @@ const TransferFromRequest = () => {
 
                     setBatchGrid(prev => prev.filter(b => b.DistNumber !== barcodeValue));
                 }
+                try {
+                    await deleteTempData({ tempData: { DocumentNo: selectedDocEntry, Batch: barcodeValue, Module: "ITR" } });
+                } catch (err) {
+                    console.error("Temp tablodan silme hatası:", err);
+                }
                 formData.Barcode = "";
                 handleNotify({ message: "Okutma geri alındı.", type: "success" });
                 setScannedCount(prev => Math.max(prev - 1, 0));
@@ -353,10 +394,13 @@ const TransferFromRequest = () => {
             }
         } catch (error) {
             console.error("Okutma hatası:", error);
-            handleMessageBox({ message: "Hata: "+error, type: "error" });
+            handleMessageBox({ message: "Hata: " + error, type: "error" });
         }
         finally {
+
             setFormData(prev => ({ ...prev, Barcode: "" }));
+
+
             forceFocusBarcode();
             // setTimeout(focusBarcodeInput, 50);
         }
@@ -421,6 +465,7 @@ const TransferFromRequest = () => {
                         handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
                         return prev;
                     } else {
+                        insertToTempTable({ rowData: newRow })
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
                         setScannedCount(prev => prev + 1);
                         console.log("scanned :", scannedCount)
@@ -454,10 +499,10 @@ const TransferFromRequest = () => {
                         handleMessageBox({ message: "Bu parti zaten okutuldu!", type: "error" });
                         return prev;
                     } else {
+                        insertToTempTable({ rowData: newRow })
                         handleNotify({ message: "Okutma Başarılı.", type: "success" });
                         setScannedCount(prev => prev + 1);
                         console.log("scanned :", scannedCount)
-
                         return [...prev, newRow];
                     }
                 });
@@ -465,13 +510,80 @@ const TransferFromRequest = () => {
 
 
             return
-
-
         } catch (error) {
             console.error("readWithBatch error:", error);
         }
         finally {
             forceFocusBarcode()
+        }
+    }
+    const insertToTempTable = async ({ rowData }) => {
+        const preparer = formData?.PreparerCode || 0;
+        try {
+            const payload = {
+                ItemCode: rowData.ItemCode,
+                ItemName: rowData.itemName,
+                Batch: rowData.DistNumber,
+                DocumentNo: rowData.ApplyEntry,
+                Index: rowData.ApplyLine,
+                SourceWhsCode: rowData.FromWhsCod,
+                TargetWhsCode: rowData.WhsCode,
+                BinEntry: rowData.U_SourceBinEntry,
+                BinCode: rowData.U_SourceBin,
+                TargetBinEntry: rowData.U_TargetBinEntry,
+                TargetBinCode: rowData.U_TargetBin,
+                Quantity: rowData.InnerQtyOfPallet,
+                UserCode: sessionStorage.getItem('userName') || "Unknown",
+                Module: "ITR",
+                Preparer: preparer
+            };
+            debugger
+            let result = await createTempData({ tempData: payload })
+        } catch (err) {
+            console.error("Temp tabloya ekleme hatası:", err);
+        }
+    };
+    const controlTempItems = async ({ docEntry, itemsWithIndex }) => {
+        itemsWithIndex = 0;
+        let control = await terminalControlTempItems({ documentNo: docEntry, module: 'ITR' })
+        if (control.length > 0) {
+            const result = await confirm({
+                title: "ONAY",
+                messageHtml: "<b>Daha önce okutulan veriler tekrar yüklenecek.</b><br/>Devam etmek istiyor musunuz?",
+                buttons: [
+                    { text: "Evet", onClick: () => true },
+                    { text: "Hayır", onClick: () => false, type: "normal" }
+                ]
+            });
+            if (!result) {
+                handleNotify({ message: "İşlem iptal edildi", type: "info" });
+                return;
+            }
+            let temp = await terminalGetTempTransItems({ documentNo: docEntry, module: 'ITR' })
+            debugger
+            if (itemsWithIndex) {
+
+                const updatedItemGrid = itemsWithIndex.map((item) => {
+                    const found = temp.items?.find((x) => x.Index === item.Index);
+                    return {
+                        ...item,
+                        ReadedQty: found ? found.Count : 0
+                    };
+                });
+
+                setBatchGrid(updatedItemGrid);
+            }
+            else {
+                setBatchGrid(temp.batches);
+            }
+            if (temp.batches?.length > 0) {
+                setFormData(prev => ({
+                    ...prev,
+                    PreparerCode: temp.batches[0].Preparer || "",
+                    PreparerName: temp.batches[0].PreparerName || "",
+                }));
+            }
+            setBatchGrid(temp.batches || []);
         }
     }
     const focusBarcodeInput = () => {

@@ -191,6 +191,13 @@ export const terminalGetTempItems = async ({ documentNo, module }) => {
   };
   return sendGetRequest({ endpoint: "deliverytempitems", params: params })
 }
+export const terminalGetTempTransItems = async ({ documentNo, module }) => {
+  let params = {
+    module: module,
+    documentNo: documentNo
+  };
+  return sendGetRequest({ endpoint: "transferreqtempitems", params: params })
+}
 export const terminalControlTempItems = async ({ documentNo, module }) => {
   let params = {
     module: module,
@@ -226,13 +233,21 @@ export const createTempData = async ({ tempData }) => {
     barcode: tempData.Batch,
     index: tempData.Index,
     binEntry: tempData.BinEntry,
+    binCode: tempData.BinCode,
     documentNo: tempData.DocumentNo,
     userCode: tempData.UserCode,
     module: tempData.Module,
     loadedBy: tempData.LoadedBy,
-    preparer: tempData.Preparer
+    preparer: tempData.Preparer,
+    sourceWhsCode:tempData.SourceWhsCode,
+    targetWhsCode:tempData.TargetWhsCode,
+    targetBinEntry:tempData.TargetBinEntry,
+    targetBinCode:tempData.TargetBinCode,
+    quantity:tempData.Quantity
+
 
   };
+  debugger
   console.log("payload", params)
   return sendPostRequest({ endpoint: "deliverytempinsert", params: params })
 }

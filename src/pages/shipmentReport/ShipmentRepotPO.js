@@ -74,7 +74,7 @@ function ShipmentReportPO() {
 
       const userCode = sessionStorage.getItem('userName');
       const res = await getGridSorting({ gridKey: gridKey, userCode: userCode });
-      console.trace("KIM ÇAĞIRDI - KEY:", gridKey)
+      
       if (!res || (Array.isArray(res) && res.length === 0)) {
         gridStateCache.current[gridKey] = null;
         return null;
@@ -839,6 +839,10 @@ function ShipmentReportPO() {
             <Column
               dataField="U_TrailerPlateCode"
               caption="Dorse"
+            />
+            <Column
+              dataField="U_InvoiceSeriesNum"
+              caption="E-Irsaliye No"
             />
 
             <Column

@@ -9,9 +9,9 @@ const DetailTableLoaded = forwardRef((props, ref) => {
   const dataSource = new DataSource({
     store: new ArrayStore({
       data: detail,
-      key: 'DocEntry',
+      key: 'lDocEntry',
     }),
-    filter: ['DocEntry', '=', props.data.key],
+    filter: ['lDocEntry', '=', props.data.key],
   });
   return (
     <React.Fragment>
