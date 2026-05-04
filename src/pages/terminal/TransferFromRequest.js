@@ -12,6 +12,7 @@ import { Grid } from "@mui/material";
 import EmployeeList from "./components/EmployeeList";
 import { alert } from "devextreme/ui/dialog";
 import { confirm } from "devextreme/ui/dialog";
+import { batch } from "react-redux";
 
 const handleMessageBox = ({ message, type }) => {
     let title = "Bilgi";
@@ -128,10 +129,11 @@ const TransferFromRequest = () => {
         setInvoiceGrid(docs);
     };
     const goForReadBarcodes = async ({ docEntry }) => {
-        debugger
         let result = await requestIsBatch({ docEntry: docEntry });
+        let finalFormData;
         setBatchGrid([])
         if (result[0].item === 'N') return handleMessageBox({ message: "Stok Nakil Talebinde Kalem Yok.", type: "error" });
+        let finalItems = [];
         if (result[0].batch === 'Y') {
             setIsBatchExists('Y')
             let items = await getBarcodedProcessBatch({ docEntry: docEntry, whsCode: '', status1: '', status2: '' });
@@ -139,9 +141,9 @@ const TransferFromRequest = () => {
                 ...item,
                 Index: idx + 1
             }));
-            await controlTempItems({ docEntry: docEntry, itemsWithIndex: itemsWithIndex })
-
-            const duplicates = items.reduce((acc, cur) => {
+            const recoveredItems = await controlTempItems({ docEntry: docEntry, itemsWithIndex: itemsWithIndex })
+            finalItems = recoveredItems ? recoveredItems : itemsWithIndex;
+            const duplicates = finalItems.reduce((acc, cur) => {
                 const key = `${cur.ItemCode}-${cur.DistNumber}`;
                 if (!acc[key]) acc[key] = new Set();
                 acc[key].add(cur.BinCode);
@@ -156,18 +158,53 @@ const TransferFromRequest = () => {
                 handleMessageBox({ message: `Bu Belgede Bulunan Parti Birden Fazla Depo Yerinde Bulundu`, type: 'error' })
                 return
             }
-            setBatchGrid(items)
+            // setBatchGrid(items)
 
         }
         else {
             setIsBatchExists('N')
-            await controlTempItems({ docEntry: docEntry, itemsWithIndex: null })
-
+            const recoveredItems = await controlTempItems({ docEntry: docEntry, itemsWithIndex: null })
+            finalItems = recoveredItems ? recoveredItems : [];
         }
+
+        if (finalItems) {
+            // SENARYO A: Temp'te veri bulundu
+            const firstValid = finalItems.find(b => b.Preparer || b.PreparerName);
+            
+            finalFormData = {
+                ...terminalReturnData, // Varsayılan şablonu al
+                PreparerCode: firstValid?.Preparer || "",
+                PreparerName: firstValid?.PreparerName || "",
+                // Temp'ten gelen diğer özel alanlar varsa buraya ekle
+            };
+            
+            setBatchGrid(finalItems);
+            setScannedCount(finalItems.filter(x => x.Readed === 'Y').length);
+        } else {
+            // SENARYO B: Temp boş (İlk kez açılıyor veya Hayır'a basıldı)
+            finalFormData = { ...terminalReturnData }; // Sadece başlangıç verilerini al
+            
+            setScannedCount(0);
+        }
+    
+        // 4. TEK VE SON KEZ STATE GÜNCELLEMESİ
+        // Fonksiyonun sonunda başka setFormData kalmadığından emin ol!
+        setFormData(finalFormData); 
+        
         setSelectedDocEntry(docEntry);
-        setFormData({ ...terminalReturnData })
         setTabIndex(1);
-        setScannedCount(0);
+
+
+
+
+
+
+        // const count = finalItems.filter(x => x.Readed === 'Y').length;
+        // setScannedCount(count);
+        // setSelectedDocEntry(docEntry);
+        // // setFormData({ ...terminalReturnData })
+        // setTabIndex(1);
+        // // setScannedCount(0);
 
     };
 
@@ -191,11 +228,10 @@ const TransferFromRequest = () => {
 
     const handleSave = async () => {
         try {
-
             if (!validateBeforeSave({ formData })) return;
             const preparer = formData?.PreparerCode || 0;
             const loadedBy = formData?.LoaderCode || 0;
-            const entries = batchGrid?.map(batch => ({
+            const entries = batchGrid?.filter(batch=>batch.Readed==='Y').map(batch => ({
                 docNum: batch.ApplyEntry,
                 docLine: batch.ApplyLine,
                 batchNumber: batch.DistNumber,
@@ -206,8 +242,6 @@ const TransferFromRequest = () => {
                 innerQtyOfPallet: batch.InnerQtyOfPallet,
                 sWhsCode: batch.FromWhsCod,
                 tWhsCode: batch.WhsCode,
-
-
             }));
             const grouped = entries.reduce((acc, entry) => {
                 const key = entry.docLine;
@@ -216,7 +250,6 @@ const TransferFromRequest = () => {
                 return acc;
             }, {});
 
-            debugger
             const summaryList = Object.keys(grouped).map(key => {
                 const group = grouped[key];
                 const first = group[0];
@@ -237,7 +270,6 @@ const TransferFromRequest = () => {
                 itemList: summaryList,
                 batchList: entries
             };
-            debugger
             let result = await saveTransferFromRequest({ payload: payload })
             if (result) {
                 if (result.includes("OK")) {
@@ -323,7 +355,6 @@ const TransferFromRequest = () => {
                 barcodeValue = barcode.substring(3)
             }
             if (isGetBack) {
-                debugger
                 const batchExists = batchGrid.some(b => b.DistNumber === barcodeValue);
                 if (!batchExists) {
                     handleMessageBox({ message: "Okutulan barkod listede yok!", type: "error" });
@@ -358,7 +389,6 @@ const TransferFromRequest = () => {
 
                 return;
             }
-            debugger
 
             let warning = await batchStatusControl({ barcode });
 
@@ -379,7 +409,6 @@ const TransferFromRequest = () => {
 
                 }
             }
-            debugger
             if (isBatchExists === 'Y') {
 
                 readWithBatch({ barcode: barcodeValue, binEntry: binEntry, binCode: binCode })
@@ -421,6 +450,8 @@ const TransferFromRequest = () => {
                     newData[idx] = { ...newData[idx], U_SourceBinEntry: binEntry };
                     newData[idx] = { ...newData[idx], U_SourceBin: binCode };
                     setScannedCount(prev => prev + 1);
+                    insertToTempTable({ rowData: newData[idx] })
+
                     console.log("scanned :", scannedCount)
                 } else {
                     handleMessageBox({ message: `${barcode} Bu Barkod zaten okutuldu`, type: "error" });
@@ -537,14 +568,12 @@ const TransferFromRequest = () => {
                 Module: "ITR",
                 Preparer: preparer
             };
-            debugger
             let result = await createTempData({ tempData: payload })
         } catch (err) {
             console.error("Temp tabloya ekleme hatası:", err);
         }
     };
     const controlTempItems = async ({ docEntry, itemsWithIndex }) => {
-        itemsWithIndex = 0;
         let control = await terminalControlTempItems({ documentNo: docEntry, module: 'ITR' })
         if (control.length > 0) {
             const result = await confirm({
@@ -560,31 +589,52 @@ const TransferFromRequest = () => {
                 return;
             }
             let temp = await terminalGetTempTransItems({ documentNo: docEntry, module: 'ITR' })
-            debugger
-            if (itemsWithIndex) {
+
+
+            let finalItems = [];
+            if (itemsWithIndex && itemsWithIndex.length > 0) {
 
                 const updatedItemGrid = itemsWithIndex.map((item) => {
-                    const found = temp.items?.find((x) => x.Index === item.Index);
+                    const found = temp.batches?.find((x) => x.ApplyLine === item.ApplyLine && x.DistNumber === item.DistNumber);
+                    console.log('found', found)
+                    if (!found) return { ...item };
                     return {
                         ...item,
-                        ReadedQty: found ? found.Count : 0
+                        ...found,
+                        Index: item.Index
                     };
                 });
-
-                setBatchGrid(updatedItemGrid);
+                finalItems = updatedItemGrid;
+                console.log('updated', updatedItemGrid)
+                console.log('batchgrid', batchGrid)
             }
             else {
-                setBatchGrid(temp.batches);
+                finalItems = temp.batches || [];
             }
-            if (temp.batches?.length > 0) {
-                setFormData(prev => ({
-                    ...prev,
-                    PreparerCode: temp.batches[0].Preparer || "",
-                    PreparerName: temp.batches[0].PreparerName || "",
-                }));
+            const firstValidBatch = finalItems.find(b => b.Preparer || b.PreparerName);
+
+            setBatchGrid(finalItems);
+            if (firstValidBatch) {
+                const pCode = firstValidBatch.Preparer || "";
+                const pName = firstValidBatch.PreparerName || "";
+                
+                setFormData(prev => {
+                    const newState = { 
+                        ...prev, 
+                        PreparerCode: pCode, 
+                        PreparerName: pName 
+                    };
+                    console.log("State Güncelleniyor (Yeni Obje):", newState);
+                    return newState;
+                });
             }
-            setBatchGrid(temp.batches || []);
+            // const count = finalItems.filter(x => x.Readed === 'Y').length;
+            // setScannedCount(prev => prev + count);
+            // console.log('Hesaplanan Count:', count);
+
+            return finalItems;
         }
+        return null;
     }
     const focusBarcodeInput = () => {
         const inst = barcodeRef.current;
