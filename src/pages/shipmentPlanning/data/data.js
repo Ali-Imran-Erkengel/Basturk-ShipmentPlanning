@@ -8,7 +8,8 @@ export const filtersConfig = [
   { field: 'U_County', operator: 'contains', type: 'string' },
   { field: 'U_City', operator: 'contains', type: 'string' },
   { field: 'U_DeliveryStatus', operator: '=', type: 'string' },
-  { field: 'U_IsDeleted', operator: '=', type: 'string' }
+  { field: 'U_IsDeleted', operator: '=', type: 'string' },
+  { field: 'U_Type', operator: '=', type: 'string' }
 
 ];
 
@@ -31,6 +32,7 @@ export const formDataUpdate = {
   "U_County":"",
   "U_Country":"",
   "U_ZipCode":"",
+  "U_CustomerOrderNo":"",
   "SML_SHP_ITEMCollection": [
     {
       "LineId": "",
@@ -73,6 +75,7 @@ export const formDataAdd = {
   "U_County":"",
   "U_Country":"",
   "U_ZipCode":"",
+  "U_CustomerOrderNo":"",
   "SML_SHP_ITEMCollection": [
     {
       "U_ItemCode": "",

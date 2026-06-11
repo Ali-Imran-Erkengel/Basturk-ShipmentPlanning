@@ -230,7 +230,6 @@ const BarcodedProcess = () => {
                 innerQtyOfPallet: batch.InnerQtyOfPallet,
                 sWhsCode: batch.FromWhsCod,
                 tWhsCode: whsCode
-
             }));
             const grouped = entries.reduce((acc, entry) => {
                 const key = entry.docLine;
@@ -253,7 +252,10 @@ const BarcodedProcess = () => {
                     sWhsCode: first.sWhsCode,
                     tWhsCode: whsCode,
                     binEntry: first.binEntry,
-                    Preparer: preparer
+                    Preparer: preparer,
+                    userName: sessionStorage.getItem('userName') || "Unknown",
+                    moduleName:processType,
+
                 };
             });
             const payload = {
@@ -304,7 +306,6 @@ const BarcodedProcess = () => {
                 barcodeValue = barcode.substring(3)
             }
             if (isGetBack) {
-                debugger
                 const batchExists = batchGrid.some(b => b.DistNumber === barcodeValue);
                 if (!batchExists) {
                     handleMessageBox({ message: "Okutulan barkod listede yok!", type: "error" });
@@ -333,10 +334,10 @@ const BarcodedProcess = () => {
             debugger
             if (isBatchExists === 'Y') {
 
-                readWithBatch({ barcode: barcode })
+                readWithBatch({ barcode: barcodeValue })
             }
             else {
-                readWithoutBatch({ barcode: barcode })
+                readWithoutBatch({ barcode: barcodeValue })
             }
         } catch (error) {
             console.error("Okutma hatası:", error);

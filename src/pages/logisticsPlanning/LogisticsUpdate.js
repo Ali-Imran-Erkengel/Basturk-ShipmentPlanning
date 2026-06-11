@@ -214,7 +214,7 @@ function LogisticsUpdate({ id, onBack }) {
                         const sum = gridData.SML_LGT_ITEMCollection.reduce(
                             (sum, item) => sum + (parseFloat(item.U_Quantity || 0) * (item.U_PalletType === 'Tam Palet' ? 1 : 0.5)),
                             0
-                          );
+                        );
                         const updatedGridData = {
                             ...gridData,
                             SML_LGT_ITEMCollection: gridData.SML_LGT_ITEMCollection.map(item => {
@@ -338,9 +338,9 @@ function LogisticsUpdate({ id, onBack }) {
         <div>
             <div className="page-container">
                 <form >
-                    <Header save={true} trash={true} isDelete={gridData} title={"Lojistik Planı Güncelle"} nav={'/logisticsHome'} tableName={tableName} formData={gridData} onBack={onBack} formMode={'Update'} id={id}></Header>
+                    <Header save={true} trash={true} isDelete={gridData} title={"Lojistik Planı Güncelle"} nav={'/logisticsHome'} tableName={tableName} formData={gridData} onBack={onBack} formMode={'Update'} id={id} validationGroup="logisticsForm"></Header>
                     <div className="form-container">
-                        <Form formData={gridData} colCount={5} labelLocation="top" >
+                        <Form formData={gridData} colCount={5} labelLocation="top" validationGroup="logisticsForm">
                             <GroupItem colSpan={5}>
                                 <SimpleItem
                                     colSpan={2}
@@ -361,10 +361,21 @@ function LogisticsUpdate({ id, onBack }) {
                             <SimpleItem dataField="U_DriverName" editorOptions={{ value: driverName, disabled: true }} editorType="dxTextBox" label={{ text: 'Şöför Adı' }} />
                             <SimpleItem dataField="U_LoadingRamp" editorType="dxSelectBox" editorOptions={loadingRampOptions} cssClass="transparent-bg" label={{ text: 'Yükleme Rampası' }} />
                             <SimpleItem dataField="U_Address" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Adres' }} />
-                            <SimpleItem dataField="U_County" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İlçe' }} />
-                            <SimpleItem dataField="U_City" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İl' }} />
-                            <SimpleItem dataField="U_Country" editorType="dxSelectBox" editorOptions={countryOptions} cssClass="transparent-bg" label={{ text: 'Ülke' }} />
-                            <SimpleItem dataField="U_ZipCode" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }} />
+                            <SimpleItem dataField="U_County" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İlçe' }}
+                                validationRules={[{ type: 'required', message: 'İlçe Zorunludur.' }]} />
+                            <SimpleItem dataField="U_City" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İl' }}
+                                validationRules={[{ type: 'required', message: 'İl Zorunludur.' }]} />
+                            <SimpleItem dataField="U_Country" editorType="dxSelectBox" editorOptions={countryOptions} cssClass="transparent-bg" label={{ text: 'Ülke' }} 
+                               validationRules={[{ type: 'required', message: 'Ülke Zorunludur.' }]}/>
+                            <SimpleItem dataField="U_ZipCode" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }} 
+                             validationRules={[
+                                { type: 'required', message: 'Posta Kodu Zorunludur.' },
+                                {
+                                    type: 'pattern',
+                                    pattern: '^((0[1-9])|([1-7][0-9])|(8[0-1]))[0-9]{3}$',
+                                    message: 'Geçerli Bir Posta Kodu Giriniz (örn: 34000).'
+                                }
+                            ]}/>
                             <SimpleItem dataField="U_PaymentStatus" editorType="dxSelectBox" editorOptions={paymentStatusOptions} cssClass="transparent-bg" label={{ text: 'Ödeme Durumu' }} />
                             <SimpleItem dataField="U_DeliveryStatus" editorType="dxSelectBox" editorOptions={deliveryStatusOptions} cssClass="transparent-bg" label={{ text: 'Teslim Durumu' }} />
 
@@ -391,9 +402,9 @@ function LogisticsUpdate({ id, onBack }) {
                         caption="Depo Yeri Seç"
                         cellRender={renderButtonBinLocations}
                     />
-                    <Column visible={palletFieldVisibility} dataField="U_BinLocJson" caption="Depo Yeri" width={0} allowEditing={false}  />
-                    <Column dataField="U_BinEntry"  visible={palletFieldVisibility} caption="Bin Entry" allowEditing={false} width={0}/>
-                    <Column dataField="U_BinCode"  visible={palletFieldVisibility} caption="Depo Yeri" allowEditing={false} />
+                    <Column visible={palletFieldVisibility} dataField="U_BinLocJson" caption="Depo Yeri" width={0} allowEditing={false} />
+                    <Column dataField="U_BinEntry" visible={palletFieldVisibility} caption="Bin Entry" allowEditing={false} width={0} />
+                    <Column dataField="U_BinCode" visible={palletFieldVisibility} caption="Depo Yeri" allowEditing={false} />
                     <Column dataField="U_ItemCode" caption="Kalem Kodu" allowEditing={false} />
                     <Column dataField="U_ItemName" caption="Kalem Açıklama" allowEditing={false} />
                     <Column dataField="U_CardCode" caption="Muhatap Kodu" allowEditing={false} />

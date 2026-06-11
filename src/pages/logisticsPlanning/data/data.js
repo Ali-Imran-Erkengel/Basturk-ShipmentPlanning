@@ -9,6 +9,7 @@ export const filtersConfig = [
   { field: 'U_City', operator: 'contains', type: 'string' },
   { field: 'U_CustomDocNum', operator: 'contains', type: 'string' },
   { field: 'U_Status', operator: '=', type: 'string' },
+  { field: 'U_Type', operator: '=', type: 'string' },
   { field: 'U_IsDeleted', operator: '=', type: 'string' }
 
 ];

@@ -180,7 +180,7 @@ function ShipmentItems({dataAddAfter,nonPlannedItems}) {
                     pageSize={10} />
              
                 <Column alignment='right'
-                    caption="Miktar"
+                    caption="Palet Miktarı"
                     width={120}
                     cellRender={(data) => {
                         const key = `${data.data.DocEntry}-${data.data.LineId}`;

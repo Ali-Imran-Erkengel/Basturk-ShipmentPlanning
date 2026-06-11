@@ -177,8 +177,8 @@ function ShipmentItemsPO({ dataAddAfter, nonPlannedItems }) {
                             pageSize={10} />
 
                         <Column alignment='right'
-                            caption="Miktar"
-                            width={120}
+                            caption="Kantar Miktarı"
+                            width={130}
                             cellRender={(data) => {
                                 const key = `${data.data.DocEntry}-${data.data.LineId}`;
                                 return (
@@ -205,7 +205,7 @@ function ShipmentItemsPO({ dataAddAfter, nonPlannedItems }) {
                                 );
                             }}
                         />
-                        <Column dataField="RemainingQuantity" caption="Kalan Palet Miktarı" allowEditing={false} alignment='right' width={180} />
+                        <Column dataField="RemainingQuantity" caption="Kalan Kantar Miktarı" allowEditing={false} alignment='right' width={180} />
                         <Column dataField="U_Quantity" caption="Toplam Miktar" allowEditing={false} alignment='right' width={125} />
                         <Column dataField="DocEntry" caption="Sevkiyat No" allowEditing={false} alignment='left' width={120} sortOrder='desc' />
                         <Column dataField="LineId" caption="Sevkiyat Satır" allowEditing={false} alignment='left' width={120} />
@@ -218,10 +218,10 @@ function ShipmentItemsPO({ dataAddAfter, nonPlannedItems }) {
                         <Column dataField="U_WhsCode" caption="Depo Kodu" allowEditing={false} width={100} />
                         <Column dataField="U_CardName" caption="Müşteri" allowEditing={false} width={150} />
                         <Column dataField="U_OrderNo" caption="Sipariş No" allowEditing={false} alignment='left' width={150} />
-                        <Column dataField="U_PalletGrossWgh" caption="Palet Brut" allowEditing={false} alignment='left' width={150} />
-                        <Column dataField="U_PalletNetWgh" caption="Palet Net" allowEditing={false} alignment='left' width={150} />
-                        <Column dataField="U_InnerQtyOfPallet" caption="Palet İçi Adet" allowEditing={false} alignment='left' width={150} />
-                        <Column dataField="U_PalletType" caption="Palet  Şekli" allowEditing={false} alignment='left' width={150} />
+                        <Column dataField="U_PalletGrossWgh" caption="Palet Brut" allowEditing={false} alignment='left' width={0} />
+                        <Column dataField="U_PalletNetWgh" caption="Palet Net" allowEditing={false} alignment='left' width={0} />
+                        <Column dataField="U_InnerQtyOfPallet" caption="Palet İçi Adet" allowEditing={false} alignment='left' width={0} />
+                        <Column dataField="U_PalletType" caption="Palet  Şekli" allowEditing={false} alignment='left' width={0} />
                         <Column dataField="U_Address" caption="Adres" allowEditing={false} />
                         <Column dataField="U_City" caption="İl" allowEditing={false} />
                         <Column dataField="U_County" caption="İlçe" allowEditing={false} />

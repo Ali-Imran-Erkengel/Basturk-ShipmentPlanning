@@ -128,6 +128,7 @@ export const terminalItemColumns = [
   { dataField: "U_ZipCode", caption: "Posta Kodu", alignment: "left", visible: false },
   { dataField: "U_BinEntry", caption: "Depo Yeri Entry", alignment: "left", visible: false },
   { dataField: "U_BinCode", caption: "Depo Yeri", alignment: "left" },
+  { dataField: "U_CustomerOrderNo", caption: "Müşteri Sipariş No", alignment: "left", visible: true },
   { dataField: "Index", caption: "Index", alignment: "left", visible: false },
 ];
 export const terminalBatchColumns = [
@@ -194,6 +195,10 @@ export const transferRequestColumns = [
   { dataField: "Belge No", caption: "Belge No", alignment: "left" },
   { dataField: "Kayıt Tarihi", caption: "Kayıt Tarihi", alignment: "left", dataType: "date", format: "dd/MM/yyyy" },
   { dataField: "Açıklama", caption: "Açıklama", alignment: "left" },
+  { dataField: "Kaynak Depo", caption: "Kaynak Depo", alignment: "left" },
+  { dataField: "Kaynak Depo Yeri", caption: "Kaynak Depo Yeri", alignment: "left" },
+  { dataField: "Hedef Depo", caption: "Hedef Depo", alignment: "left" },
+  { dataField: "Hedef Depo Yeri", caption: "Hedef Depo Yeri", alignment: "left" },
   { dataField: "Kalem Kodu", caption: "Kalem Kodu", alignment: "left" },
   { dataField: "Kalem Adı", caption: "Kalem Adı", alignment: "left" }];
 

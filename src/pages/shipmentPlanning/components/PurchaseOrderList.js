@@ -65,10 +65,14 @@ function PurchaseOrderList({ onRowSelected, gridData, formMode }) {
     const handleSave = () => {
         if (dataSource != null) {
             let totalQuantity = 0;
+            const customerOrders = new Set();
             const rowsWithQuantities = dataSource.filter(row => {
                 const key = `${row.DocEntry}-${row.LineNum}`;
                 return quantitiesRef.current[key] && quantitiesRef.current[key] > 0;
             }).map(row => {
+                if (row.U_CustomerOrderNo) {
+                    customerOrders.add(row.U_CustomerOrderNo);
+                }
                 const key = `${row.DocEntry}-${row.LineNum}`;
                 totalQuantity += parseInt(quantitiesRef.current[key]) || 0
                 if (formMode === 'u') {
@@ -108,6 +112,7 @@ function PurchaseOrderList({ onRowSelected, gridData, formMode }) {
                     };
                 }
             });
+            gridData.U_CustomerOrderNo=[...customerOrders].join('-');
             gridData.U_PalletQuantity = totalQuantity;
             gridData.U_TruckQuantity = Math.ceil(totalQuantity / 26);
             gridData.U_ContainerQuantity = Math.ceil(totalQuantity / 21);

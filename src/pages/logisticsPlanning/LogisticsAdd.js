@@ -16,6 +16,7 @@ import ShipmentListPO from './components/ShipmentListPO';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getCountries } from '../../store/shipmentSlice';
 import BinLocations from './components/BinLocations';
+
 const tableName = "SML_LGT_HDR";
 const statusOptions = {
     dataSource: statuses,
@@ -48,6 +49,7 @@ function LogisticsAdd({ onBack }) {
     const cardTypeFilter2 = ["CardType", "=", "cCustomer"]
     const [isPopupVisibleCardCode1, setPopupVisibilityCardCode1] = useState(false);
     const [isPopupVisibleCardCode2, setPopupVisibilityCardCode2] = useState(false);
+
     const togglePopupCardCode1 = () => {
 
         setPopupVisibilityCardCode1(!isPopupVisibleCardCode1);
@@ -254,7 +256,7 @@ function LogisticsAdd({ onBack }) {
         }
     };
     const extraFunctions = ({ result }) => {
-        updateLogistics({ docEntry: result.payload.data.DocEntry ,type:result.payload.data.U_Type})
+        updateLogistics({ docEntry: result.payload.data.DocEntry, type: result.payload.data.U_Type })
 
 
         updateShipment({ result })
@@ -282,11 +284,11 @@ function LogisticsAdd({ onBack }) {
             })
         });
     }
-    const updateLogistics = async ({ docEntry ,type}) => {
+    const updateLogistics = async ({ docEntry, type }) => {
         debugger
         const year = new Date().getFullYear();
         let sixDigitNumber = docEntry.toString().padStart(6, '0');
-        let prefix = (type === 1) ? 'M' :'H';
+        let prefix = (type === 1) ? 'M' : 'H';
 
         let customDocNum = `${prefix}${year}${sixDigitNumber}`;
         const logisticsData = {
@@ -366,7 +368,7 @@ function LogisticsAdd({ onBack }) {
                         const sum = gridData.SML_LGT_ITEMCollection.reduce(
                             (sum, item) => sum + (parseFloat(item.U_Quantity || 0) * (item.U_PalletType === 'Tam Palet' ? 1 : 0.5)),
                             0
-                          );
+                        );
                         const updatedGridData = {
                             ...gridData,
                             SML_LGT_ITEMCollection: gridData.SML_LGT_ITEMCollection.map(item => {
@@ -446,9 +448,9 @@ function LogisticsAdd({ onBack }) {
         <div >
             <div className="page-container">
                 <form >
-                    <Header save={true} trash={false} title={"Lojistik Planı Oluştur"} nav={'/logisticsHome'} tableName={tableName} formData={gridData} onBack={effectiveOnBack} formMode={'Add'} extraFunctions={extraFunctions}></Header>
+                    <Header save={true} trash={false} title={"Lojistik Planı Oluştur"} nav={'/logisticsHome'} tableName={tableName} formData={gridData} onBack={effectiveOnBack} formMode={'Add'} extraFunctions={extraFunctions} validationGroup="logisticsForm"></Header>
                     <div className="form-container">
-                        <Form formData={gridData} colCount={5} labelLocation="top" >
+                        <Form formData={gridData} colCount={5} labelLocation="top" validationGroup="logisticsForm">
 
                             <SimpleItem dataField="U_Date" editorOptions={{ displayFormat: "dd/MM/yyyy", dateSerializationFormat: "yyyy-MM-dd", type: "date" }} editorType="dxDateBox" cssClass="transparent-bg" label={{ text: 'Tarih' }} />
                             <SimpleItem editorOptions={{ ...textBoxWithButtonOptionsCardCode, value: selectedCardCode }} dataField="U_OcrdNo" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Muhatap' }} />
@@ -462,10 +464,25 @@ function LogisticsAdd({ onBack }) {
                             <SimpleItem dataField="U_DriverName" editorOptions={{ value: driverName, disabled: true }} editorType="dxTextBox" label={{ text: 'Şöför Adı' }} />
                             <SimpleItem dataField="U_LoadingRamp" editorType="dxSelectBox" editorOptions={loadingRampOptions} cssClass="transparent-bg" label={{ text: 'Yükleme Rampası' }} />
                             <SimpleItem dataField="U_Address" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Adres' }} />
-                            <SimpleItem dataField="U_County" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İlçe' }} />
-                            <SimpleItem dataField="U_City" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İl' }} />
-                            <SimpleItem dataField="U_Country" editorType="dxSelectBox" editorOptions={countryOptions} cssClass="transparent-bg" label={{ text: 'Ülke' }} />
-                            <SimpleItem dataField="U_ZipCode" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }} />
+                            <SimpleItem dataField="U_County" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İlçe' }}
+                                validationRules={[{ type: 'required', message: 'İlçe Zorunludur.' }]}
+                            />
+                            <SimpleItem dataField="U_City" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'İl' }}
+                                validationRules={[{ type: 'required', message: 'İl Zorunludur.' }]}
+                            />
+                            <SimpleItem dataField="U_Country" editorType="dxSelectBox" editorOptions={countryOptions} cssClass="transparent-bg" label={{ text: 'Ülke' }}
+                                validationRules={[{ type: 'required', message: 'Ülke Zorunludur.' }]}
+                            />
+                            <SimpleItem dataField="U_ZipCode" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Posta Kodu' }}
+                                validationRules={[
+                                    { type: 'required', message: 'Posta Kodu Zorunludur.' },
+                                    {
+                                        type: 'pattern',
+                                        pattern: '^((0[1-9])|([1-7][0-9])|(8[0-1]))[0-9]{3}$',
+                                        message: 'Geçerli Bir Posta Kodu Giriniz (örn: 34000).'
+                                    }
+                                ]}
+                            />
                             <SimpleItem dataField="U_PaymentStatus" editorType="dxSelectBox" editorOptions={paymentStatusOptions} cssClass="transparent-bg" label={{ text: 'Ödeme Durumu' }} />
                             <SimpleItem dataField="U_DeliveryStatus" editorType="dxSelectBox" editorOptions={deliveryStatusOptions} cssClass="transparent-bg" label={{ text: 'Teslim Durumu' }} />
                             <SimpleItem editorOptions={{ ...enterPrice, inputAttr: { class: 'right-align-text' } }} dataField="U_Price" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Fiyat' }} />
@@ -511,8 +528,8 @@ function LogisticsAdd({ onBack }) {
                         caption="Depo Yeri Seç"
                         cellRender={renderButtonBinLocations}
                     />
-                    <Column dataField="U_BinEntry"  visible={palletFieldVisibility} caption="Bin Entry" allowEditing={false} width={0}/>
-                    <Column dataField="U_BinCode"  visible={palletFieldVisibility} caption="Depo Yeri" allowEditing={false} />
+                    <Column dataField="U_BinEntry" visible={palletFieldVisibility} caption="Bin Entry" allowEditing={false} width={0} />
+                    <Column dataField="U_BinCode" visible={palletFieldVisibility} caption="Depo Yeri" allowEditing={false} />
                     <Column dataField="U_BinLocJson" caption="Depo Yeri json" allowEditing={false} width={0} />
                     <Column dataField="U_ItemCode" caption="Kalem Kodu" allowEditing={false} />
                     <Column dataField="U_ItemName" caption="Kalem Açıklama" allowEditing={false} />

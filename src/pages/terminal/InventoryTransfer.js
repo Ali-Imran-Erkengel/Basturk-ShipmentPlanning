@@ -12,16 +12,17 @@ import { useNavigate } from "react-router-dom";
 import EmployeeList from "./components/EmployeeList";
 import WarehouseList from "./components/WarehouseList";
 import BinLocationList from "./components/BinLocationList";
-import { alert } from "devextreme/ui/dialog"; 
-const handleMessageBox = ({ message, type }) => { 
+import { alert } from "devextreme/ui/dialog";
+const handleMessageBox = ({ message, type }) => {
     let title = "Bilgi";
-     if (type === "error")
-         title = "Uyarı"; 
-    if (type === "success") 
-        title = "Başarılı"; 
-    if (type === "warning") 
-        title = "Uyarı"; 
-    alert(message, title); };
+    if (type === "error")
+        title = "Uyarı";
+    if (type === "success")
+        title = "Başarılı";
+    if (type === "warning")
+        title = "Uyarı";
+    alert(message, title);
+};
 const handleNotify = ({ message, type }) => {
     notify(
         {
@@ -251,9 +252,9 @@ const InventoryTransfer = () => {
             console.error("err:", err.message);
             throw err
         }
-        finally{
-            forceFocusBarcode() 
-          }
+        finally {
+            forceFocusBarcode()
+        }
     }
 
     const validateBeforeSave = ({ formData, }) => {
@@ -291,9 +292,9 @@ const InventoryTransfer = () => {
                 tBinEntry: targetBin,
                 batchNumber: item.DistNumber,
                 loadedBy: loadedBy,
-                preparer: preparer
+                preparer: preparer,
+                userName: sessionStorage.getItem('userName') || "Unknown",
             }
-
 
             let result = await saveInventoryTransfer({ payload: itemList })
 
@@ -309,9 +310,9 @@ const InventoryTransfer = () => {
             const parsed = extractJson({ str: err.response.data });
             handleMessageBox({ message: parsed["message"], type: "error" });
         }
-        finally{
-            forceFocusBarcode() 
-          }
+        finally {
+            forceFocusBarcode()
+        }
     };
     // #endregion
 
@@ -340,15 +341,14 @@ const InventoryTransfer = () => {
                 let innerQtyOfPallet = apiResponse[0].InnerQty;
                 if (quantity < innerQtyOfPallet) return handleMessageBox({ message: `Yetersiz Miktar.`, type: "error" });
                 await handleSave({ item: apiResponse[0] })
-
             }
         } catch (error) {
             console.error("Okutma hatası:", error);
-            handleMessageBox({ message: "Hata:"+ error, type: "error" });
+            handleMessageBox({ message: "Hata:" + error, type: "error" });
         }
         finally {
             setFormData(prev => ({ ...prev, Barcode: "" }));
-            forceFocusBarcode() 
+            forceFocusBarcode()
         }
     };
 
@@ -368,14 +368,14 @@ const InventoryTransfer = () => {
         setTimeout(() => {
             try {
                 if (barcodeRef.current) {
-                    barcodeRef.current.focus();   
+                    barcodeRef.current.focus();
                     const input = barcodeRef.current.element().querySelector("input");
-                    if (input) input.select();    
+                    if (input) input.select();
                 }
             } catch (err) {
                 console.log("focus error:", err);
             }
-        }, 120);  
+        }, 120);
     }
     function extractJson({ str }) {
         const match = str.match(/{.*}/s);
@@ -434,9 +434,9 @@ const InventoryTransfer = () => {
                         editorOptions={{
                             showClearButton: true,
                             inputAttr: {
-                                inputmode: "none",   
+                                inputmode: "none",
                                 autocomplete: "off",
-                              },
+                            },
                             onEnterKey: (e) => {
                                 const value = e.component.option("value");
                                 handleBarcodeEnter(value);

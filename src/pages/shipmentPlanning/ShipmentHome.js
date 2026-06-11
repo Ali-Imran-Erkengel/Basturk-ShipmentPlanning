@@ -4,7 +4,7 @@ import { Button } from 'devextreme-react/button';
 import DataGrid, { Column, Selection, Lookup } from 'devextreme-react/cjs/data-grid';
 import { Grid } from '@mui/material';
 import { Form, SimpleItem } from 'devextreme-react/form';
-import { filtersConfig, statuses, yesno } from './data/data';
+import { filtersConfig, statuses, typesFilter, yesno } from './data/data';
 import Header from '../../components/myComponents/Header';
 import ShipmentAdd from './ShipmentAdd';
 import ShipmentUpdate from './ShipmentUpdate';
@@ -24,11 +24,18 @@ function ShipmentHome() {
     U_County: '',
     U_City: '',
     U_DeliveryStatus: '',
+    U_Type: '',
     U_IsDeleted: 'N'
 
   });
   const yesNoOptions = {
     dataSource: yesno,
+    displayExpr: 'Value',
+    valueExpr: 'Key'
+
+  };
+  const typeOptions = {
+    dataSource: typesFilter,
     displayExpr: 'Value',
     valueExpr: 'Key'
 
@@ -93,8 +100,9 @@ function ShipmentHome() {
             <Header title={"Sevkiyat Planlama"} nav='home' onBack={returnHome}></Header>
 
             <div className="form-container">
-              <Form formData={filterValues} colCount={6} labelLocation="top" >
+              <Form formData={filterValues} colCount={7} labelLocation="top" >
                 <SimpleItem dataField="DocEntry" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Sevkiyat No' }} />
+                <SimpleItem dataField="U_Type" editorType="dxSelectBox" editorOptions={typeOptions} cssClass="transparent-bg" label={{ text: 'Sevkiyat Tipi' }} />
                 <SimpleItem dataField="U_Description" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Açıklama' }} />
                 <SimpleItem dataField="U_Date" editorOptions={{ displayFormat: "dd/MM/yyyy" }} editorType="dxDateBox" cssClass="transparent-bg" label={{ text: 'Belge Tarihi' }} />
                 <SimpleItem dataField="U_County" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Teslim İlçesi' }} />
@@ -131,6 +139,9 @@ function ShipmentHome() {
               />
               <Column dataField="DocEntry" caption="Sevkiyat No" sortOrder='desc' alignment='left' />
               <Column dataField="U_Date" format="dd/MM/yyyy" caption="Teslim Tarihi" />
+              <Column dataField="U_Type" caption="Sevkiyat Tipi" >
+                <Lookup dataSource={typesFilter} displayExpr="Value" valueExpr="Key" />
+              </Column>
               <Column dataField="U_Description" caption="Açıklama" />
               <Column dataField="U_Address" caption="Adres" />
               <Column dataField="U_County" caption="Teslim İlçesi" />

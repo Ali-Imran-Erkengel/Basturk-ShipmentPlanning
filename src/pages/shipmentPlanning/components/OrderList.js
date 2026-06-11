@@ -73,10 +73,15 @@ function OrderList({ onRowSelected, gridData, formMode }) {
         if (dataSource != null) {
             let totalQuantity = 0;
             let transportType = -1;
+            const customerOrders = new Set();
+
             const rowsWithQuantities = dataSource.filter(row => {
                 const key = `${row.DocEntry}-${row.LineNum}`;
                 return quantitiesRef.current[key] && quantitiesRef.current[key] > 0;
             }).map(row => {
+                if (row.U_CustomerOrderNo) {
+                    customerOrders.add(row.U_CustomerOrderNo);
+                }
                 const key = `${row.DocEntry}-${row.LineNum}`;
                 const palletType = row.U_PaletSekli;
                 let coefficient = 1;
@@ -141,6 +146,7 @@ function OrderList({ onRowSelected, gridData, formMode }) {
                     };
                 }
             });
+            gridData.U_CustomerOrderNo=[...customerOrders].join('-');
             gridData.U_PalletQuantity = totalQuantity;
             gridData.U_TruckQuantity = Math.ceil(totalQuantity / 26);
             gridData.U_ContainerQuantity = Math.ceil(totalQuantity / 21);
@@ -248,6 +254,7 @@ function OrderList({ onRowSelected, gridData, formMode }) {
                 />
                 <Column dataField="RemainingQuantity" caption="Kalan Miktar" allowEditing={false} alignment='right' />
                 <Column dataField="U_StokMiktari" caption="Palet Miktarı" allowEditing={false} />
+                <Column dataField="U_CustomerOrderNo" caption="Müşteri Sipariş No" allowEditing={false} />
                 <Column dataField="Quantity" caption="Sipariş Miktarı" allowEditing={false} />
                 <Column dataField="OnHand" caption="Stok Miktarı" allowEditing={false} />
                 <Column dataField="ItemCode" caption="Kalem Kodu" allowEditing={false} />

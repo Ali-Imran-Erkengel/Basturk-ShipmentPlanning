@@ -182,7 +182,8 @@ const Transfer = () => {
         tBinEntry: 4,
         batchNumber: item.DistNumber,
         loadedBy: loadedBy,
-        preparer: preparer
+        preparer: preparer,
+        userName: sessionStorage.getItem('userName') || "Unknown"
       }
 
 

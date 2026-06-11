@@ -152,6 +152,8 @@ function ShipmentAdd({ onBack }) {
                             <SimpleItem colSpan={2} dataField="U_PalletQuantity" editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Tam Palet Miktarı' }} />
                             <SimpleItem dataField="U_TruckQuantity" colSpan={2} editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Tır Miktarı' }} />
                             <SimpleItem dataField="U_ContainerQuantity" colSpan={2} editorOptions={{ disabled: true, inputAttr: { class: 'right-align-text' } }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Konteyner Miktarı' }} />
+                            <SimpleItem colSpan={2} dataField="U_CustomerOrderNo" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Müşteri Sipariş No' }} />
+
                         </Form>
                         <br></br>
                         <Button onClick={() => togglePopup()} text='Sipariş Ekle' style={{ marginRight: 30 }} ></Button>
@@ -177,7 +179,6 @@ function ShipmentAdd({ onBack }) {
                     <Column dataField="U_PalletNetWgh" caption="Palet Net Ağırlık" allowEditing={false} alignment='right' />
                     <Column dataField="U_InnerQtyOfPallet" caption="Palet İçi Adet" allowEditing={false} alignment='right' />
                     <Column dataField="U_PalletType" caption="Palet Şekli" allowEditing={false} />
-
                 </DataGrid>
                 <Popup
                     showCloseButton={true}
@@ -187,7 +188,6 @@ function ShipmentAdd({ onBack }) {
                     // height="auto"
                     fullScreen={true}
                     title='Açık Satış Siparişi Kalemleri'
-
                 >
                     <OrderList onRowSelected={handleRowSelectionOrdr} gridData={gridData} formMode={"a"} />
                 </Popup>

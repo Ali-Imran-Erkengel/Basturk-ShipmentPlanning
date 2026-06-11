@@ -153,6 +153,7 @@ function ShipmentView({ id, onBack }) {
                             <SimpleItem dataField="U_PalletQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Tam Palet Miktarı' }} />
                             <SimpleItem dataField="U_TruckQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Tır Miktarı' }} />
                             <SimpleItem dataField="U_ContainerQuantity" editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Konteyner Miktarı' }} />
+                            <SimpleItem dataField="U_CustomerOrderNo"  editorOptions={{ disabled: true }} editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Müşteri Sipariş No' }} />
                         </Form>
                     </div>
                 </form>

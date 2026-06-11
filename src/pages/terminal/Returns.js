@@ -198,7 +198,8 @@ const handleLoaderSelection = (selectedRowData) => {
           totalQuantity: group.reduce((sum, x) => sum + parseInt(x.innerQtyOfPallet || 0), 0),
           itemCode: first.itemCode,
           LoadedBy: loadedBy,
-          Preparer: preparer
+          Preparer: preparer,
+          userName: sessionStorage.getItem('userName') || "Unknown"
         };
       });
       const payload = {

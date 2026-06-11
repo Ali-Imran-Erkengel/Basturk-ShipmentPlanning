@@ -10,6 +10,7 @@ import LogisticsAdd from './LogisticsAdd';
 import LogisticsUpdate from './LogisticsUpdate';
 import LogisticsView from './LogisticsView';
 import { useNavigate } from 'react-router-dom';
+import { typesFilter } from '../shipmentPlanning/data/data';
 
 function LogisticsHome() {
   const tableKey = "DocEntry";
@@ -27,10 +28,17 @@ function LogisticsHome() {
     U_Status: '',
     U_County: '',
     U_City: '',
+    U_Type:'',
     U_IsDeleted: 'N'
   });
   const yesNoOptions = {
     dataSource: yesno,
+    displayExpr: 'Value',
+    valueExpr: 'Key'
+
+  };
+  const typeOptions = {
+    dataSource: typesFilter,
     displayExpr: 'Value',
     valueExpr: 'Key'
 
@@ -90,9 +98,10 @@ function LogisticsHome() {
             <Header title={"Lojistik Planlama"} nav='home' onBack={returnHome}></Header>
 
             <div className="form-container">
-              <Form formData={filterValues} colCount={6} labelLocation="top" >
+              <Form formData={filterValues} colCount={5} labelLocation="top" >
                 <SimpleItem dataField="U_Date" editorOptions={{ displayFormat: "dd/MM/yyyy" }} editorType="dxDateBox" cssClass="transparent-bg" label={{ text: 'Sevk Tarihi' }} />
                 <SimpleItem dataField="U_CustomDocNum" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Belge No' }} />
+                <SimpleItem dataField="U_Type" editorType="dxSelectBox" editorOptions={typeOptions} cssClass="transparent-bg" label={{ text: 'Sevkiyat Tipi' }} />
                 <SimpleItem dataField="U_Description" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Açıklama' }} />
                 <SimpleItem dataField="U_CardName" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Nakliyeci' }} />
                 <SimpleItem dataField="U_DriverName" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Şöför' }} />
@@ -132,6 +141,9 @@ function LogisticsHome() {
               />
               <Column dataField="U_CustomDocNum" sortOrder='desc' caption="Belge No" />
               <Column dataField="U_Date" format="dd/MM/yyyy" caption="Belge Taihi" />
+              <Column dataField="U_Type" caption="Sevkiyat Tipi" >
+                <Lookup dataSource={typesFilter} displayExpr="Value" valueExpr="Key" />
+              </Column>
               <Column dataField="U_Description" caption="Açıklama" />
               <Column dataField="U_CardName" caption="Nakliyeci" />
               <Column dataField="U_DriverName" caption="Şöför" />

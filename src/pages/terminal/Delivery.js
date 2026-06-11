@@ -11,16 +11,17 @@ import { confirm } from "devextreme/ui/dialog";
 import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EmployeeList from "./components/EmployeeList";
-import { alert } from "devextreme/ui/dialog"; 
-const handleMessageBox = ({ message, type }) => { 
-    let title = "Bilgi";
-     if (type === "error")
-         title = "Uyarı"; 
-    if (type === "success") 
-        title = "Başarılı"; 
-    if (type === "warning") 
-        title = "Uyarı"; 
-    alert(message, title); };
+import { alert } from "devextreme/ui/dialog";
+const handleMessageBox = ({ message, type }) => {
+  let title = "Bilgi";
+  if (type === "error")
+    title = "Uyarı";
+  if (type === "success")
+    title = "Başarılı";
+  if (type === "warning")
+    title = "Uyarı";
+  alert(message, title);
+};
 const handleNotify = ({ message, type }) => {
   notify(
     {
@@ -286,8 +287,11 @@ const Delivery = () => {
         binEntry: item.U_BinEntry,
         price: item.U_Price,
         stockQty: item.StockQuantity,
+        customerOrderNo: item.U_CustomerOrderNo,
         LoadedBy: loadedBy,
-        Preparer: preparer
+        Preparer: preparer,
+        userName: sessionStorage.getItem('userName') || "Unknown",
+
       }));
 
       const itemList = batchGrid?.map(batch => ({
@@ -299,8 +303,8 @@ const Delivery = () => {
       }));
       const payload = { headerList, itemList };
       let result = await saveDelivery({ payload: payload })
-      if(result){
-        if(result.includes("OK")){
+      if (result) {
+        if (result.includes("OK")) {
           setItemGrid([])
           setFormData({ ...terminalDeliveryData })
           setBatchGrid([]);
@@ -309,13 +313,12 @@ const Delivery = () => {
           await deleteToTempTable()
           handleNotify({ message: "Kayıt başarılı", type: "success" });
         }
-        else{
+        else {
           handleMessageBox({ message: result, type: "error" });
         }
       }
-      else  {
+      else {
         handleMessageBox({ message: "Kayıt Başarısız.", type: "error" });
-
       }
     } catch (err) {
       console.error("Kaydetme hatası:", err);
@@ -334,7 +337,6 @@ const Delivery = () => {
           onClick={() => goForReadBarcodes({ docEntry: docEntry })}
           type="default"
         />
-
       </div>
     );
   };
@@ -458,7 +460,7 @@ const Delivery = () => {
       }
     } catch (error) {
       console.error("Okutma hatası:", error);
-      handleMessageBox({ message: "Hata: "+error, type: "error" });
+      handleMessageBox({ message: "Hata: " + error, type: "error" });
     }
     finally {
       setFormData(prev => ({ ...prev, Barcode: "" }));

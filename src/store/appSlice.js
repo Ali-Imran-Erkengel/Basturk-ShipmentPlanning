@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import {  hostName, querymanager } from "../config/config";
+import { hostName, querymanager } from "../config/config";
 import ODataStore from 'devextreme/data/odata/store';
 import DataSource from 'devextreme/data/data_source';
 import notify from 'devextreme/ui/notify';
@@ -41,7 +41,6 @@ export const updateData = createAsyncThunk(
     'updateData',
     async ({ tableName, id, updatedData }) => {
         const request = await axios.patch(`${hostName}/${tableName}(${id})`, updatedData);
-
         const response = await request.data;
         return response;
     }
@@ -53,16 +52,16 @@ export const createODataSource = (tableName, tableKey, customFilter) => {
         version: 4,
         withCredentials: true,
         filterToLower: false,
-        
+
         onLoaded: () => { },
-        
+
     });
-    
+
     return new DataSource({
         store: oDataStore,
         paginate: true,
         filter: customFilter,
-        sort: [{ selector: tableKey, desc: true }], 
+        sort: [{ selector: tableKey, desc: true }],
         pageSize: 10,
         requireTotalCount: true,
     });
@@ -103,8 +102,8 @@ const handleNotify = ({ message, type }) => {
     );
 }
 
-export const filter = ({ tableName, tableKey, filtersConfig, filterValues, customFilter,isBeas }) => {
-    const oDataSource = createODataSource(tableName, tableKey, customFilter,isBeas);
+export const filter = ({ tableName, tableKey, filtersConfig, filterValues, customFilter, isBeas }) => {
+    const oDataSource = createODataSource(tableName, tableKey, customFilter, isBeas);
     const filters = [];
     filtersConfig.forEach(({ field, operator }) => {
         const value = filterValues[field];
@@ -142,7 +141,7 @@ export const getBpSeries = async () => {
                 'Content-Type': 'application/json',
             },
             withCredentials: true
-            
+
         });
         const jsonArray = JSON.parse(response.data);
         return jsonArray;

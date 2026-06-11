@@ -236,7 +236,7 @@ function ShipmentReport() {
     const nonPlannedItem = await getShipmentItemNonPlanned({ id: shipmentId, type: 1 })
     setNonPlannedItems(nonPlannedItem);
     console.log("nonplanned", nonPlannedItem)
- 
+
   }
   const renderButtonGoToLogistic = (cellData) => {
     return (
@@ -333,7 +333,7 @@ function ShipmentReport() {
   return (
     <>
       <div className='page-container'>
-      <div
+        <div
           style={{
             position: "sticky",
             top: 0,
@@ -579,13 +579,17 @@ function ShipmentReport() {
               dataField="TotalCost"
               caption="Tutar"
             />
+            <Column
+              dataField="U_Description"
+              caption="Açıklama"
+            />
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTemplate {...props} detail={logisticsDetailTable} 
-              ref={gridRefLogisticDetail}
-              gridKey="logisticDetailGrid"
-              loadGridState={loadGridState}/>}
+              component={(props) => <DetailTemplate {...props} detail={logisticsDetailTable}
+                ref={gridRefLogisticDetail}
+                gridKey="logisticDetailGrid"
+                loadGridState={loadGridState} />}
             />
 
           </DataGrid>
@@ -706,10 +710,10 @@ function ShipmentReport() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableVehicleComing {...props} detail={vehicleComingDetailTable} 
-              ref={gridRefVehicleComingDetail}
-              gridKey="vehicleComingDetailGrid"
-              loadGridState={loadGridState}
+              component={(props) => <DetailTableVehicleComing {...props} detail={vehicleComingDetailTable}
+                ref={gridRefVehicleComingDetail}
+                gridKey="vehicleComingDetailGrid"
+                loadGridState={loadGridState}
               />}
             />
           </DataGrid>
@@ -906,10 +910,10 @@ function ShipmentReport() {
 
             <MasterDetail
               enabled={true}
-              component={(props) => <DetailTableLoaded {...props} detail={detailTableLoaded} 
-              ref={gridRefVehicleLoadedDetail}
-              gridKey="vehicleLoadedDetailGrid"
-              loadGridState={loadGridState}
+              component={(props) => <DetailTableLoaded {...props} detail={detailTableLoaded}
+                ref={gridRefVehicleLoadedDetail}
+                gridKey="vehicleLoadedDetailGrid"
+                loadGridState={loadGridState}
               />}
             />
           </DataGrid>

@@ -74,7 +74,7 @@ function ShipmentReportPO() {
 
       const userCode = sessionStorage.getItem('userName');
       const res = await getGridSorting({ gridKey: gridKey, userCode: userCode });
-      
+
       if (!res || (Array.isArray(res) && res.length === 0)) {
         gridStateCache.current[gridKey] = null;
         return null;
@@ -528,6 +528,10 @@ function ShipmentReportPO() {
             <Column
               dataField="U_PalletCost"
               caption="Tutar"
+            />
+            <Column
+              dataField="U_Description"
+              caption="Açıklama"
             />
 
             <MasterDetail

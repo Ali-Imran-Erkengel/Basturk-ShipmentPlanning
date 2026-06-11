@@ -263,7 +263,8 @@ const TransferFromRequest = () => {
                     sWhsCode: first.sWhsCode,
                     tWhsCode: first.tWhsCode,
                     binEntry: first.binEntry,
-                    Preparer: preparer
+                    Preparer: preparer,
+                    userName: sessionStorage.getItem('userName') || "Unknown",
                 };
             });
             const payload = {

@@ -215,7 +215,7 @@ const getNextSeries=async()=>{
                 {/* <Header save={true} trash={false} title={"Sevkiyat Planı Oluştur"} nav={'/shipmentHome'} tableName={tableName} formData={dataSource} onBack={onBack} formMode={'Add'} ></Header> */}
                 <div className="form-container">
                     <Form formData={dataSource} colCount={4} labelLocation="top">
-                        <SimpleItem editorType="dxTextBox" editorOptions={{disabled:true, value: cardCode }} cssClass="transparent-bg" label={{ text: 'Muhatap Kodu' }} />
+                        <SimpleItem dataField="CardCode" editorType="dxTextBox" editorOptions={{disabled:false, value: cardCode }} cssClass="transparent-bg" label={{ text: 'Muhatap Kodu' }} />
                         <SimpleItem dataField="CardName" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Muhatap Adı' }} />
                         {/* <SimpleItem dataField="CardType" editorOptions={{bpTypeOptions}} editorType="dxSelectBox" cssClass="transparent-bg" label={{ text: 'Tipi' }} /> */}
                         {/* <SimpleItem dataField="CardType" editorOptions={{bpTypeOptions}} editorType="dxSelectBox" cssClass="transparent-bg" label={{ text: 'Tipi' }} /> */}

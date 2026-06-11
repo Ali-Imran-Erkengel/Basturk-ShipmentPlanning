@@ -127,6 +127,8 @@ function ShipmentUpdate({ id, onBack }) {
                             <SimpleItem colSpan={2} dataField="U_PalletQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Toplam Tam Palet Miktarı' }} />
                             <SimpleItem colSpan={2} dataField="U_TruckQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Tır Miktarı' }} />
                             <SimpleItem colSpan={2} dataField="U_ContainerQuantity" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Gereken Konteyner Miktarı' }} />
+                            <SimpleItem colSpan={2} dataField="U_CustomerOrderNo" editorType="dxTextBox" cssClass="transparent-bg" label={{ text: 'Müşteri Sipariş No' }} />
+
                         </Form>
                         <Button onClick={() => togglePopup()} text='Sipariş Ekle' ></Button>
                     </div>
